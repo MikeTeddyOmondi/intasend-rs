@@ -1,0 +1,6 @@
+{
+    "rust-analyzer.linkedProjects": [
+        "./intasend/Cargo.toml"
+    ],
+    "rust-analyzer.showUnlinkedFileNotification": false
+}
