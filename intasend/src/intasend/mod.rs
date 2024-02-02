@@ -3,6 +3,7 @@
 
 use reqwest::{Client, Error};
 use serde::{Deserialize, Serialize};
+use std::fmt::Debug;
 
 pub(crate) mod collection;
 pub(crate) mod payouts;
@@ -73,7 +74,7 @@ impl Intasend {
 impl<T, U> RequestClient<T, U> for Intasend
 where
     T: Serialize,
-    U: for<'a> Deserialize<'a>,
+    U: for<'a> Deserialize<'a> + Debug,
 {
     async fn send(
         &self,
@@ -101,6 +102,7 @@ where
                     .await;
 
                 let transfer_response: U = response?.json().await?;
+                println!("{:#?}", transfer_response);
 
                 Ok(transfer_response)
             }
@@ -115,6 +117,7 @@ where
                     .await;
 
                 let transfer_response: U = response?.json().await?;
+                println!("{:#?}", transfer_response);
 
                 Ok(transfer_response)
             }

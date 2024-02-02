@@ -1,3 +1,4 @@
+use std::net::Ipv4Addr;
 use reqwest::{Client, Error};
 use serde::{Deserialize, Serialize};
 
@@ -69,11 +70,11 @@ impl Collection {
         let service_path: &str = "/api/v1/payment/mpesa-stk-push/";
         let request_method: RequestMethods = RequestMethods::POST;
 
-        let mpesa_stk_push_response = <Intasend as RequestClient<MpesaStkPushRequest, MpesaStkPushResponse>>::send(
-            &self.intasend,
-            payload,
-            service_path,
-            request_method,
+        let mpesa_stk_push_response = <Intasend as RequestClient<
+            MpesaStkPushRequest,
+            MpesaStkPushResponse,
+        >>::send(
+            &self.intasend, payload, service_path, request_method
         )
         .await?;
 
@@ -145,19 +146,19 @@ pub struct ChargeResponse {
 #[derive(Deserialize, Serialize, Debug)]
 pub struct MpesaStkPushRequest {
     pub amount: u32,
-    pub currency: String,
-    pub recipient: String,
-    pub method: String,
+    pub phone_number: String,
+    pub api_ref: Option<String>,
+    pub wallet_id: Option<String>,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-pub struct MpesaStkPushResponse {
-    pub id: String,
-    pub amount: u32,
-    pub currency: String,
-    pub recipient: String,
-    pub method: String,
-}
+// #[derive(Deserialize, Serialize, Debug)]
+// pub struct MpesaStkPushResponse {
+//     pub id: String,
+//     pub amount: u32,
+//     pub currency: String,
+//     pub recipient: String,
+//     pub method: String,
+// }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct StatusRequest {
@@ -173,4 +174,56 @@ pub struct StatusResponse {
     pub currency: String,
     pub recipient: String,
     pub method: String,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct MpesaStkPushResponse {
+    invoice: Option<Invoice>,
+    customer: Option<Customer>,
+    payment_link: Option<String>,
+    refundable: bool,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct Invoice {
+    invoice_id: String,
+    state: String,
+    provider: String,
+    charges: f64,
+    net_amount: f64,
+    currency: String,
+    value: f64,
+    account: String,
+    api_ref: String,
+    mpesa_reference: Option<String>,
+    host: Ipv4Addr,
+    card_info: CardInfo,
+    retry_count: u32,
+    failed_reason: Option<String>,
+    failed_code: Option<u32>,
+    failed_code_link: Option<String>,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct Customer {
+    customer_id: String,
+    phone_number: String,
+    email: Option<String>,
+    first_name: Option<String>,
+    last_name: Option<String>,
+    country: Option<String>,
+    zipcode: Option<String>,
+    provider: String,
+    created_at: String,
+    updated_at: String,
+}
+
+#[derive(Debug, Deserialize)]
+struct CardInfo {
+    bin_country: Option<String>,
+    card_type: Option<String>,
 }

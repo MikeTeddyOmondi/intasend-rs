@@ -7,17 +7,20 @@ use intasend::{
     RefundRequest,
 };
 
+// ISPubKey_test_c1f90113-3dbb-4201-9b88-f1c2d3056e5c
+// ISSecretKey_test_1ec9f4e6-4448-45ac-9062-b64b7c9197c5
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let intasend = Intasend::new(
-        "ISPubKey_test_91ffc81a-8ac4-419e-8008-7091caa8d73f".to_string(),
-        "ISSecretKey_test_15515fe9-fb5d-4362-970e-625532df8181".to_string(),
+        "ISPubKey_test_c1f90113-3dbb-4201-9b88-f1c2d3056e5c".to_string(),
+        "ISSecretKey_test_1ec9f4e6-4448-45ac-9062-b64b7c9197c5".to_string(),
         true,
     );
-    println!("Intasend instance: {:#?}" ,intasend);
-    
+    println!("Intasend instance: {:#?}", intasend);
+
     let collection: Collection = intasend.collection();
-    println!("Collection instance: {:#?}" ,collection);
+    println!("Collection instance: {:#?}", collection);
 
     // let payload: ChargeRequest = ChargeRequest {
     //     amount: 10,
@@ -30,9 +33,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let stkpush_request = MpesaStkPushRequest {
         amount: 10,
-        currency: "KES".to_string(),
-        recipient: "Jon".to_string(),
-        method: "method".to_string(),
+        phone_number: "254717135176".to_string(),
+        api_ref: None,
+        wallet_id: None,
     };
 
     let stkpush_response = collection.mpesa_stk_push(stkpush_request).await?;
