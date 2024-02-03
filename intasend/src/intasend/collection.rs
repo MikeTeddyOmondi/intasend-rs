@@ -12,47 +12,47 @@ pub struct Collection {
 }
 
 impl Collection {
-    pub async fn charge<'a>(&self, payload: ChargeRequest) -> Result<ChargeResponse, Error> {
-        let client = Client::new();
+    // pub async fn charge<'a>(&self, payload: ChargeRequest) -> Result<ChargeResponse, Error> {
+    //     let client = Client::new();
 
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
+    //     let base_url = if self.intasend.test_mode {
+    //         "https://sandbox.intasend.com"
+    //     } else {
+    //         "https://payment.intasend.com"
+    //     };
 
-        // TODO!:
-        let service_path: &str = "/api/v1/checkout/";
-        let request_method: RequestMethods = RequestMethods::POST;
+    //     // TODO!:
+    //     let service_path: &str = "/api/v1/checkout/";
+    //     let request_method: RequestMethods = RequestMethods::POST;
 
-        // self.intasend.send::<'a>(payload, service_path, request_method);
-        let charge_response = <Intasend as RequestClient<ChargeRequest, ChargeResponse>>::send(
-            &self.intasend,
-            payload,
-            service_path,
-            request_method,
-        )
-        .await?;
+    //     // self.intasend.send::<'a>(payload, service_path, request_method);
+    //     let charge_response = <Intasend as RequestClient<ChargeRequest, ChargeResponse>>::send(
+    //         &self.intasend,
+    //         payload,
+    //         service_path,
+    //         request_method,
+    //     )
+    //     .await?;
 
-        // let response = client
-        //     .post(&format!("{}/api/v1/checkout/", base_url))
-        //     .header("Content-Type", "application/json")
-        //     .header(
-        //         "Authorization",
-        //         format!("Bearer {}", self.intasend.secret_key),
-        //     )
-        //     .header(
-        //         "INTASEND_PUBLIC_API_KEY",
-        //         self.intasend.publishable_key.clone(),
-        //     )
-        //     .json(&payload)
-        //     .send()
-        //     .await;
+    //     // let response = client
+    //     //     .post(&format!("{}/api/v1/checkout/", base_url))
+    //     //     .header("Content-Type", "application/json")
+    //     //     .header(
+    //     //         "Authorization",
+    //     //         format!("Bearer {}", self.intasend.secret_key),
+    //     //     )
+    //     //     .header(
+    //     //         "INTASEND_PUBLIC_API_KEY",
+    //     //         self.intasend.publishable_key.clone(),
+    //     //     )
+    //     //     .json(&payload)
+    //     //     .send()
+    //     //     .await;
 
-        // let charge_response: ChargeResponse = response?.json().await?;
+    //     // let charge_response: ChargeResponse = response?.json().await?;
 
-        Ok(charge_response)
-    }
+    //     Ok(charge_response)
+    // }
 
     pub async fn mpesa_stk_push(
         &self,
@@ -71,8 +71,7 @@ impl Collection {
         let request_method: RequestMethods = RequestMethods::POST;
 
         let mpesa_stk_push_response = <Intasend as RequestClient<
-            MpesaStkPushRequest,
-            MpesaStkPushResponse,
+            MpesaStkPushRequest
         >>::send(
             &self.intasend, payload, service_path, request_method
         )
@@ -178,16 +177,16 @@ pub struct StatusResponse {
 
 #[derive(Debug, Deserialize)]
 pub struct MpesaStkPushResponse {
-    invoice: Option<Invoice>,
-    customer: Option<Customer>,
-    payment_link: Option<String>,
-    refundable: bool,
-    created_at: String,
-    updated_at: String,
+    pub invoice: Option<Invoice>,
+    pub customer: Option<Customer>,
+    pub payment_link: Option<String>,
+    pub refundable: bool,
+    pub created_at: String,
+    pub updated_at: String,
 }
 
 #[derive(Debug, Deserialize)]
-struct Invoice {
+pub struct Invoice {
     invoice_id: String,
     state: String,
     provider: String,
@@ -198,7 +197,7 @@ struct Invoice {
     account: String,
     api_ref: String,
     mpesa_reference: Option<String>,
-    host: Ipv4Addr,
+    host: f64,
     card_info: CardInfo,
     retry_count: u32,
     failed_reason: Option<String>,
@@ -209,7 +208,7 @@ struct Invoice {
 }
 
 #[derive(Debug, Deserialize)]
-struct Customer {
+pub struct Customer {
     customer_id: String,
     phone_number: String,
     email: Option<String>,
@@ -223,7 +222,7 @@ struct Customer {
 }
 
 #[derive(Debug, Deserialize)]
-struct CardInfo {
+pub struct CardInfo {
     bin_country: Option<String>,
     card_type: Option<String>,
 }

@@ -3,6 +3,7 @@
 
 use reqwest::{Client, Error};
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use std::fmt::Debug;
 
 pub(crate) mod collection;
@@ -14,6 +15,8 @@ use collection::Collection;
 use payouts::Payouts;
 use refunds::Refunds;
 use wallets::Wallets;
+
+use crate::MpesaStkPushResponse;
 
 #[derive(Debug, Deserialize)]
 pub struct Intasend {
@@ -71,17 +74,17 @@ impl Intasend {
     }
 }
 
-impl<T, U> RequestClient<T, U> for Intasend
+impl<T> RequestClient<T> for Intasend
 where
     T: Serialize,
-    U: for<'a> Deserialize<'a> + Debug,
+    // U: for<'a> Deserialize<'a> + Debug,
 {
     async fn send(
         &self,
         payload: T,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, Error> {
+    ) -> Result<MpesaStkPushResponse, Error> {
         let client = Client::new();
 
         let base_url = if self.test_mode {
@@ -101,8 +104,29 @@ where
                     .send()
                     .await;
 
-                let transfer_response: U = response?.json().await?;
-                println!("{:#?}", transfer_response);
+                // let transfer_response: U = response?.json().await?;
+                // let json: Map<String, Value> = serde_json::from_str(response)?;
+                let json = serde_json::from_value::<Value>(response?.json().await?);
+                println!("{:#?}", json);
+                
+                let json_value;
+                match &json {
+                    Ok(value) => {
+                        json_value = value;
+                        println!("{:#?}", json_value);
+                    },
+                    Err(err) => println!("Error parsing json: {}", err),
+                };
+                // println!("{:#?}", transfer_response);
+
+                let transfer_response = crate::MpesaStkPushResponse {
+                    invoice: None,
+                    customer: None,
+                    payment_link: None,
+                    refundable: true,
+                    created_at: "2024-01-01T00:00:00".to_string(),
+                    updated_at: "2024-01-01T00:00:00".to_string(),
+                };
 
                 Ok(transfer_response)
             }
@@ -116,8 +140,32 @@ where
                     .send()
                     .await;
 
-                let transfer_response: U = response?.json().await?;
-                println!("{:#?}", transfer_response);
+                // let transfer_response = response?.json().await?;
+                // println!("{:#?}", transfer_response);
+
+                // let transfer_response: U = response?.json().await?;
+                // let json: Map<String, Value> = serde_json::from_str(response)?;
+                let json = serde_json::from_value::<Value>(response?.json().await?);
+                println!("{:#?}", json);
+                
+                let json_value;
+                match &json {
+                    Ok(value) => {
+                        json_value = value;
+                        println!("{:#?}", json_value);
+                    },
+                    Err(err) => println!("Error parsing json: {}", err),
+                };
+                // println!("{:#?}", transfer_response);
+
+                let transfer_response = crate::MpesaStkPushResponse {
+                    invoice: None,
+                    customer: None,
+                    payment_link: None,
+                    refundable: true,
+                    created_at: "2024-01-01T00:00:00".to_string(),
+                    updated_at: "2024-01-01T00:00:00".to_string(),
+                };
 
                 Ok(transfer_response)
             }
@@ -125,13 +173,13 @@ where
     }
 }
 
-pub trait RequestClient<T, U> {
+pub trait RequestClient<T> {
     async fn send(
         &self,
         payload: T,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, Error>;
+    ) -> Result<MpesaStkPushResponse, Error>;
 }
 
 pub enum RequestMethods {
