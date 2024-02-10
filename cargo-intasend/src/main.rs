@@ -39,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let stkpush_response = collection.mpesa_stk_push(stkpush_request).await?;
-    println!("Mpesa STK push: {:?}", stkpush_response);
+    println!("Mpesa STK push: {:#?}", stkpush_response);
 
     // let refund_request = RefundRequest {
     //     amount: 100,
