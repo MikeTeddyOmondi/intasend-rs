@@ -1,9 +1,10 @@
 #![allow(unused)]
 #![allow(unused_imports)]
 
+use anyhow::Result;
 use reqwest::{Client, Error};
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::Value as JSON;
 use std::fmt::Debug;
 
 pub(crate) mod collection;
@@ -15,8 +16,6 @@ use collection::Collection;
 use payouts::Payouts;
 use refunds::Refunds;
 use wallets::Wallets;
-
-use crate::MpesaStkPushResponse;
 
 #[derive(Debug, Deserialize)]
 pub struct Intasend {
@@ -84,7 +83,7 @@ where
         payload: T,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<MpesaStkPushResponse, Error> {
+    ) -> Result<JSON, Error> {
         let client = Client::new();
 
         let base_url = if self.test_mode {
@@ -100,35 +99,14 @@ where
                     .header("Content-Type", "application/json")
                     .header("Authorization", format!("Bearer {}", self.secret_key))
                     .header("INTASEND_PUBLIC_API_KEY", self.publishable_key.clone())
-                    .json(&payload)
                     .send()
                     .await;
 
-                // let transfer_response: U = response?.json().await?;
                 // let json: Map<String, Value> = serde_json::from_str(response)?;
-                let json = serde_json::from_value::<Value>(response?.json().await?);
-                println!("{:#?}", json);
-                
-                let json_value;
-                match &json {
-                    Ok(value) => {
-                        json_value = value;
-                        println!("{:#?}", json_value);
-                    },
-                    Err(err) => println!("Error parsing json: {}", err),
-                };
-                // println!("{:#?}", transfer_response);
+                let json = serde_json::from_value::<JSON>(response?.json().await?)
+                    .expect("Error parsing json!");
 
-                let transfer_response = crate::MpesaStkPushResponse {
-                    invoice: None,
-                    customer: None,
-                    payment_link: None,
-                    refundable: true,
-                    created_at: "2024-01-01T00:00:00".to_string(),
-                    updated_at: "2024-01-01T00:00:00".to_string(),
-                };
-
-                Ok(transfer_response)
+                Ok(json)
             }
             RequestMethods::POST => {
                 let response = client
@@ -140,34 +118,10 @@ where
                     .send()
                     .await;
 
-                // let transfer_response = response?.json().await?;
-                // println!("{:#?}", transfer_response);
-
-                // let transfer_response: U = response?.json().await?;
                 // let json: Map<String, Value> = serde_json::from_str(response)?;
-                let json = serde_json::from_value::<Value>(response?.json().await?);
-                println!("{:#?}", json);
-                
-                let json_value;
-                match &json {
-                    Ok(value) => {
-                        json_value = value;
-                        println!("{:#?}", json_value);
-                    },
-                    Err(err) => println!("Error parsing json: {}", err),
-                };
-                // println!("{:#?}", transfer_response);
+                let json = serde_json::from_value::<JSON>(response?.json().await?).expect("Error parsing json!");
 
-                let transfer_response = crate::MpesaStkPushResponse {
-                    invoice: None,
-                    customer: None,
-                    payment_link: None,
-                    refundable: true,
-                    created_at: "2024-01-01T00:00:00".to_string(),
-                    updated_at: "2024-01-01T00:00:00".to_string(),
-                };
-
-                Ok(transfer_response)
+                Ok(json)
             }
         }
     }
@@ -179,10 +133,17 @@ pub trait RequestClient<T> {
         payload: T,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<MpesaStkPushResponse, Error>;
+    ) -> Result<JSON, Error>;
 }
 
 pub enum RequestMethods {
     GET,
     POST,
+}
+
+// Define the trait for JSON conversion
+trait FromJsonValue {
+    fn from_value(value: &JSON) -> Result<Self, anyhow::Error>
+    where
+        Self: Sized;
 }
