@@ -22,24 +22,24 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let collection: Collection = intasend.collection();
     println!("Collection instance: {:#?}", collection);
 
-    // let payload: ChargeRequest = ChargeRequest {
-    //     amount: 10,
-    //     currency: "KES".to_string(),
-    //     recipient: "Recipient".to_string(),
-    // };
-
-    // let charge_response: ChargeResponse = collection.charge(payload).await?;
-    // println!("{:?}", charge_response);
-
-    let stkpush_request = MpesaStkPushRequest {
+    let payload: ChargeRequest = ChargeRequest {
         amount: 10,
-        phone_number: "254717135176".to_string(),
-        api_ref: None,
-        wallet_id: None,
+        currency: "KES".to_string(),
+        recipient: "Recipient".to_string(),
     };
 
-    let stkpush_response = collection.mpesa_stk_push(stkpush_request).await?;
-    println!("Mpesa STK push: {:#?}", stkpush_response);
+    let charge_response: ChargeResponse = collection.charge(payload).await?;
+    println!("{:?}", charge_response);
+
+    // let stkpush_request = MpesaStkPushRequest {
+    //     amount: 10,
+    //     phone_number: "254717135176".to_string(),
+    //     api_ref: None,
+    //     wallet_id: None,
+    // };
+
+    // let stkpush_response = collection.mpesa_stk_push(stkpush_request).await?;
+    // println!("[#] Mpesa STK push: {:#?}", stkpush_response);
 
     // let refund_request = RefundRequest {
     //     amount: 100,
