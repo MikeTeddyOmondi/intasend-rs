@@ -7,11 +7,13 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value as JSON;
 use std::fmt::Debug;
 
+pub(crate) mod checkout;
 pub(crate) mod collection;
 pub(crate) mod payouts;
 pub(crate) mod refunds;
 pub(crate) mod wallets;
 
+use checkout::Checkout;
 use collection::Collection;
 use payouts::Payouts;
 use refunds::Refunds;
@@ -35,6 +37,16 @@ impl Intasend {
 
     pub fn collection(&self) -> Collection {
         Collection {
+            intasend: Intasend::new(
+                self.publishable_key.clone(),
+                self.secret_key.clone(),
+                self.test_mode,
+            ),
+        }
+    }
+
+    pub fn checkout(&self) -> Checkout {
+        Checkout {
             intasend: Intasend::new(
                 self.publishable_key.clone(),
                 self.secret_key.clone(),
@@ -98,7 +110,7 @@ where
                     .get(&format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("Authorization", format!("Bearer {}", self.secret_key))
-                    .header("INTASEND_PUBLIC_API_KEY", self.publishable_key.clone())
+                    .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .send()
                     .await;
 
@@ -113,13 +125,15 @@ where
                     .post(&format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("Authorization", format!("Bearer {}", self.secret_key))
-                    .header("INTASEND_PUBLIC_API_KEY", self.publishable_key.clone())
+                    .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .json(&payload)
                     .send()
                     .await;
+                // println!("API Response: {:#?}", response);
 
                 // let json: Map<String, Value> = serde_json::from_str(response)?;
-                let json = serde_json::from_value::<JSON>(response?.json().await?).expect("Error parsing json!");
+                let json = serde_json::from_value::<JSON>(response?.json().await?)
+                    .expect("Error parsing json!");
 
                 Ok(json)
             }
@@ -146,4 +160,23 @@ trait FromJsonValue {
     fn from_value(value: &JSON) -> Result<Self, anyhow::Error>
     where
         Self: Sized;
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Currency {
+    KES,
+    USD,
+    EUR,
+    GBP,
+}
+
+impl Currency {
+    fn as_str(&self) -> String {
+        match self {
+            Currency::KES => "KES".to_string(),
+            Currency::USD => "USD".to_string(),
+            Currency::EUR => "EUR".to_string(),
+            Currency::GBP => "GBP".to_string(),
+        }
+    }
 }

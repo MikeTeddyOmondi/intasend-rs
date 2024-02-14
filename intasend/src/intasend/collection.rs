@@ -17,26 +17,6 @@ pub struct Collection {
 }
 
 impl Collection {
-    pub async fn charge(&self, payload: ChargeRequest) -> Result<ChargeResponse, Error> {
-        let service_path: &str = "/api/v1/checkout/";
-        let request_method: RequestMethods = RequestMethods::POST;
-
-        // self.intasend.send::<'a>(payload, service_path, request_method);
-        let json_response = <Intasend as RequestClient<ChargeRequest>>::send(
-            &self.intasend,
-            payload,
-            service_path,
-            request_method,
-        )
-        .await?;
-        println!("Json Response: {:?}", json_response);
-
-        let charge_response = ChargeResponse::from_value(&json_response).unwrap();
-        println!("Json Response: {:?}", charge_response);
-
-        Ok(charge_response)
-    }
-
     pub async fn mpesa_stk_push(
         &self,
         payload: MpesaStkPushRequest,
@@ -51,8 +31,7 @@ impl Collection {
             request_method,
         )
         .await?;
-        // println!("Json Response: {:?}", json_response);
-        println!("Json String: {:#?}", json_response);
+        println!("Json Response: {:#?}", json_response);
 
         // Deserialize the JSON response into a Value
         // let json_value: Value = serde_json::from_str(&json_response).unwrap();
@@ -127,83 +106,23 @@ impl Collection {
     }
 
     pub async fn status(&self, payload: StatusRequest) -> Result<StatusResponse, Error> {
-        let client = Client::new();
+        let service_path: &str = "/api/v1/payment/mpesa-stk-push/";
+        let request_method: RequestMethods = RequestMethods::POST;
 
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
+        let json_response = <Intasend as RequestClient<StatusRequest>>::send(
+            &self.intasend,
+            payload,
+            service_path,
+            request_method,
+        )
+        .await?;
+        // println!("Json Response: {:?}", json_response);
+        println!("Json Response: {:#?}", json_response);
 
-        let response = client
-            .post(&format!("{}/api/v1/payment/status/", base_url))
-            .header("Content-Type", "application/json")
-            .header(
-                "Authorization",
-                format!("Bearer {}", self.intasend.secret_key),
-            )
-            .header(
-                "INTASEND_PUBLIC_API_KEY",
-                self.intasend.publishable_key.clone(),
-            )
-            .json(&payload)
-            .send()
-            .await;
-
-        let status_response: StatusResponse = response?.json().await?;
+        let status_response = StatusResponse::from_value(&json_response).unwrap();
+        println!("Response: {:#?}", status_response);
 
         Ok(status_response)
-    }
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ChargeRequest {
-    pub amount: u32,
-    pub currency: String,
-    pub recipient: String,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct ChargeResponse {
-    pub id: String,
-    pub amount: u32,
-    pub currency: String,
-    pub recipient: String,
-}
-
-impl FromJsonValue for ChargeResponse {
-    fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
-        let id = value
-            .get("id")
-            .expect("[!] id field required in ChargeResponse")
-            .as_str()
-            .ok_or(Error::msg("id field at not found"))?
-            .to_string();
-        let amount = value
-            .get("amount")
-            .unwrap()
-            .as_u64()
-            .ok_or(Error::msg("amount field at not found"))? as u32;
-        let currency = value
-            .get("currency")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("currency field at not found"))?
-            .to_string();       
-        let recipient = value
-            .get("recipient")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("recipient field at not found"))?
-            .to_string();
-
-        let charge_response = ChargeResponse {
-            id,
-            amount,
-            currency,
-            recipient,
-        };
-        Ok(charge_response)
     }
 }
 
@@ -213,22 +132,6 @@ pub struct MpesaStkPushRequest {
     pub phone_number: String,
     pub api_ref: Option<String>,
     pub wallet_id: Option<String>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct StatusRequest {
-    pub invoice_id: String,
-    pub signature: Option<String>,
-    pub checkout_id: Option<String>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct StatusResponse {
-    pub id: String,
-    pub amount: u32,
-    pub currency: String,
-    pub recipient: String,
-    pub method: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -280,10 +183,6 @@ impl FromJsonValue for MpesaStkPushResponse {
             created_at,
             updated_at,
         })
-
-        // Err(JsonConversionError {
-        //     message: "Error converting to MpesaSTKPushResponse".to_string(),
-        // })
     }
 }
 
@@ -329,4 +228,65 @@ pub struct Customer {
 pub struct CardInfo {
     bin_country: Option<String>,
     card_type: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct StatusRequest {
+    pub invoice_id: String,
+    pub signature: Option<String>,
+    pub checkout_id: Option<String>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct StatusResponse {
+    pub invoice: Option<Invoice>,
+    // pub amount: u32,
+    // pub currency: String,
+    // pub recipient: String,
+    // pub method: String,
+}
+
+impl FromJsonValue for StatusResponse {
+    fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
+        let invoice: Option<Invoice> =
+            serde_json::from_value(value.get("invoice").unwrap().clone()).unwrap();
+        // let customer: Option<Customer> =
+        //     serde_json::from_value(value.get("customer").unwrap().clone()).unwrap();
+        // let payment_link = value
+        //     .get("payment_link")
+        //     .unwrap()
+        //     .as_str()
+        //     .map(|s| s.to_string());
+        // let refundable = value
+        //     .get("refundable")
+        //     .unwrap()
+        //     .as_bool()
+        //     .ok_or(Error::msg("Refundable not found"))?;
+        // let created_at = value
+        //     .get("created_at")
+        //     .unwrap()
+        //     .as_str()
+        //     .ok_or(Error::msg("create_at field at not found"))?
+        //     .to_string();
+        // let updated_at = value
+        //     .get("updated_at")
+        //     .unwrap()
+        //     .as_str()
+        //     .ok_or(Error::msg("updated_at field not found"))?
+        //     .to_string();
+
+        Ok::<StatusResponse, Error>(StatusResponse {
+            invoice,
+            // customer,
+            // payment_link,
+            // refundable,
+            // created_at,
+            // updated_at,
+            // id: todo!(),
+            // amount: todo!(),
+            // currency: todo!(),
+            // recipient: todo!(),
+            // method: todo!(),
+        })
+    }
 }
