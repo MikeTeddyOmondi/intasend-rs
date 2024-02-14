@@ -1,35 +1,44 @@
 #![allow(unused)]
 #![allow(unused_imports)]
 
+use rust_decimal::Decimal;
 // Intasend Crate
 use intasend::{
-    ChargeRequest, ChargeResponse, Collection, Intasend, MpesaStkPushRequest, PayoutRequest,
-    RefundRequest,
+    CheckoutMethod, CheckoutRequest, CheckoutResponse, Collection, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, PayoutRequest, RefundRequest, StatusRequest
 };
 
 // ISPubKey_test_c1f90113-3dbb-4201-9b88-f1c2d3056e5c
-// ISSecretKey_test_1ec9f4e6-4448-45ac-9062-b64b7c9197c5
+// ISSecretKey_test_5527b085-40b6-460a-9c31-25d58a204d20
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// Intasend Client
     let intasend = Intasend::new(
         "ISPubKey_test_c1f90113-3dbb-4201-9b88-f1c2d3056e5c".to_string(),
-        "ISSecretKey_test_1ec9f4e6-4448-45ac-9062-b64b7c9197c5".to_string(),
+        "ISSecretKey_test_5527b085-40b6-460a-9c31-25d58a204d20".to_string(),
         true,
     );
     println!("Intasend instance: {:#?}", intasend);
 
-    let collection: Collection = intasend.collection();
-    println!("Collection instance: {:#?}", collection);
+    /// Checkout API
+    let checkout = intasend.checkout();
+    println!("Checkout instance: {:#?}", checkout);
 
-    let payload: ChargeRequest = ChargeRequest {
-        amount: 10,
-        currency: "KES".to_string(),
-        recipient: "Recipient".to_string(),
+    let checkout_req = CheckoutRequest {
+        first_name: Some("Joe".to_string()),
+        last_name: Some("Doe".to_string()),
+        email: Some("joe@doe.com".to_string()),
+        method: Some(CheckoutMethod::CARDPAYMENT),
+        amount: Decimal::new(10, 2),
+        currency: Currency::USD,
     };
 
-    let charge_response: ChargeResponse = collection.charge(payload).await?;
-    println!("{:?}", charge_response);
+    let checkout_response: CheckoutResponse = checkout.initiate(checkout_req).await?;
+    println!("{:?}", checkout_response);
+
+    /// Collection API
+    // let collection: Collection = intasend.collection();
+    // println!("Collection instance: {:#?}", collection);
 
     // let stkpush_request = MpesaStkPushRequest {
     //     amount: 10,
@@ -38,8 +47,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     //     wallet_id: None,
     // };
 
-    // let stkpush_response = collection.mpesa_stk_push(stkpush_request).await?;
+    // let stkpush_response: MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
     // println!("[#] Mpesa STK push: {:#?}", stkpush_response);
+
+    // tokio::time::sleep(std::time::Duration::from_secs(10));
+
+    // let stkpushstatus_req: StatusRequest = StatusRequest {
+    //     checkout_id: todo!(),
+    //     invoice_id: todo!(),
+    //     signature: todo!(),
+    // };
+
+    // let stkpushstatus = collection.status(stkpushstatus_req).await?;
+    // println!(
+    //     "[#] Mpesa STK Push Status Response: {:#?}",
+    //     stkpushstatus
+    // );
 
     // let refund_request = RefundRequest {
     //     amount: 100,
