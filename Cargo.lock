@@ -156,6 +156,7 @@ dependencies = [
  "anyhow",
  "dotenvy",
  "intasend",
+ "rust_decimal",
  "serde",
  "serde_json",
  "tokio",
