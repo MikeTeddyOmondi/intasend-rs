@@ -1,6 +1,6 @@
 [package]
 name = "intasend"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 include = [
 	"src/**/*",
@@ -37,3 +37,8 @@ opt-level = 0
 
 [profile.release]
 opt-level = 3
+
+[features]
+default = ["client", "server"]
+client = []
+server = []
