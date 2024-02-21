@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value as JSON;
 use std::fmt::Debug;
 
+#[cfg(feature = "client")]
+#[cfg(feature = "server")]
 pub(crate) mod checkout;
 pub(crate) mod collection;
 pub(crate) mod payouts;
@@ -19,14 +21,43 @@ use payouts::Payouts;
 use refunds::Refunds;
 use wallets::Wallets;
 
+
+/// **[Intasend](https://intasend.com)** - The _Unoffical_ Rust Client SDK for the Intasend API Gateway.
+///
+/// This library is a wrapper around the Intasend Payment Gateway that supports a 
+/// variety of payment methods e.g Visa, Mastercard, M-Pesa, and even Bitcoin.
+///
+/// The library is fully async and it uses Reqwest library under the hood to make asynchronous calls to the REST API.  
+///
+/// To use the library you should acquire test API keys here: [Sandbox](https://sandbox.intasend.com)  
+///
+/// ```rust
+/// let intasend = Intasend { 
+///     publishable_key: "ISPubKey_test_c1f90113-3dbb-4201-9b88-f1c2d3056e5c".to_string(), 
+///     secret_key: "ISSecretKey_test_5527b085-40b6-460a-9c31-25d58a204d20".to_string(), 
+///     test_mode: true 
+/// };
+/// ```
+
 #[derive(Debug, Deserialize)]
 pub struct Intasend {
-    publishable_key: String,
-    secret_key: String,
-    test_mode: bool,
+    pub publishable_key: String,
+    pub secret_key: String,
+    pub test_mode: bool,
 }
 
+/// The Intasend Struct implements a number of methods namely: collection, checkout,
+/// payouts, refunds and wallets which adheres to the API specifications provided by Intasend 
+
 impl Intasend {
+    /// The new method creates a new instance of the Intasend client
+    /// ```rust
+    /// let intasend = Intasend::new(
+    ///    "ISPubKey_test_c1f90113-3dbb-4201-9b88-f1c2d3056e5c".to_string(),
+    ///    "ISSecretKey_test_5527b085-40b6-460a-9c31-25d58a204d20".to_string(),
+    ///     true,
+    /// );
+    /// ```
     pub fn new(publishable_key: String, secret_key: String, test_mode: bool) -> Self {
         Self {
             publishable_key,
@@ -35,6 +66,14 @@ impl Intasend {
         }
     }
 
+    /// The collection method returns an instance of the Collection struct
+    /// 
+    /// ```rust
+    /// // Collection
+    /// let collection: Collection = intasend.collection();
+    /// println!("Collection instance: {:#?}", collection);
+    /// 
+    /// ```
     pub fn collection(&self) -> Collection {
         Collection {
             intasend: Intasend::new(
@@ -45,6 +84,14 @@ impl Intasend {
         }
     }
 
+    /// The checkout method returns an instance of the Checkout struct
+    /// 
+    /// ```rust
+    /// // Checkout
+    /// let checkout: Checkout = intasend.checkout();
+    /// println!("Checkout instance: {:#?}", checkout);
+    /// 
+    /// ```
     pub fn checkout(&self) -> Checkout {
         Checkout {
             intasend: Intasend::new(
@@ -55,6 +102,14 @@ impl Intasend {
         }
     }
 
+    /// The payout method returns an instance of the Payouts struct
+    /// 
+    /// ```rust
+    /// // Payouts
+    /// let payouts: Payouts = intasend.payouts();
+    /// println!("Payouts instance: {:#?}", payout);
+    /// 
+    /// ```
     pub fn payouts(&self) -> Payouts {
         Payouts {
             intasend: Intasend::new(
@@ -65,6 +120,14 @@ impl Intasend {
         }
     }
 
+    /// The refunds method returns an instance of the Refunds struct
+    /// 
+    /// ```rust
+    /// // Refunds
+    /// let refunds: Refunds = intasend.refunds();
+    /// println!("Refunds instance: {:#?}", refunds);
+    /// 
+    /// ```
     pub fn refunds(&self) -> Refunds {
         Refunds {
             intasend: Intasend::new(
@@ -74,6 +137,15 @@ impl Intasend {
             ),
         }
     }
+
+    /// The wallets method returns an instance of the Wallets struct
+    /// 
+    /// ```rust
+    /// // Wallets
+    /// let wallets: Wallets = intasend.refunds();
+    /// println!("Refunds instance: {:#?}", wallets);
+    /// 
+    /// ```
     pub fn wallets(&self) -> Wallets {
         Wallets {
             intasend: Intasend::new(
@@ -162,12 +234,17 @@ trait FromJsonValue {
         Self: Sized;
 }
 
+/// Currencies supported by Intasend API Gateway
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Currency {
-    KES,
-    USD,
-    EUR,
-    GBP,
+    /// Kenya Shillings
+    KES, 
+    /// US Dollars
+    USD, 
+    /// Euros
+    EUR, 
+    /// British Pounds
+    GBP, 
 }
 
 impl Currency {
