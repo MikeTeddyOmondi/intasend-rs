@@ -1,10 +1,20 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## 0.1.6
+
+### Patch Changes
+
+- Updates:
+  - updated crate docs
+  - added new structs: `Tarrif`, `PaymentLink`
+  - changed struct identifiers from `StatusRequest`, `StatusResponse` to `StkPushStatusRequest`, `StkPushStatusResponse`
+  - version: `0.1.6` has bug fixes and refactored code
+
 ## 0.1.5
 
 ### Patch Changes
 
-- Updates: Added `CHANGELOG.md` for tracking changes 
+- Updates: Added `CHANGELOG.md` for tracking changes
 - Updates: added crate docs to `checkout` module and refactored code
 - Updates: added crate docs to `collection` module and refactored code
 - Updates: added crate docs to `intasend` module
@@ -30,14 +40,14 @@
 
 - Updates: Added `rust_decimal` crate for floating point values
 - Updates: Added `cargo-intasend` bin package for testing the `intasend` crate
-- Updates: Added `anyhow` crate 
+- Updates: Added `anyhow` crate
 
 ## 0.1.1
 
 ### Patch Changes
 
 - Updates: stabilising the Intasend Core
-- Updates: collection API: added `collection.mpesa_stk_push()` function 
+- Updates: collection API: added `collection.mpesa_stk_push()` function
 
 ## 0.1.0
 
