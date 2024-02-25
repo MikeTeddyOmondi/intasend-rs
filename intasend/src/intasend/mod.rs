@@ -257,3 +257,26 @@ impl Currency {
         }
     }
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub enum Tarrif {
+    BusinessPays,
+    CustomerPays,
+
+}
+
+impl Tarrif {
+    pub fn as_str(&self) -> String {
+        match self {
+            Tarrif::BusinessPays => "BUSINESS-PAYS".to_string(),
+            Tarrif::CustomerPays => "CUSTOMER-PAYS".to_string(),
+        }
+    }
+    pub fn from_str(s: String) -> Option<Self> {
+        match s.as_str() {
+            "BUSINESS-PAYS" => Some(Tarrif::BusinessPays),
+            "CUSTOMER-PAYS" => Some(Tarrif::CustomerPays),
+            _ => None, // Return None if the string doesn't match any variant
+        }
+    }
+}
