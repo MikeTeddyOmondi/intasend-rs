@@ -96,13 +96,13 @@ impl Collection {
     /// println!("[#] Waiting for the collection response...");
     /// tokio::time::sleep(std::time::Duration::from_secs(30)).await;
     ///
-    /// let stkpushstatus_req: StatusRequest = StatusRequest {
+    /// let stkpushstatus_req: StkPushStatusRequest = StkPushStatusRequest {
     ///     invoice_id: stkpush_response.invoice.unwrap().invoice_id,
     ///     checkout_id: None,
     ///     signature: None,
     /// };
     ///
-    /// let stkpushstatus = collection.status(stkpushstatus_req).await?;
+    /// let stkpushstatus: StkPushStatusResponse = collection.status(stkpushstatus_req).await?;
     /// println!(
     ///     "[#] Mpesa STK Push Status Response: {:#?}",
     ///     stkpushstatus
