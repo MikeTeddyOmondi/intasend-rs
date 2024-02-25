@@ -9,7 +9,7 @@ use serde_json::Value as JSON;
 
 use crate::Intasend;
 
-use super::{FromJsonValue, RequestClient, RequestMethods};
+use super::{FromJsonValue, RequestClient, RequestMethods, Tarrif};
 
 /// Collection struct implements methods for facilitating:
 /// Mpesa Express for merchant initiated online payments
@@ -78,6 +78,7 @@ impl Collection {
 
     /// The status method initiates an M-pesa query about an initiated transaction
     /// authorised from the end user.
+    ///
     /// ```rust
     /// // Collection API
     /// let collection: Collection = intasend.collection();
@@ -92,7 +93,8 @@ impl Collection {
     /// let stkpush_response: MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
     /// println!("[#] Mpesa STK push: {:#?}", stkpush_response);
     ///
-    /// tokio::time::sleep(std::time::Duration::from_secs(10));
+    /// println!("[#] Waiting for the collection response...");
+    /// tokio::time::sleep(std::time::Duration::from_secs(30)).await;
     ///
     /// let stkpushstatus_req: StatusRequest = StatusRequest {
     ///     invoice_id: stkpush_response.invoice.unwrap().invoice_id,
@@ -108,27 +110,30 @@ impl Collection {
     ///
     /// ```
     ///
-    pub async fn status(&self, payload: StatusRequest) -> Result<StatusResponse, Error> {
+    pub async fn status(
+        &self,
+        payload: StkPushStatusRequest,
+    ) -> Result<StkPushStatusResponse, Error> {
         let service_path: &str = "/api/v1/payment/status/";
         let request_method: RequestMethods = RequestMethods::POST;
 
-        let json_response = <Intasend as RequestClient<StatusRequest>>::send(
+        let json_response = <Intasend as RequestClient<StkPushStatusRequest>>::send(
             &self.intasend,
             payload,
             service_path,
             request_method,
         )
         .await?;
-        println!("Json Response: {:#?}", json_response);
+        // println!("Json Response: {:#?}", json_response);
 
-        let status_response = StatusResponse::from_value(&json_response).unwrap();
-        println!("Status Response: {:#?}", status_response);
+        let status_response = StkPushStatusResponse::from_value(&json_response).unwrap();
+        // println!("Status Response: {:#?}", status_response);
 
         Ok(status_response)
     }
 }
 
-/// MPesaSTKPushRequest Struct
+/// MPesaSTKPushRequest Struct - Collection API
 #[derive(Deserialize, Serialize, Debug)]
 pub struct MpesaStkPushRequest {
     pub amount: u32,
@@ -137,6 +142,7 @@ pub struct MpesaStkPushRequest {
     pub wallet_id: Option<String>,
 }
 
+/// MpesaStkPushResponse Struct - Collection API
 #[derive(Debug, Serialize, Deserialize)]
 pub struct MpesaStkPushResponse {
     pub invoice: Option<Invoice>,
@@ -207,7 +213,7 @@ pub struct Invoice {
     pub card_info: CardInfo,
     pub retry_count: u32,
     pub failed_reason: Option<String>,
-    pub failed_code: Option<u32>,
+    pub failed_code: Option<String>,
     pub failed_code_link: Option<String>,
     pub created_at: String,
     pub updated_at: String,
@@ -233,67 +239,58 @@ pub struct CardInfo {
     pub card_type: Option<String>,
 }
 
+/// StatusRequest Struct - Collection API
 #[derive(Deserialize, Serialize, Debug)]
-pub struct StatusRequest {
+pub struct StkPushStatusRequest {
     pub invoice_id: String,
-    pub signature: Option<String>,
     pub checkout_id: Option<String>,
+    pub signature: Option<String>,
 }
 
+/// StatusResponse Struct - Collection API
 #[derive(Deserialize, Serialize, Debug)]
-pub struct StatusResponse {
+pub struct StkPushStatusResponse {
     pub invoice: Option<Invoice>,
     pub meta: Meta,
-    pub customer_comment: Option<String>,
-    pub id: String,
-    pub payment_link: Option<String>,
-    pub updated_at: String,
 }
 
-impl FromJsonValue for StatusResponse {
+impl FromJsonValue for StkPushStatusResponse {
     fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
         let invoice: Option<Invoice> =
             serde_json::from_value(value.get("invoice").unwrap().clone()).unwrap();
-        let meta: Meta = serde_json::from_value(value["meta"].clone())?; // serde_json::from_value(value.get("meta").unwrap().clone()).unwrap();
-        let payment_link = value
-            .get("payment_link")
-            .unwrap()
-            .as_str()
-            .map(|s| s.to_string());
-        let customer_comment = Some(
-            value
-                .get("customer_comment")
-                .unwrap()
-                .as_str()
-                .ok_or(Error::msg("customer_comment field at not found"))?
-                .to_string(),
-        );
-        let id = value
-            .get("id")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("id field not found"))?
-            .to_string();
-        let updated_at = value
-            .get("updated_at")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("updated_at field not found"))?
-            .to_string();
+        // serde_json::from_value(value.get("meta").unwrap().clone()).unwrap();
+        let meta: Meta = serde_json::from_value(value["meta"].clone())?;
 
-        Ok::<StatusResponse, Error>(StatusResponse {
+        Ok::<StkPushStatusResponse, Error>(StkPushStatusResponse {
             invoice,
             meta,
-            customer_comment,
-            id,
-            payment_link,
-            updated_at,
         })
     }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Meta {
-    pub created_at: String,
+    pub id: String,
+    pub customer_comment: Option<String>,
+    pub payment_link: Option<PaymentLink>,
     pub customer: Option<Customer>,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct PaymentLink {
+    pub id: String,
+    pub title: String,
+    pub is_active: bool,
+    pub redirect_url: Option<String>,
+    pub amount: Decimal,
+    pub usage_limit: Decimal,
+    pub qrcode_file: Option<String>,
+    pub url: String,
+    pub currency: String,
+    pub mobile_tarrif: Tarrif,
+    pub card_tarrif: Tarrif,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
 }
