@@ -1,5 +1,14 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## 0.1.7
+
+### Patch Changes
+
+- Updates:
+  - updated crate docs
+  - Added struct identifiers
+  - version: `0.1.7` has new `Chargebacks & Refunds` and `Transfers` IntaSend API support, bug fixes, refactored code
+
 ## 0.1.6
 
 ### Patch Changes
