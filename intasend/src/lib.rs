@@ -10,9 +10,9 @@ pub use self::intasend::collection::{
     Collection, MpesaStkPushRequest, MpesaStkPushResponse, StkPushStatusRequest, StkPushStatusResponse,
 };
 pub use self::intasend::payouts::{Payout, PayoutRequest, Payouts};
-pub use self::intasend::refunds::{RefundRequest, Refunds};
-pub use self::intasend::wallets::{FundCheckoutRequest, Transaction, Wallet, Wallets};
-pub use self::intasend::{Currency, Intasend};
+pub use self::intasend::refunds::{RefundRequest, Refunds, RefundResponse};
+pub use self::intasend::wallets::{FundCheckoutRequest, Wallet, Wallets};
+pub use self::intasend::{Currency, Intasend, Transaction};
 
 #[cfg(test)]
 mod tests {

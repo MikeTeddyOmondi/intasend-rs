@@ -2,6 +2,10 @@
 
 A Rust SDK for the [IntaSend](https://intasend.com) payment gateway.
 
+> ⛔ Attention 
+>
+> This project is still in its early stages of development. Breaking changes may be introduced, and stability is not guaranteed. Do not use in production until stability is achieved and be prepared for potential issues or changes in the future.
+
 ## Installation
 
 ```shell
@@ -20,10 +24,14 @@ This SDK is based on the IntaSend's official developers API. Click the resources
 
 ## APIs Implemented
 
- - Collection 
- - Refunds 
- - Payouts 
- - Wallets 
+- [x] Collection \
+- [x] Refunds \
+- [x] Payouts \
+- [x] Wallets 
+
+## Maintainer(s)/Contributor(s)
+
+1. [MikeTeddyOmondi](https://github.com/MikeTeddyOmondi)
 
 #### License
 

@@ -9,18 +9,25 @@ use serde_json::Value as JSON;
 
 use crate::Intasend;
 
-use super::{FromJsonValue, RequestClient, RequestMethods, Tarrif};
+use super::{Customer, FromJsonValue, Invoice, RequestClient, RequestMethods, Tarrif};
 
-/// Collection struct implements methods for facilitating:
+/// `Collection` struct implements methods for facilitating:
 /// Mpesa Express for merchant initiated online payments
 /// 1. M-Pesa STK Push
 /// 2. Querying status of transactions
+/// 
 /// ```rust
-/// // Intasend client
+/// // Load .env file
+/// dotenv().ok();
+///
+/// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+/// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+///
+/// // Intasend Client
 /// let intasend = Intasend::new(
-///     publishable_key: "ISPubKey_test_c1f90113-3dbb-4201-9b88-f1c2d3056e5c".to_string(),
-///     secret_key: "ISSecretKey_test_5527b085-40b6-460a-9c31-25d58a204d20".to_string(),
-///     test_mode: true
+///    intasend_public_key,
+///    intasend_secret_key,
+///     true,
 /// );
 ///
 /// // Collection API
@@ -58,22 +65,30 @@ impl Collection {
         let service_path: &str = "/api/v1/payment/mpesa-stk-push/";
         let request_method: RequestMethods = RequestMethods::POST;
 
-        let json_response = <Intasend as RequestClient<MpesaStkPushRequest>>::send(
-            &self.intasend,
-            payload,
-            service_path,
-            request_method,
-        )
-        .await?;
+        // let json_response = <Intasend as RequestClient<MpesaStkPushRequest>>::send(
+        //     &self.intasend,
+        //     Some(payload),
+        //     service_path,
+        //     request_method,
+        // )
+        // .await?;
+        let mpesa_stk_push_response = &self
+            .intasend
+            .send::<MpesaStkPushRequest, MpesaStkPushResponse>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
+            .await?;
         // println!("Json Response: {:#?}", json_response);
 
-        let mpesa_stk_push_response = MpesaStkPushResponse::from_value(&json_response).unwrap();
+        // let mpesa_stk_push_response = MpesaStkPushResponse::from_value(&json_response).unwrap();
         // println!("Response: {:#?}", mpesa_stk_push_response);
 
         // let mut invoice_object: Invoice = serde_json::from_value(json_response["invoice"].clone())?;
         // println!("Invoice: {:#?}", invoice_object);
 
-        Ok(mpesa_stk_push_response)
+        Ok(mpesa_stk_push_response.clone())
     }
 
     /// The status method initiates an M-pesa query about an initiated transaction
@@ -117,23 +132,31 @@ impl Collection {
         let service_path: &str = "/api/v1/payment/status/";
         let request_method: RequestMethods = RequestMethods::POST;
 
-        let json_response = <Intasend as RequestClient<StkPushStatusRequest>>::send(
-            &self.intasend,
-            payload,
-            service_path,
-            request_method,
-        )
-        .await?;
+        // let json_response = <Intasend as RequestClient<StkPushStatusRequest>>::send(
+        //     &self.intasend,
+        //     Some(payload),
+        //     service_path,
+        //     request_method,
+        // )
+        // .await?;
+        let status_response = &self
+            .intasend
+            .send::<StkPushStatusRequest, StkPushStatusResponse>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
+            .await?;
         // println!("Json Response: {:#?}", json_response);
 
-        let status_response = StkPushStatusResponse::from_value(&json_response).unwrap();
+        // let status_response = StkPushStatusResponse::from_value(&json_response).unwrap();
         // println!("Status Response: {:#?}", status_response);
 
-        Ok(status_response)
+        Ok(status_response.clone())
     }
 }
 
-/// MPesaSTKPushRequest Struct - Collection API
+/// `MPesaSTKPushRequest` Struct - `Collection` API
 #[derive(Deserialize, Serialize, Debug)]
 pub struct MpesaStkPushRequest {
     pub amount: u32,
@@ -142,8 +165,8 @@ pub struct MpesaStkPushRequest {
     pub wallet_id: Option<String>,
 }
 
-/// MpesaStkPushResponse Struct - Collection API
-#[derive(Debug, Serialize, Deserialize)]
+/// `MpesaStkPushResponse` Struct - `Collection` API
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MpesaStkPushResponse {
     pub invoice: Option<Invoice>,
     pub customer: Option<Customer>,
@@ -195,51 +218,7 @@ impl FromJsonValue for MpesaStkPushResponse {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Invoice {
-    pub invoice_id: String,
-    pub state: String,
-    pub provider: String,
-    pub charges: String,
-    // #[serde(with = "rust_decimal::serde::str")]
-    pub net_amount: Decimal,
-    pub currency: String,
-    // #[serde(with = "rust_decimal::serde::str")]
-    pub value: Decimal,
-    pub account: String,
-    pub api_ref: Option<String>,
-    pub mpesa_reference: Option<String>,
-    pub host: String,
-    pub card_info: CardInfo,
-    pub retry_count: u32,
-    pub failed_reason: Option<String>,
-    pub failed_code: Option<String>,
-    pub failed_code_link: Option<String>,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Customer {
-    pub customer_id: String,
-    pub phone_number: String,
-    pub email: Option<String>,
-    pub first_name: Option<String>,
-    pub last_name: Option<String>,
-    pub country: Option<String>,
-    pub zipcode: Option<String>,
-    pub provider: String,
-    pub created_at: String,
-    pub updated_at: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct CardInfo {
-    pub bin_country: Option<String>,
-    pub card_type: Option<String>,
-}
-
-/// StatusRequest Struct - Collection API
+/// `StkPushStatusRequest` Struct - `Collection` API
 #[derive(Deserialize, Serialize, Debug)]
 pub struct StkPushStatusRequest {
     pub invoice_id: String,
@@ -247,8 +226,8 @@ pub struct StkPushStatusRequest {
     pub signature: Option<String>,
 }
 
-/// StatusResponse Struct - Collection API
-#[derive(Deserialize, Serialize, Debug)]
+/// `StkPushStatusResponse` Struct - `Collection` API
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct StkPushStatusResponse {
     pub invoice: Option<Invoice>,
     pub meta: Meta,
@@ -261,14 +240,11 @@ impl FromJsonValue for StkPushStatusResponse {
         // serde_json::from_value(value.get("meta").unwrap().clone()).unwrap();
         let meta: Meta = serde_json::from_value(value["meta"].clone())?;
 
-        Ok::<StkPushStatusResponse, Error>(StkPushStatusResponse {
-            invoice,
-            meta,
-        })
+        Ok::<StkPushStatusResponse, Error>(StkPushStatusResponse { invoice, meta })
     }
 }
 
-#[derive(Deserialize, Serialize, Debug)]
+#[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct Meta {
     pub id: String,
     pub customer_comment: Option<String>,
@@ -278,7 +254,7 @@ pub struct Meta {
     pub updated_at: String,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct PaymentLink {
     pub id: String,
     pub title: String,

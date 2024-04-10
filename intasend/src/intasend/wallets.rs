@@ -2,7 +2,7 @@ use reqwest::{Client, Error};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-use crate::Intasend;
+use crate::{Currency, Intasend, Transaction};
 
 pub struct Wallets {
     pub(crate) intasend: Intasend,
@@ -232,21 +232,31 @@ impl Wallets {
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct Wallet {
-    pub id: String,
-    pub name: String,
-    pub currency: String,
-    pub balance: u32,
+    pub wallet_id: String,
+    pub label: String,
+    pub can_disburse: bool,
+    pub currency: Currency,
+    pub wallet_type: WalletType,
+    pub current_balance: String,
+    pub available_balance: String,
+    pub updated_at: String,
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct Transaction {
-    pub id: String,
-    pub amount: u32,
-    pub currency: String,
-    pub narrative: String,
-    pub status: String,
+#[derive(Debug, Deserialize, Serialize)]
+pub enum WalletType {
+   Settlement,
+   Working, 
+}
+
+impl WalletType {
+    pub fn as_str(&self) -> String {
+        match self {
+            WalletType::Settlement => "SETTLEMENT".to_string(),
+            WalletType::Working => "WORKING".to_string(),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize)]
