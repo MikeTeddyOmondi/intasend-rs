@@ -9,7 +9,7 @@ use std::env;
 use intasend::{
     Checkout, CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest,
     CheckoutResponse, Collection, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse,
-    PayoutRequest, RefundRequest, StkPushStatusRequest,
+    PayoutRequest, PayoutTransaction, RefundRequest, StkPushStatusRequest,
 };
 
 #[tokio::main]
@@ -43,13 +43,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let checkout_response: CheckoutResponse = checkout.initiate(checkout_req).await?;
     // println!("[#] Checkout response: {:#?}", checkout_response);
 
-    // println!("[#] Waiting for the checkout response...");
+    // println!("[#] Waiting for the checkout details response...");
     // tokio::time::sleep(std::time::Duration::from_secs(30)).await;
 
     // // extract field values from checkout_response struct
     // let checkout_details_req = CheckoutDetailsRequest {
     //     checkout_id: checkout_response.id, // "349f8822-f2d1-4b1b-b398-ba99704dcd7d".to_string(),
-    //     signature: checkout_response.signature //"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImV4cHJlc3MtY2hlY2tvdXQiLCJpc3MiOiJJbnRhU2VuZCBTb2x1dGlvbnMgTGltaXRlZCIsImF1ZCI6WyIzNDlmODgyMi1mMmQxLTRiMWItYjM5OC1iYTk5NzA0ZGNkN2QiXSwiaWF0IjoxNzA4ODY5NzQ2LCJleHAiOjE3MDg4NzMzNDYsImFjY291bnRJRCI6IjlRSjlLR1kiLCJyZWZlcmVuY2UiOiIzNDlmODgyMi1mMmQxLTRiMWItYjM5OC1iYTk5NzA0ZGNkN2QifQ.V8N2VypAfDBXj3uzAT2hiGBNVWCg5x2uBIkQm7IjTBA".to_string(),
+    //     signature: checkout_response.signature // "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImV4cHJlc3MtY2hlY2tvdXQiLCJpc3MiOiJJbnRhU2VuZCBTb2x1dGlvbnMgTGltaXRlZCIsImF1ZCI6WyIzNDlmODgyMi1mMmQxLTRiMWItYjM5OC1iYTk5NzA0ZGNkN2QiXSwiaWF0IjoxNzA4ODY5NzQ2LCJleHAiOjE3MDg4NzMzNDYsImFjY291bnRJRCI6IjlRSjlLR1kiLCJyZWZlcmVuY2UiOiIzNDlmODgyMi1mMmQxLTRiMWItYjM5OC1iYTk5NzA0ZGNkN2QifQ.V8N2VypAfDBXj3uzAT2hiGBNVWCg5x2uBIkQm7IjTBA".to_string(),
     // };
 
     // let checkout_details_response: CheckoutDetailsResponse =
@@ -60,30 +60,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // );
 
     /// Collection API
-    let collection: Collection = intasend.collection();
-    println!("[#] Collection instance: {:#?}", collection);
+    // let collection: Collection = intasend.collection();
+    // println!("[#] Collection instance: {:#?}", collection);
 
-    let stkpush_request = MpesaStkPushRequest {
-        amount: 10,
-        phone_number: "254717135176".to_string(),
-        api_ref: None,
-        wallet_id: None,
-    };
+    // let stkpush_request = MpesaStkPushRequest {
+    //     amount: 10,
+    //     phone_number: "254717135176".to_string(),
+    //     api_ref: None,
+    //     wallet_id: None,
+    // };
 
-    let stkpush_response: MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
-    println!("[#] Mpesa STK push: {:#?}", stkpush_response);
+    // let stkpush_response: MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
+    // println!("[#] Mpesa STK push: {:#?}", stkpush_response);
 
-    println!("[#] Waiting for the collection response...");
-    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+    // println!("[#] Waiting for the collection response...");
+    // tokio::time::sleep(std::time::Duration::from_secs(60)).await;
 
-    let stkpushstatus_req = StkPushStatusRequest {
-        invoice_id: stkpush_response.invoice.unwrap().invoice_id, // "RXX5P8R".to_string(),
-        checkout_id: None,
-        signature: None,
-    };
+    // let stkpushstatus_req = StkPushStatusRequest {
+    //     invoice_id: stkpush_response.invoice.unwrap().invoice_id, // "RXX5P8R".to_string(),
+    //     checkout_id: None,
+    //     signature: None,
+    // };
 
-    let stkpushstatus = collection.status(stkpushstatus_req).await?;
-    println!("[#] Mpesa STK Push Status Response: {:#?}", stkpushstatus);
+    // let stkpushstatus = collection.status(stkpushstatus_req).await?;
+    // println!("[#] Mpesa STK Push Status Response: {:#?}", stkpushstatus);
 
     /// Refunds API
     // let refund_request = RefundRequest {
@@ -106,21 +106,43 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // println!("[#] Refund: {:?}", get_refund);
 
     /// Payouts API
-    // let payouts = intasend.payouts();
-    // println!("[#] Payouts instance: {:#?}", payouts);
+    let payouts = intasend.payouts();
+    println!("[#] Payouts instance: {:#?}", payouts);
 
-    // let payout_request = PayoutRequest {
-    //     currency: "KES".to_string(),
-    //     provider: "MPESA-B2C".to_string(),
-    //     device_id: None,
-    //     callback_url: None,
-    //     batch_reference: None,
-    // };
+    let mut transactions: Vec<PayoutTransaction> = Vec::new();
 
-    // let mpesa_payout = payouts.mpesa_b2c(payout_request).await?;
-    // // let approve_mpesa_payout = payouts.approve(payout_request).await?;
-    // // let status_mpesa_payout = payouts.status(payout_request).await?;
-    // println!("Mpesa payout: {:?}", mpesa_payout);
+    let tsx = PayoutTransaction {
+        status: None,
+        status_code: None,
+        request_reference_id: None,
+        name: None,
+        account: "254717135176".to_string(),
+        id_number: None,
+        bank_code: None,
+        amount: "10".to_string(),
+        narrative: None,
+    };
+    transactions.push(tsx);
+
+    let payout_request = PayoutRequest {
+        currency: "KES".to_string(),
+        provider: "MPESA-B2C".to_string(),
+        device_id: None,
+        callback_url: None,
+        batch_reference: None,
+        transactions,
+    };
+
+    let mpesa_payout = payouts.mpesa_b2c(payout_request.clone()).await?;
+    println!("Mpesa payout: {:?}", mpesa_payout);
+    tokio::time::sleep(std::time::Duration::from_secs(30)).await;
+
+    let approve_mpesa_payout = payouts.approve(payout_request.clone()).await?;
+    println!("Approved mpesa payout: {:?}", approve_mpesa_payout);
+    tokio::time::sleep(std::time::Duration::from_secs(30)).await;
+
+    let status_mpesa_payout = payouts.status(payout_request).await?;
+    println!("Status mpesa payout: {:?}", status_mpesa_payout);
 
     /// Wallets API
     // let wallets_api = intasend.wallets();
