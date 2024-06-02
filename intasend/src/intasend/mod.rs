@@ -1,7 +1,7 @@
 #![allow(unused)]
 #![allow(unused_imports)]
 
-use anyhow::Result;
+use anyhow::{Result,Error as StdErr};
 use reqwest::{Client, Error};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -154,7 +154,7 @@ impl RequestClient for Intasend
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, Error> {
+    ) -> Result<U, StdErr> {
         let client = Client::new();
 
         let base_url = if self.test_mode {
@@ -206,7 +206,7 @@ impl RequestClient for Intasend
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, Error> {
+    ) -> Result<U, StdErr> {
         let client = Client::new();
 
         let base_url = if self.test_mode {
@@ -233,21 +233,25 @@ impl RequestClient for Intasend
                 Ok(json)
             }
             RequestMethods::POST => {
-                let response = client
+                let response: U = client
                     .post(&format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("Authorization", format!("Bearer {}", self.secret_key))
                     // .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .json(&payload)
                     .send()
-                    .await;
+                    .await?
+                    .json()
+                    .await?;
                 println!("[#] API Response: {:#?}", response);
 
                 // let json: Map<String, Value> = serde_json::from_str(response)?;
-                let json = serde_json::from_value::<U>(response?.json().await?)
-                    .expect("[!] Error parsing json!");
+                // let json = serde_json::from_value::<U>(response?.json().await?)
+                //     .expect("[!] Error parsing json!");
+                // let json = serde_json::from_str::<U>(&response).expect("[!] Error parsing json!");
 
-                Ok(json)
+                // Ok(json)
+                Ok(response)
             }
         }
     }
@@ -259,13 +263,13 @@ pub trait RequestClient {
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, Error>;
+    ) -> Result<U, StdErr>;
     async fn send<T: Serialize, U: for<'de> Deserialize<'de> + Debug>(
         &self,
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, Error>;
+    ) -> Result<U, StdErr>;
 }
 
 #[derive(Debug)]

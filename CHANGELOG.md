@@ -2,12 +2,12 @@
 
 ## 0.1.7
 
-### Patch Changes
+### Breaking Changes
 
 - Updates:
-  - updated crate docs
+  - updated `crates.io` docs at doc.rs
   - Added struct identifiers
-  - version: `0.1.7` has new `Chargebacks & Refunds` and `Transfers` IntaSend API support, bug fixes, refactored code
+  - version: `0.1.7` has `Payouts`, `Chargebacks & Refunds` and `Transfers` IntaSend API support, bug fixes, refactored code
 
 ## 0.1.6
 
