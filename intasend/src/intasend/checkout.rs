@@ -58,7 +58,7 @@ impl Checkout {
     /// };
     ///
     /// let checkout_response: CheckoutResponse = checkout.initiate(checkout_req).await?;
-    /// println!("[#] Refunds List: {:?}", refund_list);
+    /// println!("[#] Checkout Init: {:?}", checkout_response);
     /// ```
     ///
     pub async fn initiate(&self, payload: CheckoutRequest) -> Result<CheckoutResponse, Error> {

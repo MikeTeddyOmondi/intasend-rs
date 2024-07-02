@@ -1,13 +1,13 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
-## 0.1.7
+## 0.2.0
 
 ### Breaking Changes
 
 - Updates:
   - updated `crates.io` docs at doc.rs
   - Added struct identifiers
-  - version: `0.1.7` has `Payouts`, `Chargebacks & Refunds` and `Transfers` IntaSend API support, bug fixes, refactored code
+  - version: `0.2.0` has `Payouts`, `Chargebacks & Refunds` and `Transfers` IntaSend API support, bug fixes, refactored code
 
 ## 0.1.6
 

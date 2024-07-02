@@ -1,18 +1,43 @@
-use anyhow::{Error as StdErr, Result};
-use reqwest::{Client, Error};
+#![allow(unused)]
+#![allow(unused_imports)]
+
+use anyhow::{Error, Result};
 use serde::{Deserialize, Serialize};
 
 use crate::{Intasend, Wallet};
 
-use super::{RequestClient, RequestMethods};
+use super::{PayoutProvider, RequestClient, RequestMethods};
 
+/// `Payouts` struct implements methods for facilitating:
+/// Sending of funds to different recipients programatically.
+/// 
+/// ```rust
+/// // Load .env file
+/// dotenv().ok();
+///
+/// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+/// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+///
+/// // Intasend Client
+/// let intasend = Intasend::new(
+///    intasend_public_key,
+///    intasend_secret_key,
+///     true,
+/// );
+///
+/// // Payouts API
+/// let payout: Payouts = intasend.payout();
+/// ```
+///
 #[derive(Deserialize, Debug)]
 pub struct Payouts {
     pub(crate) intasend: Intasend,
 }
 
 impl Payouts {
-    pub async fn initiate(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    /// The `initiate` method controls the API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments
+    pub async fn initiate(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let service_path: &str = "/api/v1/send-money/initiate/";
         let request_method = RequestMethods::POST;
 
@@ -24,43 +49,43 @@ impl Payouts {
         Ok(payout)
     }
 
-    pub async fn mpesa_b2c(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    pub async fn mpesa_b2c(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let mut payload = payload;
-        payload.provider = "MPESA-B2C".to_string();
+        payload.provider = Some(PayoutProvider::MpesaB2c);
         println!("mpesa_b2c payload: {:#?}", payload);
         let mpesa_payouts = self.initiate(payload).await?;
         Ok(mpesa_payouts)
     }
 
-    pub async fn mpesa_b2b(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    pub async fn mpesa_b2b(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let mut payload = payload;
-        payload.provider = "MPESA-B2B".to_string();
+        payload.provider = Some(PayoutProvider::MpesaB2b);
         let mpesa_b2b = self.initiate(payload).await?;
         Ok(mpesa_b2b)
     }
 
-    pub async fn bank(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    pub async fn bank(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let mut payload = payload;
-        payload.provider = "PESALINK".to_string();
+        payload.provider = Some(PayoutProvider::Pesalink);
         let bank_payout = self.initiate(payload).await?;
         Ok(bank_payout)
     }
 
-    pub async fn intasend(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    pub async fn intasend(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let mut payload = payload;
-        payload.provider = "INTASEND".to_string();
+        payload.provider = Some(PayoutProvider::Intasend);
         let intasend_payout = self.initiate(payload).await?;
         Ok(intasend_payout)
     }
 
-    pub async fn airtime(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    pub async fn airtime(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let mut payload = payload;
-        payload.provider = "AIRTIME".to_string();
+        payload.provider = Some(PayoutProvider::Airtime);
         let airtime = self.initiate(payload).await?;
         Ok(airtime)
     }
 
-    pub async fn approve(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    pub async fn approve(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         // let client = Client::new();
         let service_path: &str = "/api/v1/send-money/approve/";
         let request_method = RequestMethods::POST;
@@ -73,7 +98,7 @@ impl Payouts {
         Ok(payout)
     }
 
-    pub async fn status(&self, payload: PayoutRequest) -> Result<Payout, StdErr> {
+    pub async fn status(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let service_path: &str = "/api/v1/send-money/status/";
         let request_method = RequestMethods::GET;
 
@@ -122,7 +147,7 @@ pub struct PayoutTransaction {
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct PayoutRequest {
     pub currency: String,
-    pub provider: String,
+    pub provider: Option<PayoutProvider>,
     pub device_id: Option<String>,
     pub callback_url: Option<String>,
     pub batch_reference: Option<String>,

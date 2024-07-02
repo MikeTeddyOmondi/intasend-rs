@@ -7,9 +7,7 @@ use std::env;
 
 // Intasend Crate
 use intasend::{
-    Checkout, CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest,
-    CheckoutResponse, Collection, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse,
-    PayoutRequest, PayoutTransaction, RefundRequest, StkPushStatusRequest,
+    Checkout, CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest, CheckoutResponse, Collection, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, PayoutProvider, PayoutRequest, PayoutTransaction, RefundRequest, StkPushStatusRequest
 };
 
 #[tokio::main]
@@ -126,7 +124,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let payout_request = PayoutRequest {
         currency: "KES".to_string(),
-        provider: "MPESA-B2C".to_string(),
+        provider: None,
         device_id: None,
         callback_url: None,
         batch_reference: None,

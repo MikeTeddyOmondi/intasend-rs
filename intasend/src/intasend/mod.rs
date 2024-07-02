@@ -1,7 +1,7 @@
 #![allow(unused)]
 #![allow(unused_imports)]
 
-use anyhow::{Result,Error as StdErr};
+use anyhow::{Error as StdErr, Result};
 use reqwest::{Client, Error};
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
@@ -29,7 +29,7 @@ use wallets::Wallets;
 ///
 /// The library is fully async and it uses Reqwest library under the hood to make asynchronous calls to the REST API.  
 ///
-/// To use the library you should acquire test API keys here: [Sandbox](https://sandbox.intasend.com)  
+/// To use the library you should acquire test or production API keys here: [Sandbox](https://sandbox.intasend.com) or [Production](https://payment.intasend.com)
 ///
 
 #[derive(Clone, Debug, Deserialize)]
@@ -475,6 +475,28 @@ impl Tarrif {
             "BUSINESS-PAYS" => Some(Tarrif::BusinessPays),
             "CUSTOMER-PAYS" => Some(Tarrif::CustomerPays),
             _ => None, // Return None if the string doesn't match any variant
+        }
+    }
+}
+
+/// Payout Provider Options supported by Intasend API Gateway
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub enum PayoutProvider {
+    MpesaB2c,
+    MpesaB2b,
+    Pesalink,
+    Intasend,
+    Airtime,
+}
+
+impl PayoutProvider {
+    pub fn as_str(&self) -> String {
+        match self {
+            PayoutProvider::MpesaB2c => "MPESA-B2C".to_string(),
+            PayoutProvider::MpesaB2b => "MPESA-B2B".to_string(),
+            PayoutProvider::Pesalink => "PESALINK".to_string(),
+            PayoutProvider::Intasend => "INTASEND".to_string(),
+            PayoutProvider::Airtime => "AIRTIME".to_string(),
         }
     }
 }
