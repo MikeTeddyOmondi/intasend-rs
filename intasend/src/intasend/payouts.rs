@@ -8,7 +8,7 @@ use crate::{Intasend, Wallet};
 
 use super::{PayoutProvider, RequestClient, RequestMethods};
 
-/// `Payouts` struct implements methods for facilitating:
+/// `PayoutsAPI` struct implements methods for facilitating:
 /// Sending of funds to different recipients programatically.
 /// 
 /// ```rust
@@ -25,21 +25,21 @@ use super::{PayoutProvider, RequestClient, RequestMethods};
 ///     true,
 /// );
 ///
-/// // Payouts API
+/// // PayoutsAPI
 /// let payout: Payouts = intasend.payout();
 /// ```
 ///
 #[derive(Deserialize, Debug)]
-pub struct Payouts {
+pub struct PayoutsAPI {
     pub(crate) intasend: Intasend,
 }
 
-impl Payouts {
+impl PayoutsAPI {
     /// The `initiate` method controls the API requests to IntaSend's `Payouts` API.
     /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments
     pub async fn initiate(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let service_path: &str = "/api/v1/send-money/initiate/";
-        let request_method = RequestMethods::POST;
+        let request_method = RequestMethods::Post;
 
         let payout = self
             .intasend
@@ -88,7 +88,7 @@ impl Payouts {
     pub async fn approve(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         // let client = Client::new();
         let service_path: &str = "/api/v1/send-money/approve/";
-        let request_method = RequestMethods::POST;
+        let request_method = RequestMethods::Post;
 
         let payout = self
             .intasend
@@ -100,7 +100,7 @@ impl Payouts {
 
     pub async fn status(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let service_path: &str = "/api/v1/send-money/status/";
-        let request_method = RequestMethods::GET;
+        let request_method = RequestMethods::Get;
 
         let payout = self
             .intasend

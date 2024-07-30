@@ -4,10 +4,14 @@
 use dotenvy::dotenv;
 use rust_decimal::Decimal;
 use std::env;
+use uuid::Uuid;
 
 // Intasend Crate
 use intasend::{
-    Checkout, CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest, CheckoutResponse, Collection, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, PayoutProvider, PayoutRequest, PayoutTransaction, RefundRequest, StkPushStatusRequest
+    CheckoutsAPI, CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest,
+    CheckoutResponse, CollectionsAPI, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse,
+    PayoutProvider, PayoutRequest, PayoutTransaction, RefundRequest, StkPushStatusRequest, Wallet,
+    WalletCreateDetails, WalletType,
 };
 
 #[tokio::main]
@@ -24,8 +28,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let intasend = Intasend::new(intasend_public_key, intasend_secret_key, true);
     // println!("[#] Intasend instance: {:#?}", intasend);
 
-    /// Checkout API
-    // let checkout: Checkout = intasend.checkout();
+    /// CheckoutsAPI
+    // let checkout: CheckoutsAPI = intasend.checkout();
     // // println!("[#] Checkout instance: {:#?}", checkout);
 
     // let checkout_req = CheckoutRequest {
@@ -57,33 +61,35 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     //     checkout_details_response
     // );
 
-    /// Collection API
-    // let collection: Collection = intasend.collection();
-    // println!("[#] Collection instance: {:#?}", collection);
+    /// CollectionsAPI
+    let collections_api: CollectionsAPI = intasend.collection();
+    println!("[#] CollectionsAPI instance: {:#?}", collections_api);
 
-    // let stkpush_request = MpesaStkPushRequest {
-    //     amount: 10,
-    //     phone_number: "254717135176".to_string(),
-    //     api_ref: None,
-    //     wallet_id: None,
-    // };
+    let stkpush_request = MpesaStkPushRequest {
+        amount: Decimal::new(10, 2),
+        phone_number: "254717135176".to_string(),
+        api_ref: None,
+        wallet_id: None,
+    };
 
-    // let stkpush_response: MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
-    // println!("[#] Mpesa STK push: {:#?}", stkpush_response);
+    let stkpush_response: MpesaStkPushResponse = collections_api.mpesa_stk_push(stkpush_request).await?;
+    println!("[#] Mpesa STK push: {:#?}", stkpush_response);
 
-    // println!("[#] Waiting for the collection response...");
-    // tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+    println!("[#] Waiting for the collection response...");
+    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
 
-    // let stkpushstatus_req = StkPushStatusRequest {
-    //     invoice_id: stkpush_response.invoice.unwrap().invoice_id, // "RXX5P8R".to_string(),
-    //     checkout_id: None,
-    //     signature: None,
-    // };
+    let stkpushstatus_req = StkPushStatusRequest {
+        invoice_id: stkpush_response.invoice.unwrap().invoice_id, // "RXX5P8R".to_string(),
+        checkout_id: None,
+        signature: None,
+    };
 
-    // let stkpushstatus = collection.status(stkpushstatus_req).await?;
-    // println!("[#] Mpesa STK Push Status Response: {:#?}", stkpushstatus);
+    let stkpushstatus = collections_api.status(stkpushstatus_req).await?;
+    println!("[#] Mpesa STK Push Status Response: {:#?}", stkpushstatus);
 
-    /// Refunds API
+    /// RefundsAPI
+    // let refunds = intasend.refunds();
+    
     // let refund_request = RefundRequest {
     //     amount: 100,
     //     invoice_id: "RXX5P8R".to_string(),
@@ -91,8 +97,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     //     recipient: "recipient".to_string(),
     //     method: "M-PESA".to_string(),
     // };
-
-    // let refunds = intasend.refunds();
 
     // let refund_list = refunds.list().await?;
     // println!("[#] Refunds List: {:?}", refund_list);
@@ -103,57 +107,79 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let get_refund = refunds.get("chargeback_id".to_string()).await?;
     // println!("[#] Refund: {:?}", get_refund);
 
-    /// Payouts API
-    let payouts = intasend.payouts();
-    println!("[#] Payouts instance: {:#?}", payouts);
+    /// PayoutsAPI
+    // let payouts = intasend.payouts();
+    // println!("[#] Payouts instance: {:#?}", payouts);
 
-    let mut transactions: Vec<PayoutTransaction> = Vec::new();
+    // let mut transactions: Vec<PayoutTransaction> = Vec::new();
 
-    let tsx = PayoutTransaction {
-        status: None,
-        status_code: None,
-        request_reference_id: None,
-        name: None,
-        account: "254717135176".to_string(),
-        id_number: None,
-        bank_code: None,
-        amount: "10".to_string(),
-        narrative: None,
-    };
-    transactions.push(tsx);
+    // let tsx = PayoutTransaction {
+    //     status: None,
+    //     status_code: None,
+    //     request_reference_id: None,
+    //     name: None,
+    //     account: "254717135176".to_string(),
+    //     id_number: None,
+    //     bank_code: None,
+    //     amount: "10".to_string(),
+    //     narrative: None,
+    // };
+    // transactions.push(tsx);
 
-    let payout_request = PayoutRequest {
-        currency: "KES".to_string(),
-        provider: None,
-        device_id: None,
-        callback_url: None,
-        batch_reference: None,
-        transactions,
-    };
+    // let payout_request = PayoutRequest {
+    //     currency: "KES".to_string(),
+    //     provider: None,
+    //     device_id: None,
+    //     callback_url: None,
+    //     batch_reference: None,
+    //     transactions,
+    // };
 
-    let mpesa_payout = payouts.mpesa_b2c(payout_request.clone()).await?;
-    println!("Mpesa payout: {:?}", mpesa_payout);
-    tokio::time::sleep(std::time::Duration::from_secs(30)).await;
+    // let mpesa_payout = payouts.mpesa_b2c(payout_request.clone()).await?;
+    // println!("Mpesa payout: {:#?}", mpesa_payout);
+    // tokio::time::sleep(std::time::Duration::from_secs(30)).await;
 
-    let approve_mpesa_payout = payouts.approve(payout_request.clone()).await?;
-    println!("Approved mpesa payout: {:?}", approve_mpesa_payout);
-    tokio::time::sleep(std::time::Duration::from_secs(30)).await;
+    // let approve_mpesa_payout = payouts.approve(payout_request.clone()).await?;
+    // println!("Approved mpesa payout: {:#?}", approve_mpesa_payout);
+    // tokio::time::sleep(std::time::Duration::from_secs(30)).await;
 
-    let status_mpesa_payout = payouts.status(payout_request).await?;
-    println!("Status mpesa payout: {:?}", status_mpesa_payout);
+    // let status_mpesa_payout = payouts.status(payout_request).await?;
+    // println!("Status mpesa payout: {:#?}", status_mpesa_payout);
 
-    /// Wallets API
-    // let wallets_api = intasend.wallets();
-    // println!("[#] Wallets instance: {:#?}", wallets);
+    /// WalletsAPI
+    let wallets_api = intasend.wallets();
+    println!("[#] Wallets instance: {:#?}", wallets_api);
 
-    // let wallets = wallets_api.list().await?;
+    // let wallet_list_info = wallets_api.list().await?;
+    // println!("[#] Wallet List Info: {:#?}", wallet_list_info);
 
-    // for wallet in wallets {
-    //     println!("Wallet ID: {}", wallet.id);
-    //     println!("Wallet Name: {}", wallet.name);
+    // for wallet in wallet_list_info.results {
+    //     println!("Wallet ID: {}", wallet.wallet_id);
+    //     println!("Wallet Can Disburse: {}", wallet.can_disburse);
     //     println!("Wallet Currency: {}", wallet.currency);
-    //     println!("Wallet Balance: {}", wallet.balance);
+    //     println!("Wallet Balance: {}", wallet.available_balance);
     // }
+
+    // Wallet ID: VRELLZQ
+    let wallet_id = String::from("VRELLZQ");
+    let wallet_details = wallets_api.details(wallet_id).await?;
+    println!("[#] Wallet Details: {:#?}", wallet_details);
+
+    // Create a Wallet
+    let wallet_label_identifier = "wallet-label".to_string();
+    let label = format!("{}-{}", wallet_label_identifier, Uuid::new_v4());
+
+    let payload = WalletCreateDetails {
+        currency: Currency::KES,
+        wallet_type: WalletType::Working,
+        can_disburse: true,
+        label,
+    };
+
+    let created_wallet: Wallet = wallets_api.create(payload).await?;
+    println!("[#] Wallet Created Details: {:#?}", created_wallet);
+    let wallet_list_info = wallets_api.list().await?;
+    println!("[#] Wallet List Info: {:#?}", wallet_list_info);
 
     println!("Lib works!");
 

@@ -34,11 +34,11 @@ use super::{FromJsonValue, Invoice, RequestClient, RequestMethods};
 /// ```
 ///
 #[derive(Deserialize, Debug)]
-pub struct Refunds {
+pub struct RefundsAPI {
     pub(crate) intasend: Intasend,
 }
 
-impl Refunds {
+impl RefundsAPI {
     /// The `list` method returns all the refunds made by an entity from the IntaSend API
     ///
     /// ```rust
@@ -51,7 +51,7 @@ impl Refunds {
     ///
     pub async fn list(&self) -> Result<RefundResponse, Error> {
         let service_path: &str = "/api/v1/chargebacks/";
-        let request_method: RequestMethods = RequestMethods::GET;
+        let request_method: RequestMethods = RequestMethods::Get;
         let payload: Option<RefundRequest> = None;
 
         let refunds = &self
@@ -83,7 +83,7 @@ impl Refunds {
     ///
     pub async fn create(&self, payload: RefundRequest) -> Result<Refund, Error> {
         let service_path: &str = "/api/v1/chargebacks/";
-        let request_method: RequestMethods = RequestMethods::POST;
+        let request_method: RequestMethods = RequestMethods::Post;
 
         let created_refund = &self
             .intasend
@@ -117,7 +117,7 @@ impl Refunds {
     ///
     pub async fn get(&self, chargeback_id: String) -> Result<Refund, Error> {
         let service_path: &str = &format!("/api/v1/chargebacks/{}/", chargeback_id);
-        let request_method: RequestMethods = RequestMethods::GET;
+        let request_method: RequestMethods = RequestMethods::Get;
 
         let specific_refund = &self
             .intasend

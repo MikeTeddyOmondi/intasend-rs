@@ -37,11 +37,11 @@ use super::{Currency, FromJsonValue, RequestClient, RequestMethods, Tarrif};
 /// ```
 ///
 #[derive(Debug)]
-pub struct Checkout {
+pub struct CheckoutsAPI {
     pub(crate) intasend: Intasend,
 }
 
-impl Checkout {
+impl CheckoutsAPI {
     /// The `initiate` method generates a checkout link that you'll send to your customers to complete payment
     ///
     /// ```rust
@@ -116,8 +116,8 @@ impl Checkout {
         // let status_response: CheckoutResponse = checkout_response?.json().await?;
 
         // _____________________________________________________________________
-        let service_path: &str = &format!("/api/v1/checkout/");
-        let request_method: RequestMethods = RequestMethods::POST;
+        let service_path: &str = "/api/v1/checkout/";
+        let request_method: RequestMethods = RequestMethods::Post;
 
         let checkout_response = &self
             .intasend

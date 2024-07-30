@@ -35,12 +35,12 @@ use super::{Customer, FromJsonValue, Invoice, RequestClient, RequestMethods, Tar
 /// ```
 ///
 #[derive(Debug)]
-pub struct Collection {
+pub struct CollectionsAPI {
     pub(crate) intasend: Intasend,
 }
 
-impl Collection {
-    /// The mpesa_stk_push method initiates an M-pesa transaction to trigger an authorization
+impl CollectionsAPI {
+    /// The `mpesa_stk_push` method initiates an M-pesa transaction to trigger an authorization
     /// from the end user to accept the transaction.
     ///
     /// ```rust
@@ -63,7 +63,7 @@ impl Collection {
         payload: MpesaStkPushRequest,
     ) -> Result<MpesaStkPushResponse, Error> {
         let service_path: &str = "/api/v1/payment/mpesa-stk-push/";
-        let request_method: RequestMethods = RequestMethods::POST;
+        let request_method: RequestMethods = RequestMethods::Post;
 
         // let json_response = <Intasend as RequestClient<MpesaStkPushRequest>>::send(
         //     &self.intasend,
@@ -91,7 +91,7 @@ impl Collection {
         Ok(mpesa_stk_push_response.clone())
     }
 
-    /// The status method initiates an M-pesa query about an initiated transaction
+    /// The `status` method initiates an M-pesa query about an initiated transaction
     /// authorised from the end user.
     ///
     /// ```rust
@@ -130,7 +130,7 @@ impl Collection {
         payload: StkPushStatusRequest,
     ) -> Result<StkPushStatusResponse, Error> {
         let service_path: &str = "/api/v1/payment/status/";
-        let request_method: RequestMethods = RequestMethods::POST;
+        let request_method: RequestMethods = RequestMethods::Post;
 
         // let json_response = <Intasend as RequestClient<StkPushStatusRequest>>::send(
         //     &self.intasend,
@@ -159,7 +159,7 @@ impl Collection {
 /// `MPesaSTKPushRequest` Struct - `Collection` API
 #[derive(Deserialize, Serialize, Debug)]
 pub struct MpesaStkPushRequest {
-    pub amount: u32,
+    pub amount: Decimal,
     pub phone_number: String,
     pub api_ref: Option<String>,
     pub wallet_id: Option<String>,

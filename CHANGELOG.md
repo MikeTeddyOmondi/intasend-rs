@@ -5,9 +5,14 @@
 ### Breaking Changes
 
 - Updates:
-  - updated `crates.io` docs at doc.rs
+  - Updated `crates.io` docs at doc.rs
   - Added struct identifiers
-  - version: `0.2.0` has `Payouts`, `Chargebacks & Refunds` and `Transfers` IntaSend API support, bug fixes, refactored code
+  - Renamed `Collections` struct to `CollectionsAPI`
+  - Renamed `Checkout` struct to `CheckoutsAPI`
+  - Updated error handling and legible error messgaes from the `IntaSend` Client 
+  - Version: `0.2.0` has `PayoutsAPI`, `RefundsAPI` and `WalletsAPI` support, bug fixes, refactored code
+
+---
 
 ## 0.1.6
 
