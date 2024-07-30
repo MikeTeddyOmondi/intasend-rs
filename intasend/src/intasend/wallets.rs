@@ -167,34 +167,6 @@ impl WalletsAPI {
         Ok(wallet)
     }
 
-    pub async fn get(&self, wallet_id: String) -> Result<Wallet> {
-        let client = Client::new();
-
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
-
-        let response = client
-            .get(&format!("{}/api/v1/wallets/{}/", base_url, wallet_id))
-            .header("Content-Type", "application/json")
-            .header(
-                "Authorization",
-                format!("Bearer {}", self.intasend.secret_key),
-            )
-            .header(
-                "INTASEND_PUBLIC_API_KEY",
-                self.intasend.publishable_key.clone(),
-            )
-            .send()
-            .await;
-
-        let wallet: Wallet = response?.json().await?;
-
-        Ok(wallet)
-    }
-
     pub async fn transactions(&self, wallet_id: String) -> Result<Vec<Transaction>> {
         let client = Client::new();
 
@@ -306,15 +278,6 @@ pub struct Wallet {
 pub enum WalletType {
     Settlement,
     Working,
-}
-
-impl WalletType {
-    pub fn as_str(&self) -> String {
-        match self {
-            WalletType::Settlement => "SETTLEMENT".to_string(),
-            WalletType::Working => "WORKING".to_string(),
-        }
-    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

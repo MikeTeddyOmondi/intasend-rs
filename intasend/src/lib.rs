@@ -10,7 +10,7 @@ pub use self::intasend::collection::{
     CollectionsAPI, MpesaStkPushRequest, MpesaStkPushResponse, StkPushStatusRequest,
     StkPushStatusResponse,
 };
-pub use self::intasend::payouts::{Payout, PayoutRequest, PayoutTransaction, PayoutsAPI};
+pub use self::intasend::payouts::{Payout, PayoutApproval, PayoutRequest, PayoutTransaction, PayoutsAPI};
 pub use self::intasend::refunds::{
     Refund, RefundReason, RefundRequest, RefundResponse, RefundsAPI,
 };

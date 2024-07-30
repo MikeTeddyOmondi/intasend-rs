@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{Intasend, Wallet};
 
-use super::{PayoutProvider, RequestClient, RequestMethods};
+use super::{Currency, PayoutProvider, RequestClient, RequestMethods};
 
 /// `PayoutsAPI` struct implements methods for facilitating:
 /// Sending of funds to different recipients programatically.
@@ -51,7 +51,7 @@ impl PayoutsAPI {
 
     pub async fn mpesa_b2c(&self, payload: PayoutRequest) -> Result<Payout, Error> {
         let mut payload = payload;
-        payload.provider = Some(PayoutProvider::MpesaB2c);
+        payload.provider = Some(PayoutProvider::MpesaB2c); // PayoutProvider::MpesaB2c; 
         println!("mpesa_b2c payload: {:#?}", payload);
         let mpesa_payouts = self.initiate(payload).await?;
         Ok(mpesa_payouts)
@@ -146,10 +146,18 @@ pub struct PayoutTransaction {
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct PayoutRequest {
-    pub currency: String,
-    pub provider: Option<PayoutProvider>,
+    pub currency: Currency,
+    pub provider: Option<PayoutProvider>, // PayoutProvider, 
     pub device_id: Option<String>,
     pub callback_url: Option<String>,
     pub batch_reference: Option<String>,
+    pub requires_approval: PayoutApproval,
     pub transactions: Vec<PayoutTransaction>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "UPPERCASE")]
+pub enum PayoutApproval {
+  Yes,
+  No,
 }

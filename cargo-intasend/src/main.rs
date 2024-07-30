@@ -8,7 +8,7 @@ use uuid::Uuid;
 
 // Intasend Crate
 use intasend::{
-    CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest, CheckoutResponse, CheckoutsAPI, CollectionsAPI, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, PayoutProvider, PayoutRequest, PayoutTransaction, Refund, RefundReason, RefundRequest, StkPushStatusRequest, Wallet, WalletCreateDetails, WalletType
+    CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest, CheckoutResponse, CheckoutsAPI, CollectionsAPI, Currency, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, PayoutApproval, PayoutProvider, PayoutRequest, PayoutTransaction, Refund, RefundReason, RefundRequest, StkPushStatusRequest, Wallet, WalletCreateDetails, WalletType
 };
 
 #[tokio::main]
@@ -128,12 +128,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     transactions.push(tsx);
 
     let payout_request = PayoutRequest {
-        currency: "KES".to_string(),
-        provider: None,
+        currency: Currency::Kes,
+        provider: Some(PayoutProvider::MpesaB2c),
         device_id: None,
         callback_url: None,
         batch_reference: None,
         transactions,
+        requires_approval: PayoutApproval::Yes
     };
 
     let mpesa_payout = payouts.mpesa_b2c(payout_request.clone()).await?;
