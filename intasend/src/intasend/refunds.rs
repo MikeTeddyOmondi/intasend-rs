@@ -9,7 +9,7 @@ use serde_json::Value as JSON;
 
 use crate::{Intasend, Transaction};
 
-use super::{FromJsonValue, Invoice, RequestClient, RequestMethods};
+use super::{Currency, Invoice, RequestClient, RequestMethods};
 
 /// `Refunds` struct implements methods for facilitating:
 /// listing all refunds made by an entity, creating new refunds for specific transactions with
@@ -143,34 +143,29 @@ pub struct Refund {
     pub updated_at: String,
 }
 
-#[derive(Clone, Deserialize, Serialize, Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum RefundReason {
+    #[serde(rename = "Unavailable service")]
     UnavailableService,
+    #[serde(rename = "Delayed delivery")]
     DelayedDelivery,
+    #[serde(rename = "Wrong service")]
     WrongService,
+    #[serde(rename = "Duplicate payment")]
     DuplicatePayment,
+    #[serde(rename = "Other")]
     Other,
-}
-
-impl RefundReason {
-    pub fn as_str(&self) -> String {
-        match self {
-            RefundReason::UnavailableService => "Unavailable service".to_string(),
-            RefundReason::DelayedDelivery => "Delayed delivery".to_string(),
-            RefundReason::WrongService => "Wrong service".to_string(),
-            RefundReason::DuplicatePayment => "Duplicate payment".to_string(),
-            RefundReason::Other => "Other".to_string(),
-        }
-    }
 }
 
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RefundRequest {
-    pub invoice_id: String,
-    pub recipient: String,
-    pub currency: String,
-    pub method: String,
-    pub amount: u32,
+    pub invoice: String,
+    // pub recipient: String,
+    pub reason: RefundReason,
+    // pub currency: Currency,
+    pub reason_details: String,
+    // pub method: String,
+    pub amount: Decimal,
 }
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
@@ -180,20 +175,3 @@ pub struct RefundResponse {
     pub previous: Option<String>,
     pub results: Vec<Refund>,
 }
-
-// impl FromJsonValue for RefundResponse {
-//     fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
-//         let count = serde_json::from_value(value["count"].clone())?;
-//         let next = serde_json::from_value(value["next"].clone())?;
-//         let previous = serde_json::from_value(value["previous"].clone())?;
-//         let results: Vec<Refund> =
-//             serde_json::from_value(value.get("results").unwrap().clone()).unwrap();
-
-//         Ok(RefundResponse {
-//             count,
-//             next,
-//             previous,
-//             results,
-//         })
-//     }
-// }

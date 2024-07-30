@@ -24,11 +24,11 @@ This SDK is based on the IntaSend's official developers API. Click the resources
 
 ## Roadmap
 
-- [x] Request client \
-- [x] Intasend \
-- [x] Collection \
-- [x] Refunds \
-- [x] Payouts \
+- [x] Request client
+- [x] Intasend
+- [x] Collection
+- [x] Refunds
+- [x] Payouts
 - [x] Wallets 
 
 ## Maintainer(s)/Contributor(s)

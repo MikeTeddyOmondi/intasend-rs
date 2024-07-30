@@ -11,7 +11,9 @@ pub use self::intasend::collection::{
     StkPushStatusResponse,
 };
 pub use self::intasend::payouts::{Payout, PayoutRequest, PayoutTransaction, PayoutsAPI};
-pub use self::intasend::refunds::{RefundRequest, RefundResponse, RefundsAPI};
+pub use self::intasend::refunds::{
+    Refund, RefundReason, RefundRequest, RefundResponse, RefundsAPI,
+};
 pub use self::intasend::wallets::{
     FundCheckoutRequest, Wallet, WalletCreateDetails, WalletDetailsRequest, WalletListResponse,
     WalletType, WalletsAPI,

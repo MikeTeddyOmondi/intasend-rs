@@ -9,7 +9,7 @@ use serde_json::Value as JSON;
 
 use crate::Intasend;
 
-use super::{Customer, FromJsonValue, Invoice, RequestClient, RequestMethods, Tarrif};
+use super::{Customer, Invoice, RequestClient, RequestMethods, Tarrif};
 
 /// `Collection` struct implements methods for facilitating:
 /// Mpesa Express for merchant initiated online payments
@@ -156,7 +156,7 @@ impl CollectionsAPI {
     }
 }
 
-/// `MPesaSTKPushRequest` Struct - `Collection` API
+/// `MPesaSTKPushRequest` Struct - `CollectionsAPI`
 #[derive(Deserialize, Serialize, Debug)]
 pub struct MpesaStkPushRequest {
     pub amount: Decimal,
@@ -165,7 +165,7 @@ pub struct MpesaStkPushRequest {
     pub wallet_id: Option<String>,
 }
 
-/// `MpesaStkPushResponse` Struct - `Collection` API
+/// `MpesaStkPushResponse` Struct - `CollectionsAPI`
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct MpesaStkPushResponse {
     pub invoice: Option<Invoice>,
@@ -176,49 +176,7 @@ pub struct MpesaStkPushResponse {
     pub updated_at: String,
 }
 
-impl FromJsonValue for MpesaStkPushResponse {
-    fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
-        // let invoice = value["invoice"].clone().into();
-        let invoice: Option<Invoice> =
-            serde_json::from_value(value.get("invoice").unwrap().clone()).unwrap();
-        // let customer = value["customer"].clone().into();
-        let customer: Option<Customer> =
-            serde_json::from_value(value.get("customer").unwrap().clone()).unwrap();
-        let payment_link = value
-            .get("payment_link")
-            .unwrap()
-            .as_str()
-            .map(|s| s.to_string());
-        let refundable = value
-            .get("refundable")
-            .unwrap()
-            .as_bool()
-            .ok_or(Error::msg("Refundable not found"))?;
-        let created_at = value
-            .get("created_at")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("create_at field at not found"))?
-            .to_string();
-        let updated_at = value
-            .get("updated_at")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("updated_at field not found"))?
-            .to_string();
-
-        Ok::<MpesaStkPushResponse, Error>(MpesaStkPushResponse {
-            invoice,
-            customer,
-            payment_link,
-            refundable,
-            created_at,
-            updated_at,
-        })
-    }
-}
-
-/// `StkPushStatusRequest` Struct - `Collection` API
+/// `StkPushStatusRequest` Struct - `CollectionsAPI`
 #[derive(Deserialize, Serialize, Debug)]
 pub struct StkPushStatusRequest {
     pub invoice_id: String,
@@ -226,22 +184,11 @@ pub struct StkPushStatusRequest {
     pub signature: Option<String>,
 }
 
-/// `StkPushStatusResponse` Struct - `Collection` API
+/// `StkPushStatusResponse` Struct - `CollectionsAPI`
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct StkPushStatusResponse {
     pub invoice: Option<Invoice>,
     pub meta: Meta,
-}
-
-impl FromJsonValue for StkPushStatusResponse {
-    fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
-        let invoice: Option<Invoice> =
-            serde_json::from_value(value.get("invoice").unwrap().clone()).unwrap();
-        // serde_json::from_value(value.get("meta").unwrap().clone()).unwrap();
-        let meta: Meta = serde_json::from_value(value["meta"].clone())?;
-
-        Ok::<StkPushStatusResponse, Error>(StkPushStatusResponse { invoice, meta })
-    }
 }
 
 #[derive(Clone, Deserialize, Serialize, Debug)]

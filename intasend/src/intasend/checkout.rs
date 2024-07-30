@@ -1,8 +1,7 @@
 #![allow(unused)]
 #![allow(unused_imports)]
 
-#[cfg(feature="client")]
-
+#[cfg(feature = "client")]
 use anyhow::{Error, Result};
 use reqwest::Client;
 use rust_decimal::Decimal;
@@ -11,7 +10,7 @@ use serde_json::Value as JSON;
 
 use crate::Intasend;
 
-use super::{Currency, FromJsonValue, RequestClient, RequestMethods, Tarrif};
+use super::{Currency, RequestClient, RequestMethods, Tarrif};
 
 /// `Checkout` struct implements methods for facilitating:
 /// Checkout Link API that allows you to generate a secure link that you can
@@ -121,7 +120,11 @@ impl CheckoutsAPI {
 
         let checkout_response = &self
             .intasend
-            .send_client_request::<CheckoutRequest, CheckoutResponse>(Some(payload), service_path, request_method)
+            .send_client_request::<CheckoutRequest, CheckoutResponse>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
             .await?;
         println!("[#] Checkout Response: {:#?}", checkout_response);
 
@@ -149,38 +152,20 @@ impl CheckoutsAPI {
         &self,
         payload: CheckoutDetailsRequest,
     ) -> Result<CheckoutDetailsResponse, Error> {
-        let client = Client::new();
+        let service_path: &str = "/api/v1/checkout/details/";
+        let request_method: RequestMethods = RequestMethods::Post;
 
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
-
-        let response = client
-            .post(&format!("{}/api/v1/checkout/details/", base_url))
-            .header("Content-Type", "application/json")
-            // .header(
-            //     "Authorization",
-            //     format!("Bearer {}", self.intasend.secret_key),
-            // )
-            .header(
-                "X-IntaSend-Public-API-Key",
-                self.intasend.publishable_key.clone(),
+        let checkout_details_response = &self
+            .intasend
+            .send_client_request::<CheckoutDetailsRequest, CheckoutDetailsResponse>(
+                Some(payload),
+                service_path,
+                request_method,
             )
-            .json(&payload)
-            .send()
-            .await;
+            .await?;
+        // println!("[#] Checkout Details Response: {:#?}", checkout_details_response);
 
-        let json_response =
-            serde_json::from_value::<JSON>(response?.json().await?).expect("Error parsing json!");
-        // println!("Response: {:#?}", json_response);
-
-        let checkout_details_response =
-            CheckoutDetailsResponse::from_value(&json_response).unwrap();
-        // println!("Response: {:#?}", checkout_details_response);
-
-        Ok(checkout_details_response)
+        Ok(checkout_details_response.clone())
     }
 }
 
@@ -190,7 +175,7 @@ pub struct CheckoutRequest {
     pub first_name: Option<String>,
     pub last_name: Option<String>,
     pub email: Option<String>,
-    pub method: Option<String>,
+    pub method: Option<CheckoutMethod>,
     pub amount: Decimal,
     pub currency: Currency,
 }
@@ -210,50 +195,6 @@ pub struct CheckoutResponse {
     pub paid: bool,
 }
 
-impl FromJsonValue for CheckoutResponse {
-    fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
-        let id = serde_json::from_value(value.get("id").unwrap().clone()).unwrap();
-        let url = value
-            .get("url")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("url field at not found"))?
-            .to_string();
-        let signature = value
-            .get("signature")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("signature field at not found"))?
-            .to_string();
-        let first_name = serde_json::from_value(value.get("first_name").unwrap().clone()).unwrap();
-        let last_name = serde_json::from_value(value.get("last_name").unwrap().clone()).unwrap();
-        let email = value.get("email").unwrap().as_str().map(|s| s.to_string());
-        let method: Option<CheckoutMethod> =
-            serde_json::from_value(value.get("method").unwrap().clone()).unwrap();
-        let amount: Decimal = serde_json::from_value(value.get("amount").unwrap().clone()).unwrap();
-        let currency: Currency =
-            serde_json::from_value(value.get("currency").unwrap().clone()).unwrap();
-        let paid = value
-            .get("paid")
-            .unwrap()
-            .as_bool()
-            .ok_or(Error::msg("Refundable not found"))?;
-
-        Ok::<CheckoutResponse, Error>(CheckoutResponse {
-            id,
-            url,
-            signature,
-            first_name,
-            last_name,
-            email,
-            method,
-            amount,
-            currency,
-            paid,
-        })
-    }
-}
-
 /// `CheckoutDetailsRequest` Struct - `Checkout` API
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CheckoutDetailsRequest {
@@ -262,7 +203,7 @@ pub struct CheckoutDetailsRequest {
 }
 
 /// `CheckoutDetailsResponse` Struct - `Checkout` API
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CheckoutDetailsResponse {
     pub id: String,
     pub url: String,
@@ -296,123 +237,11 @@ pub struct CheckoutDetailsResponse {
     pub defaults: CheckoutDefaults,
 }
 
-impl FromJsonValue for CheckoutDetailsResponse {
-    fn from_value(value: &JSON) -> Result<Self, anyhow::Error> {
-        let id = serde_json::from_value(value.get("id").unwrap().clone()).unwrap();
-        let url = value
-            .get("url")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("url field at not found"))?
-            .to_string();
-        let signature = value
-            .get("signature")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("signature field at not found"))?
-            .to_string();
-        let first_name = serde_json::from_value(value.get("first_name").unwrap().clone()).unwrap();
-        let last_name = serde_json::from_value(value.get("last_name").unwrap().clone()).unwrap();
-        let phone_number =
-            serde_json::from_value(value.get("phone_number").unwrap().clone()).unwrap();
-        let email = value.get("email").unwrap().as_str().map(|s| s.to_string());
-        let country = serde_json::from_value(value.get("country").unwrap().clone()).unwrap();
-        let address = serde_json::from_value(value.get("address").unwrap().clone()).unwrap();
-        let city = serde_json::from_value(value.get("city").unwrap().clone()).unwrap();
-        let state = serde_json::from_value(value.get("state").unwrap().clone()).unwrap();
-        let zipcode = serde_json::from_value(value.get("zipcode").unwrap().clone()).unwrap();
-        let api_ref = serde_json::from_value(value.get("api_ref").unwrap().clone()).unwrap();
-        let wallet_id = serde_json::from_value(value.get("wallet_id").unwrap().clone()).unwrap();
-        let method: Option<CheckoutMethod> =
-            serde_json::from_value(value.get("method").unwrap().clone()).unwrap();
-        let channel = serde_json::from_value(value.get("channel").unwrap().clone()).unwrap();
-        let host = serde_json::from_value(value.get("host").unwrap().clone()).unwrap();
-        let is_mobile = value
-            .get("is_mobile")
-            .unwrap()
-            .as_bool()
-            .ok_or(Error::msg("is_mobile field not found"))?;
-        let version = serde_json::from_value(value.get("version").unwrap().clone()).unwrap();
-        let redirect_url =
-            serde_json::from_value(value.get("redirect_url").unwrap().clone()).unwrap();
-        let amount: Decimal = serde_json::from_value(value.get("amount").unwrap().clone()).unwrap();
-        let currency: Option<Currency> =
-            Some(serde_json::from_value(value.get("currency").unwrap().clone()).unwrap());
-        let paid = value
-            .get("paid")
-            .unwrap()
-            .as_bool()
-            .ok_or(Error::msg("Refundable not found"))?;
-        let mobile_tarrif = Tarrif::from_str(
-            serde_json::from_value(value.get("mobile_tarrif").unwrap().clone()).unwrap(),
-        )
-        .expect("Invalid Tarrif value");
-        let card_tarrif = Tarrif::from_str(
-            serde_json::from_value(value.get("card_tarrif").unwrap().clone())
-                .expect("Invalid Tarrif value"),
-        )
-        .expect("Invalid Tarrif value");
-        let bitcoin_tarrif = Tarrif::from_str(
-            serde_json::from_value(value.get("bitcoin_tarrif").unwrap().clone()).unwrap(),
-        )
-        .expect("Invalid Tarrif value");
-        let ach_tarrif = Tarrif::from_str(
-            serde_json::from_value(value.get("ach_tarrif").unwrap().clone()).unwrap(),
-        )
-        .expect("Invalid Tarrif value");
-        let created_at = value
-            .get("created_at")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("created_at field not found"))?
-            .to_string();
-        let updated_at = value
-            .get("updated_at")
-            .unwrap()
-            .as_str()
-            .ok_or(Error::msg("updated_at field not found"))?
-            .to_string();
-        let defaults: CheckoutDefaults =
-            serde_json::from_value(value.get("defaults").unwrap().clone()).unwrap();
-
-        Ok::<CheckoutDetailsResponse, Error>(CheckoutDetailsResponse {
-            id,
-            url,
-            signature,
-            first_name,
-            last_name,
-            email,
-            method,
-            amount,
-            currency,
-            paid,
-            phone_number,
-            country,
-            address,
-            city,
-            state,
-            zipcode,
-            api_ref,
-            wallet_id,
-            channel,
-            host,
-            is_mobile,
-            version,
-            redirect_url,
-            mobile_tarrif,
-            card_tarrif,
-            bitcoin_tarrif,
-            ach_tarrif,
-            created_at,
-            updated_at,
-            defaults,
-        })
-    }
-}
-
 /// `Checkout` Options supported by `Intasend` API Gateway
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum CheckoutMethod {
+    #[serde(rename = "M-PESA")]
     MPESA,
     CARDPAYMENT,
     BITCOIN,
@@ -420,24 +249,12 @@ pub enum CheckoutMethod {
     COOPB2B,
 }
 
-impl CheckoutMethod {
-    pub fn as_str(&self) -> String {
-        match self {
-            CheckoutMethod::MPESA => "M-PESA".to_string(),
-            CheckoutMethod::CARDPAYMENT => "CARDPAYMENT".to_string(),
-            CheckoutMethod::BITCOIN => "BITCOIN".to_string(),
-            CheckoutMethod::BANKACH => "BANKACH".to_string(),
-            CheckoutMethod::COOPB2B => "COOPB2B".to_string(),
-        }
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CheckoutDefaults {
     pub enable_card_payment: bool,
     pub enable_mpesa_payment: bool,
     pub enable_bitcoin_payment: bool,
     pub enable_ach_payment: bool,
     pub default_currency: Currency,
-    pub default_tarrif: String,
+    pub default_tarrif: Tarrif,
 }

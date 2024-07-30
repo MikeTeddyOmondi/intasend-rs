@@ -169,34 +169,40 @@ impl RequestClient for Intasend
                 let response = client
                     .get(&format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
-                    // .header("Authorization", format!("Bearer {}", self.secret_key))
                     .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .send()
-                    .await;
+                    .await?;
                 // println!("[#] API Response: {:#?}", response);
 
-                // let json: Map<String, Value> = serde_json::from_str(response)?;
-                let json = serde_json::from_value::<U>(response?.json().await?)
-                    .expect("[!] Error parsing json!");
-
-                Ok(json)
+                if response.status().is_success() {
+                    let parsed_response = response.json::<U>().await?;
+                    // println!("[#] API Response (OK): {:#?}", parsed_response);
+                    Ok(parsed_response)
+                } else {
+                    Err(IntasendClientError::UnexpectedResponseStatus(
+                        response.status(),
+                    ))
+                }
             }
             RequestMethods::Post => {
                 let response = client
                     .post(&format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
-                    // .header("Authorization", format!("Bearer {}", self.secret_key))
                     .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .json(&payload)
                     .send()
-                    .await;
+                    .await?;
                 println!("[#] API Response: {:#?}", response);
 
-                // let json: Map<String, Value> = serde_json::from_str(response)?;
-                let json = serde_json::from_value::<U>(response?.json().await?)
-                    .expect("[!] Error parsing json!");
-
-                Ok(json)
+                if response.status().is_success() {
+                    let parsed_response = response.json::<U>().await?;
+                    // println!("[#] API Response (OK): {:#?}", parsed_response);
+                    Ok(parsed_response)
+                } else {
+                    Err(IntasendClientError::UnexpectedResponseStatus(
+                        response.status(),
+                    ))
+                }
             }
         }
     }
@@ -254,8 +260,8 @@ impl RequestClient for Intasend
                     .json(&payload)
                     .send()
                     .await?;
-                    // .json()
-                    // .await?;
+                // .json()
+                // .await?;
                 // println!("[#] API Response: {:#?}", response);
 
                 // let json: Map<String, Value> = serde_json::from_str(response)?;
@@ -264,8 +270,10 @@ impl RequestClient for Intasend
                 // let json = serde_json::from_str::<U>(&response).expect("[!] Error parsing json!");
                 // Ok(json)
 
+                // println!("Response status: {:#?}", response.status());
+
                 if response.status().is_success() {
-                    let parsed_response: U = response.json().await?;
+                    let parsed_response = response.json::<U>().await?;
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
@@ -338,7 +346,7 @@ pub struct Invoice {
     pub invoice_id: String,
     pub state: String,
     pub provider: String,
-    pub charges: String,
+    pub charges: Decimal,
     pub net_amount: Decimal,
     pub currency: String,
     pub value: Decimal,
@@ -390,6 +398,7 @@ pub struct Transaction {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum TransactionType {
     Sale,
     Adjustment,
@@ -401,66 +410,32 @@ pub enum TransactionType {
     Unmarked,
 }
 
-impl TransactionType {
-    fn as_str(&self) -> String {
-        match self {
-            TransactionType::Sale => "SALE".to_string(),
-            TransactionType::Adjustment => "ADJUSTMENT".to_string(),
-            TransactionType::Payout => "PAYOUT".to_string(),
-            TransactionType::Charge => "CHARGE".to_string(),
-            TransactionType::Airtime => "AIRTIME".to_string(),
-            TransactionType::Deposit => "DEPOSIT".to_string(),
-            TransactionType::Exchange => "EXCHANGE".to_string(),
-            TransactionType::Unmarked => "UNMARKED".to_string(),
-        }
-    }
-}
-
 #[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum TransactionStatus {
     Available,
     Clearing,
+    #[serde(rename = "ON-HOLD")]
     OnHold,
     Cancelled,
+    #[serde(rename = "CHARGEBACK-PENDING")]
     ChargebackPending,
     Refunded,
     Adjustment,
 }
 
-impl TransactionStatus {
-    fn as_str(&self) -> String {
-        match self {
-            TransactionStatus::Available => "AVAILABLE".to_string(),
-            TransactionStatus::Clearing => "CLEARING".to_string(),
-            TransactionStatus::OnHold => "ON-HOLD".to_string(),
-            TransactionStatus::Cancelled => "CANCELLED".to_string(),
-            TransactionStatus::ChargebackPending => "CHARGEBACK-PENDING".to_string(),
-            TransactionStatus::Refunded => "REFUNDED".to_string(),
-            TransactionStatus::Adjustment => "ADJUSTMENT".to_string(),
-        }
-    }
-}
-
 /// Checkout Options supported by Intasend API Gateway
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum Provider {
     Mpesa,
+    #[serde(rename = "CARD-PAYMENT")]
     CardPayment,
     Bitcoin,
+    #[serde(rename = "BANK-ACH")]
     Bank,
+    #[serde(rename = "COOP_B2B")]
     CoopB2b,
-}
-
-impl Provider {
-    pub fn as_str(&self) -> String {
-        match self {
-            Provider::Mpesa => "MPESA".to_string(),
-            Provider::CardPayment => "CARD-PAYMENT".to_string(),
-            Provider::Bitcoin => "BITCOIN".to_string(),
-            Provider::Bank => "BANK-ACH".to_string(),
-            Provider::CoopB2b => "COOP_B2B".to_string(),
-        }
-    }
 }
 
 pub enum RequestMethods {
@@ -468,85 +443,47 @@ pub enum RequestMethods {
     Post,
 }
 
-// Define the trait for JSON conversion
-trait FromJsonValue {
-    fn from_value(value: &JSON) -> Result<Self, anyhow::Error>
-    where
-        Self: Sized;
-}
-
 /// Currencies supported by Intasend API Gateway
 #[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "UPPERCASE")]
 pub enum Currency {
     /// Kenya Shillings
-    KES,
+    #[serde(rename = "KES")]
+    Kes,
     /// US Dollars
-    USD,
+    #[serde(rename = "USD")]
+    Usd,
     /// Euros
-    EUR,
+    #[serde(rename = "EUR")]
+    Eur,
     /// British Pounds
-    GBP,
+    #[serde(rename = "GBP")]
+    Gbp,
 }
 
-impl Currency {
-    fn as_str(&self) -> String {
-        match self {
-            Currency::KES => "KES".to_string(),
-            Currency::USD => "USD".to_string(),
-            Currency::EUR => "EUR".to_string(),
-            Currency::GBP => "GBP".to_string(),
-        }
-    }
-}
-
-impl fmt::Display for Currency {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.as_str())
-    }
-}
+// impl fmt::Display for Currency {
+//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+//         write!(f, "{}", self.as_str())
+//     }
+// }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING-KEBAB-CASE")]
 pub enum Tarrif {
     BusinessPays,
     CustomerPays,
 }
 
-impl Tarrif {
-    pub fn as_str(&self) -> String {
-        match self {
-            Tarrif::BusinessPays => "BUSINESS-PAYS".to_string(),
-            Tarrif::CustomerPays => "CUSTOMER-PAYS".to_string(),
-        }
-    }
-    pub fn from_str(s: String) -> Option<Self> {
-        match s.as_str() {
-            "BUSINESS-PAYS" => Some(Tarrif::BusinessPays),
-            "CUSTOMER-PAYS" => Some(Tarrif::CustomerPays),
-            _ => None, // Return None if the string doesn't match any variant
-        }
-    }
-}
-
 /// Payout Provider Options supported by Intasend API Gateway
 #[derive(Clone, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "SCREAMING-KEBAB-CASE")]
 pub enum PayoutProvider {
     MpesaB2c,
     MpesaB2b,
+    #[serde(rename = "PESALINK")]
     Pesalink,
+    #[serde(rename = "INTASEND")]
     Intasend,
+    #[serde(rename = "AIRTIME")]
     Airtime,
-}
-
-impl PayoutProvider {
-    pub fn as_str(&self) -> String {
-        match self {
-            PayoutProvider::MpesaB2c => "MPESA-B2C".to_string(),
-            PayoutProvider::MpesaB2b => "MPESA-B2B".to_string(),
-            PayoutProvider::Pesalink => "PESALINK".to_string(),
-            PayoutProvider::Intasend => "INTASEND".to_string(),
-            PayoutProvider::Airtime => "AIRTIME".to_string(),
-        }
-    }
 }

@@ -5,8 +5,9 @@ use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 use serde_json::{json, Value as JSON};
 
-use super::{Customer, RequestClient, RequestMethods};
 use crate::{Currency, Intasend, Transaction};
+
+use super::{Customer, RequestClient, RequestMethods};
 
 /// `WalletsAPI` struct implements methods for facilitating:
 /// listing all wallets managed with an API key, get details
@@ -301,7 +302,7 @@ pub struct Wallet {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+#[serde(rename_all = "UPPERCASE")]
 pub enum WalletType {
     Settlement,
     Working,
