@@ -145,17 +145,18 @@ impl Intasend {
 }
 
 impl RequestClient for Intasend
-// where
-//     T: Serialize,
-//     U: for<'de> Deserialize<'de> + Debug,
 {
     #[cfg(feature = "client")]
-    async fn send_client_request<T: Serialize, U: for<'de> Deserialize<'de> + Debug>(
+    async fn send_client_request<T, U>(
         &self,
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, IntasendClientError> {
+    ) -> Result<U, IntasendClientError> 
+    where
+        T: Serialize,
+        U: for<'de> Deserialize<'de> + Debug,
+    {
         let client = Client::new();
 
         let base_url = if self.test_mode {
@@ -208,12 +209,16 @@ impl RequestClient for Intasend
     }
 
     #[cfg(feature = "server")]
-    async fn send<T: Serialize, U: for<'de> Deserialize<'de> + Debug>(
+    async fn send<T, U>(
         &self,
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, IntasendClientError> {
+    ) -> Result<U, IntasendClientError>
+    where
+        T: Serialize,
+        U: for<'de> Deserialize<'de> + Debug,
+    {
         let client = Client::new();
 
         let base_url = if self.test_mode {
@@ -233,7 +238,7 @@ impl RequestClient for Intasend
                     .await?;
                 // .json()
                 // .await?;
-                // println!("[#] API Response: {:?}", response);
+                // println!("[#] API Response: {:#?}", response);
 
                 // let json: Map<String, Value> = serde_json::from_str(response)?;
                 // let json = serde_json::from_value::<U>(response?.json().await?)
@@ -289,18 +294,24 @@ impl RequestClient for Intasend
 }
 
 pub trait RequestClient {
-    async fn send_client_request<T: Serialize, U: for<'de> Deserialize<'de> + Debug>(
+    async fn send_client_request<T, U>(
         &self,
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, IntasendClientError>;
-    async fn send<T: Serialize, U: for<'de> Deserialize<'de> + Debug>(
+    ) -> Result<U, IntasendClientError>
+    where
+        T: Serialize,
+        U: for<'de> Deserialize<'de> + Debug;
+    async fn send<T, U>(
         &self,
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, IntasendClientError>;
+    ) -> Result<U, IntasendClientError>
+    where
+        T: Serialize,
+        U: for<'de> Deserialize<'de> + Debug;
 }
 
 // #[derive(Error, Debug)]
@@ -386,11 +397,12 @@ pub struct CardInfo {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Transaction {
     pub transaction_id: String,
-    pub amount: Decimal,
-    pub currency: String,
-    pub value: String,
-    pub running_balance: String,
-    pub narrative: String,
+    pub invoice: Option<Invoice>,
+    // pub amount: Decimal,
+    pub currency: Currency,
+    pub value: Decimal,
+    pub running_balance: Decimal,
+    pub narrative: Option<String>,
     pub trans_type: TransactionType,
     pub status: TransactionStatus,
     pub created_at: String,

@@ -11,9 +11,9 @@ use super::{Customer, RequestClient, RequestMethods};
 
 /// `WalletsAPI` struct implements methods for facilitating:
 /// listing all wallets managed with an API key, get details
-/// of a specific wallet using `wallet_id`, create new `WORKING` 
+/// of a specific wallet using `wallet_id`, create new `WORKING`
 /// wallet types as sub-accounts for an associated IntaSend API key
-/// 
+///
 /// ```rust
 /// // Load .env file
 /// dotenv().ok();
@@ -62,9 +62,8 @@ impl WalletsAPI {
 
         Ok(wallet_list_info.clone())
     }
-    
-    /// The `details` (Wallets API) enables you to access Wallets owned by you or
-    /// created in your account.
+
+    /// The `details` (Wallets API) enables you to access wallet's details.
     ///
     /// ```rust
     /// // WalletsAPI
@@ -88,19 +87,19 @@ impl WalletsAPI {
         Ok(wallet_details_info.clone())
     }
 
-    /// The `create` (WalletsAPI) will help you to create and manage **WORKING** wallets. 
-    /// 
-    /// By default, all IntaSend accounts have **SETTLEMENT** accounts which act as main accounts. 
-    /// 
-    /// **WORKING** wallets are basically sub-accounts that you can use to isolate your 
-    /// customers'/merchants' funds. 
-    /// 
+    /// The `create` (WalletsAPI) will help you to create and manage **WORKING** wallets.
+    ///
+    /// By default, all IntaSend accounts have **SETTLEMENT** accounts which act as main accounts.
+    ///
+    /// **WORKING** wallets are basically sub-accounts that you can use to isolate your
+    /// customers'/merchants' funds.
+    ///
     /// Each customer can have their own wallets within IntaSend that you will manage on their behalf.
-    /// 
+    ///
     /// ```rust
     /// // WalletsAPI
     /// let wallets_api: WalletsAPI = intasend.wallets();
-    /// 
+    ///
     /// let payload = WalletCreateDetails {
     ///     currency: Currency::KES,
     ///     wallet_type: WalletType::Working,
@@ -112,90 +111,72 @@ impl WalletsAPI {
     /// println!("[#] Wallet Details Info: {:#?}", wallet_list_info);
     /// ```
     pub async fn create(&self, payload: WalletCreateDetails) -> Result<Wallet> {
-      let service_path: &str = "/api/v1/wallets/";
-      let request_method: RequestMethods = RequestMethods::Post;
+        let service_path: &str = "/api/v1/wallets/";
+        let request_method: RequestMethods = RequestMethods::Post;
 
-      let created_wallet = &self
-          .intasend
-          .send::<WalletCreateDetails, Wallet>(Some(payload), service_path, request_method)
-          .await?;
+        let created_wallet = &self
+            .intasend
+            .send::<WalletCreateDetails, Wallet>(Some(payload), service_path, request_method)
+            .await?;
 
-      Ok(created_wallet.clone())
+        Ok(created_wallet.clone())
     }
 
+    /// The `transactions` (WalletsAPI) enables you to get all the transactions from a specific Wallet.
+    ///
+    /// ```rust
+    /// // WalletsAPI
+    /// let wallets_api: WalletsAPI = intasend.wallets();
+    ///
+    /// let wallet_transanctions = wallets_api.transactions(wallet_id.clone()).await?;
+    /// println!("[#] Wallet Transactions: {:#?}", wallet_transanctions);
+    /// ```
+    ///
+    pub async fn transactions(&self, wallet_id: String) -> Result<WalletTransactionsResponse> {
+        let service_path: &str = &format!("/api/v1/wallets/{}/transactions/", wallet_id);
+        let request_method: RequestMethods = RequestMethods::Get;
+
+        let transactions = &self
+            .intasend
+            .send::<WalletTransanctionRequest, WalletTransactionsResponse>(
+                None,
+                service_path,
+                request_method,
+            )
+            .await?;
+
+        Ok(transactions.clone())
+    }
+
+    /// The `intra_transfer` (WalletsAPI) enables you to send funds within a specific IntaSend Wallet
+    /// to another IntaSend wallet i.e internal wallet to wallet transfers
+    ///
+    /// ```rust
+    /// // WalletsAPI
+    /// let wallets_api: WalletsAPI = intasend.wallets();
+    ///
+    /// let wallets_transfer_response = wallets_api.intra_transfer(source_wallet_id, payload).await?;
+    /// println!("[#] Wallet Transfer Respnse: {:#?}", wallets_transfer_response);
+    /// ```
+    ///
     pub async fn intra_transfer(
         &self,
-        source_id: String,
-        destination_id: String,
-        amount: u32,
-        narrative: String,
-    ) -> Result<Wallet> {
-        let payload = json!({
-            "wallet_id": destination_id,
-            "amount": amount,
-            "narrative": narrative,
-        });
+        source_wallet_id: String,
+        payload: WalletIntraTransferRequest,
+    ) -> Result<WalletIntraTransferResponse> {
+        let service_path: &str = &format!("/api/v1/wallets/{}/intra_transfer/", source_wallet_id);
+        let request_method: RequestMethods = RequestMethods::Post;
 
-        let client = Client::new();
-
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
-
-        let response = client
-            .post(&format!(
-                "{}/api/v1/wallets/{}/intra_transfer/",
-                base_url, source_id
-            ))
-            .header("Content-Type", "application/json")
-            .header(
-                "Authorization",
-                format!("Bearer {}", self.intasend.secret_key),
+        let intra_transfer_response = &self
+            .intasend
+            .send::<WalletIntraTransferRequest, WalletIntraTransferResponse>(
+                Some(payload),
+                service_path,
+                request_method,
             )
-            .header(
-                "INTASEND_PUBLIC_API_KEY",
-                self.intasend.publishable_key.clone(),
-            )
-            .json(&payload)
-            .send()
-            .await;
+            .await?;
 
-        let wallet: Wallet = response?.json().await?;
-
-        Ok(wallet)
-    }
-
-    pub async fn transactions(&self, wallet_id: String) -> Result<Vec<Transaction>> {
-        let client = Client::new();
-
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
-
-        let response = client
-            .get(&format!(
-                "{}/api/v1/wallets/{}/transactions/",
-                base_url, wallet_id
-            ))
-            .header("Content-Type", "application/json")
-            .header(
-                "Authorization",
-                format!("Bearer {}", self.intasend.secret_key),
-            )
-            .header(
-                "INTASEND_PUBLIC_API_KEY",
-                self.intasend.publishable_key.clone(),
-            )
-            .send()
-            .await;
-
-        let transactions: Vec<Transaction> = response?.json().await?;
-
-        Ok(transactions)
+        Ok(intra_transfer_response.clone())
     }
 
     pub async fn fund_mpesa(&self, payload: FundCheckoutRequest) -> Result<Wallet> {
@@ -296,15 +277,39 @@ pub struct WalletDetailsRequest {}
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WalletCreateDetails {
-  pub currency: Currency,
-  #[serde(default = "default_wallet_type")]
-  pub wallet_type: WalletType,
-  pub can_disburse: bool,
-  pub label: String,
+    pub currency: Currency,
+    #[serde(default = "default_wallet_type")]
+    pub wallet_type: WalletType,
+    pub can_disburse: bool,
+    pub label: String,
 }
 
 fn default_wallet_type() -> WalletType {
     WalletType::Working
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+struct WalletTransanctionRequest {}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WalletTransactionsResponse {
+    pub count: u32,
+    pub next: Option<String>,
+    pub previous: Option<String>,
+    pub results: Vec<Transaction>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WalletIntraTransferRequest {
+    pub wallet_id: String,
+    pub amount: Decimal,
+    pub narrative: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct WalletIntraTransferResponse {
+    pub origin: Wallet,
+    pub destination: Wallet,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
