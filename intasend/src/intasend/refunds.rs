@@ -2,10 +2,8 @@
 #![allow(unused_imports)]
 
 use anyhow::{Error, Result};
-use reqwest::Client;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use serde_json::Value as JSON;
 
 use crate::{Intasend, Transaction};
 
@@ -63,7 +61,7 @@ impl RefundsAPI {
         Ok(refunds.clone())
     }
 
-    /// The `create` method creates a new refund for a trnasaction whose status is **COMPLETE**.
+    /// The `create` method creates a new refund for a transaction whose status is **COMPLETE**.
     ///
     /// ```rust
     /// // Chargebacks & Refunds API
@@ -131,10 +129,10 @@ impl RefundsAPI {
 
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct Refund {
-    // pub chargeback_id: String,
-    // pub session_id: String,
+    pub chargeback_id: String,
+    pub session_id: String,
     pub transaction: Transaction,
-    pub amount: String,
+    pub amount: Decimal,
     pub status: String,
     pub reason: RefundReason,
     pub resolution: Option<String>,

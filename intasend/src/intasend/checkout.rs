@@ -181,6 +181,8 @@ pub struct CheckoutRequest {
 }
 
 /// `CheckoutResponse` Struct - `Checkout` API
+/// 
+/// **Note**: persist the `id` and the `signature` field in a store if you want to get the details of the fund checkout
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CheckoutResponse {
     pub id: String,
@@ -241,12 +243,14 @@ pub struct CheckoutDetailsResponse {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum CheckoutMethod {
-    #[serde(rename = "M-PESA")]
-    MPESA,
-    CARDPAYMENT,
-    BITCOIN,
-    BANKACH,
-    COOPB2B,
+  Mpesa,
+  #[serde(rename = "CARD-PAYMENT")]
+  CardPayment,
+  Bitcoin,
+  #[serde(rename = "BANK-ACH")]
+  Bank,
+  #[serde(rename = "COOP_B2B")]
+  CoopB2b,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

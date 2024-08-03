@@ -11,6 +11,7 @@
   - Renamed `Checkout` struct to `CheckoutsAPI`
   - Updated error handling and legible error messgaes from the `IntaSend` Client 
   - Added GitHub Actions to automate the publishing of the crates to [crates.io](https://crates.io)
+  - Added `docs` to support the library usage [here](https://github.com/MikeTeddyOmondi/intasend-rs/docs)
   - Version: `0.2.0` has `PayoutsAPI`, `RefundsAPI` and `WalletsAPI` support, bug fixes, refactored code
 
 ---

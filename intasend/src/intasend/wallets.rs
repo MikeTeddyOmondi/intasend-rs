@@ -7,7 +7,7 @@ use serde_json::{json, Value as JSON};
 
 use crate::{Currency, Intasend, Transaction};
 
-use super::{Customer, RequestClient, RequestMethods};
+use super::{Customer, Invoice, Provider, RequestClient, RequestMethods};
 
 /// `WalletsAPI` struct implements methods for facilitating:
 /// listing all wallets managed with an API key, get details
@@ -155,8 +155,14 @@ impl WalletsAPI {
     /// // WalletsAPI
     /// let wallets_api: WalletsAPI = intasend.wallets();
     ///
-    /// let wallets_transfer_response = wallets_api.intra_transfer(source_wallet_id, payload).await?;
-    /// println!("[#] Wallet Transfer Respnse: {:#?}", wallets_transfer_response);
+    /// let intra_transfer_payload = WalletIntraTransferRequest {
+    ///     wallet_id: "Y7ERXJQ".to_string(),
+    ///     amount: Decimal::new(1000, 2),
+    ///     narrative: "fund raising".to_string(),
+    /// };
+    ///
+    /// let wallets_transfer_response = wallets_api.intra_transfer(source_wallet_id, intra_transfer_payload).await?;
+    /// println!("[#] Wallet Intra Transfer Response: {:#?}", wallets_transfer_response);
     /// ```
     ///
     pub async fn intra_transfer(
@@ -179,66 +185,78 @@ impl WalletsAPI {
         Ok(intra_transfer_response.clone())
     }
 
-    pub async fn fund_mpesa(&self, payload: FundCheckoutRequest) -> Result<Wallet> {
+    /// The `fund_mpesa` (WalletsAPI) enables you to fund a specific IntaSend Wallet
+    ///  using M-pesa.
+    ///
+    /// ```rust
+    /// let fund_mpesa_payload = FundMpesaRequest {
+    ///   method: Provider::Mpesa,
+    ///   currency: Currency::Kes,
+    ///   amount: Decimal::new(1000, 2),
+    ///   wallet_id: "Y7ELXJQ".to_string(),
+    ///   phone_number: "254717135176".to_string(),
+    /// };
+    /// let fund_mpesa_response = wallets_api.fund_mpesa(fund_mpesa_payload).await?;
+    /// println!("[#] Wallet Fund Mpesa Response: {:#?}", fund_mpesa_response);
+    /// ```
+    ///
+    pub async fn fund_mpesa(&self, payload: FundMpesaRequest) -> Result<FundMpesaResponse> {
+        let service_path: &str = "/api/v1/payment/mpesa-stk-push/";
+        let request_method: RequestMethods = RequestMethods::Post;
+
         let mut payload = payload;
-        payload.method = "M-PESA".to_string();
-        payload.currency = "KES".to_string();
+        payload.method = Provider::Mpesa;
+        payload.currency = Currency::Kes;
 
-        let client = Client::new();
-
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
-
-        let response = client
-            .post(&format!("{}/api/v1/payment/mpesa-stk-push/", base_url))
-            .header("Content-Type", "application/json")
-            .header(
-                "Authorization",
-                format!("Bearer {}", self.intasend.secret_key),
+        let fund_mpesa_response = &self
+            .intasend
+            .send::<FundMpesaRequest, FundMpesaResponse>(
+                Some(payload),
+                service_path,
+                request_method,
             )
-            .header(
-                "INTASEND_PUBLIC_API_KEY",
-                self.intasend.publishable_key.clone(),
-            )
-            .json(&payload)
-            .send()
-            .await;
+            .await?;
 
-        let wallet: Wallet = response?.json().await?;
-
-        Ok(wallet)
+        Ok(fund_mpesa_response.clone())
     }
 
-    pub async fn fund_checkout(&self, payload: FundCheckoutRequest) -> Result<Wallet> {
-        let client = Client::new();
+    /// The `fund_checkout` (WalletsAPI) enables you to fund a specific IntaSend Wallet
+    ///  using checkout links.
+    ///
+    /// ```rust
+    /// let fund_checkout_req = FundCheckoutRequest {
+    ///     first_name: Some("Foo".to_string()),
+    ///     last_name: Some("Bar".to_string()),
+    ///     email: Some("foobar@baz.com".to_string()),
+    ///     method: Some(Provider::Bank),
+    ///     amount: Decimal::new(100000, 2), // 1000.00
+    ///     currency: Currency::Kes,
+    ///     wallet_id: "Y7ELXJQ".to_string(),
+    ///     api_ref: None,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let fund_checkout_response = wallets_api.fund_checkout(fund_checkout_req).await?;
+    /// println!("[#] Fund Checkout response: {:#?}", fund_checkout_response);
+    /// ```
+    ///
+    pub async fn fund_checkout(
+        &self,
+        payload: FundCheckoutRequest,
+    ) -> Result<FundCheckoutResponse> {
+        let service_path: &str = "/api/v1/checkout/";
+        let request_method: RequestMethods = RequestMethods::Post;
 
-        let base_url = if self.intasend.test_mode {
-            "https://sandbox.intasend.com"
-        } else {
-            "https://payment.intasend.com"
-        };
-
-        let response = client
-            .post(&format!("{}/api/v1/checkout/", base_url))
-            .header("Content-Type", "application/json")
-            .header(
-                "Authorization",
-                format!("Bearer {}", self.intasend.secret_key),
+        let fund_checkout_response = &self
+            .intasend
+            .send_client_request::<FundCheckoutRequest, FundCheckoutResponse>(
+                Some(payload),
+                service_path,
+                request_method,
             )
-            .header(
-                "INTASEND_PUBLIC_API_KEY",
-                self.intasend.publishable_key.clone(),
-            )
-            .json(&payload)
-            .send()
-            .await;
+            .await?;
 
-        let wallet: Wallet = response?.json().await?;
-
-        Ok(wallet)
+        Ok(fund_checkout_response.clone())
     }
 }
 
@@ -313,9 +331,51 @@ pub struct WalletIntraTransferResponse {
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct FundMpesaRequest {
+    pub amount: Decimal,
+    pub method: Provider,
+    pub wallet_id: String,
+    pub currency: Currency,
+    pub phone_number: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct FundMpesaResponse {
+    pub invoice: Option<Invoice>,
+    pub customer: Option<Customer>,
+    pub payment_link: Option<String>,
+    pub refundable: bool,
+    pub created_at: String,
+    pub updated_at: String,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FundCheckoutRequest {
-    pub amount: u32,
-    pub currency: String,
-    pub recipient: String,
-    pub method: String,
+    pub amount: Decimal,
+    pub wallet_id: String,
+    pub currency: Currency,
+    pub email: Option<String>,
+    pub api_ref: Option<String>,
+    pub method: Option<Provider>,
+    pub last_name: Option<String>,
+    pub first_name: Option<String>,
+    pub redirect_url: Option<String>,
+}
+
+/// `FundCheckoutResponse` struct 
+/// 
+/// **Note**: persist the `id` and the `signature` field in a store if you want to get the details of the fund checkout
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct FundCheckoutResponse {
+    pub paid: bool,
+    pub id: String,
+    pub url: String,
+    pub amount: Decimal,
+    pub signature: String,
+    pub currency: Currency,
+    pub email: Option<String>,
+    pub method: Option<Provider>,
+    pub last_name: Option<String>,
+    pub first_name: Option<String>,
+    pub redirect_url: Option<String>,
 }

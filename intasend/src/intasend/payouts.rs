@@ -2,6 +2,7 @@
 #![allow(unused_imports)]
 
 use anyhow::{Error, Result};
+use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
 
 use crate::{Intasend, Wallet};
@@ -137,10 +138,10 @@ pub struct PayoutTransaction {
     pub name: Option<String>,
     /// Phone number, bank account number etc
     pub account: String,
-    /// Optional ID number of beneficiary - MPesa transaction will be validated
+    /// Optional ID number of beneficiary - M-pesa transaction will be validated
     pub id_number: Option<String>,
     pub bank_code: Option<String>,
-    pub amount: String,
+    pub amount: Decimal,
     pub narrative: Option<String>,
 }
 

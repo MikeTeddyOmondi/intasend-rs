@@ -17,11 +17,12 @@ pub use self::intasend::refunds::{
     Refund, RefundReason, RefundRequest, RefundResponse, RefundsAPI,
 };
 pub use self::intasend::wallets::{
-    FundCheckoutRequest, Wallet, WalletCreateDetails, WalletDetailsRequest,
-    WalletIntraTransferRequest, WalletIntraTransferResponse, WalletListResponse,
-    WalletTransactionsResponse, WalletType, WalletsAPI,
+    FundCheckoutRequest, FundCheckoutResponse, FundMpesaRequest, FundMpesaResponse, Wallet,
+    WalletCreateDetails, WalletDetailsRequest, WalletIntraTransferRequest,
+    WalletIntraTransferResponse, WalletListResponse, WalletTransactionsResponse, WalletType,
+    WalletsAPI,
 };
-pub use self::intasend::{Currency, Intasend, PayoutProvider, Transaction};
+pub use self::intasend::{Currency, Intasend, PayoutProvider, Provider, Transaction};
 
 #[cfg(test)]
 mod tests {
