@@ -18,20 +18,21 @@ use super::{Customer, Invoice, RequestClient, RequestMethods, Tarrif};
 /// 
 /// ```rust
 /// // Load .env file
-/// dotenv().ok();
+/// use dotenvy;
+/// dotenvy::dotenv().ok();
 ///
-/// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
-/// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+/// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+/// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
 ///
 /// // Intasend Client
-/// let intasend = Intasend::new(
+/// let intasend = intasend::Intasend::new(
 ///    intasend_public_key,
 ///    intasend_secret_key,
 ///     true,
 /// );
 ///
 /// // Collection API
-/// let collection: Collection = intasend.collection();
+/// let collection: intasend::CollectionsAPI = intasend.collection();
 /// ```
 ///
 #[derive(Debug)]
@@ -45,7 +46,7 @@ impl CollectionsAPI {
     ///
     /// ```rust
     /// // Collection API
-    /// let collection: Collection = intasend.collection();
+    /// let collection: intasend::CollectionsAPI = intasend.collection();
     ///
     /// let stkpush_request = MpesaStkPushRequest {
     ///     amount: 10,
@@ -216,4 +217,14 @@ pub struct PaymentLink {
     pub card_tarrif: Tarrif,
     pub created_at: Option<String>,
     pub updated_at: Option<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn mpesa_stk_push_test() {
+      // Run tests here
+    }
 }
