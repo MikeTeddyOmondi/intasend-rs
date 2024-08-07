@@ -152,7 +152,7 @@ impl RequestClient for Intasend
         payload: Option<T>,
         service_path: &str,
         request_method: RequestMethods,
-    ) -> Result<U, IntasendClientError> 
+    ) -> Result<U, IntasendClientError>
     where
         T: Serialize,
         U: for<'de> Deserialize<'de> + Debug,
@@ -180,9 +180,12 @@ impl RequestClient for Intasend
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                    Err(IntasendClientError::UnexpectedResponseStatus(
-                        response.status(),
-                    ))
+                  let status = response.status();
+                  let error_response = response.json::<IntasendApiError>().await?;
+                  Err(IntasendClientError::UnexpectedResponseStatus {
+                      status,
+                      error: error_response,
+                  })
                 }
             }
             RequestMethods::Post => {
@@ -200,9 +203,12 @@ impl RequestClient for Intasend
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                    Err(IntasendClientError::UnexpectedResponseStatus(
-                        response.status(),
-                    ))
+                  let status = response.status();
+                  let error_response = response.json::<IntasendApiError>().await?;
+                  Err(IntasendClientError::UnexpectedResponseStatus {
+                      status,
+                      error: error_response,
+                  })
                 }
             }
         }
@@ -249,9 +255,12 @@ impl RequestClient for Intasend
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                    Err(IntasendClientError::UnexpectedResponseStatus(
-                        response.status(),
-                    ))
+                  let status = response.status();
+                  let error_response = response.json::<IntasendApiError>().await?;
+                  Err(IntasendClientError::UnexpectedResponseStatus {
+                      status,
+                      error: error_response,
+                  })
                 }
 
                 // Ok(response)
@@ -282,9 +291,15 @@ impl RequestClient for Intasend
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                    Err(IntasendClientError::UnexpectedResponseStatus(
-                        response.status(),
-                    ))
+                  let status = response.status();
+                  let error_response = response.json::<IntasendApiError>().await?;
+                  Err(IntasendClientError::UnexpectedResponseStatus {
+                      status,
+                      error: error_response,
+                  })
+                  // Err(IntasendClientError::UnexpectedResponseStatus(
+                  //     response.status(),
+                  // ))
                 }
 
                 // Ok(response)
@@ -329,15 +344,37 @@ pub trait RequestClient {
 //     Unknown,
 // }
 
+#[derive(Debug, Deserialize)]
+pub struct IntasendApiErrorDetail {
+    pub code: String,
+    pub detail: String,
+    pub attr: Option<String>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct IntasendApiError {
+    pub r#type: String,
+    pub errors: Vec<IntasendApiErrorDetail>,
+}
+
 #[derive(ThisErr, Debug)]
 pub enum IntasendClientError {
     #[error("Intasend client error")]
     ReqwestError(#[from] ReqwestErr),
-    #[error("Intasend json error")]
+    #[error("Intasend JSON error")]
     SerdeJsonError(#[from] serde_json::Error),
-    #[error("Unexpected response status: {0}")]
-    UnexpectedResponseStatus(reqwest::StatusCode),
-    // ... other error variants
+    #[error("Unexpected response status: {status}\n\nError type: {0}\nDetails: {error:#?}", error.r#type)]
+    UnexpectedResponseStatus {
+        status: reqwest::StatusCode,
+        error: IntasendApiError,
+    },
+    // #[error("Unexpected response status: {status}")]
+    // UnexpectedResponseStatus {
+    //     status: reqwest::StatusCode,
+    //     #[source]
+    //     error: IntasendApiError,
+    // },
+    // // ... other error variants
 }
 
 // impl From<reqwest::Error> for IntasendClientError {

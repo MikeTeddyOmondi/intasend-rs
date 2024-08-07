@@ -8,12 +8,7 @@ use uuid::Uuid;
 
 // Intasend Crate
 use intasend::{
-    CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest,
-    CheckoutResponse, CheckoutsAPI, CollectionsAPI, Currency, FundCheckoutRequest,
-    FundCheckoutResponse, FundMpesaRequest, Intasend, MpesaStkPushRequest, MpesaStkPushResponse,
-    PayoutApproval, PayoutProvider, PayoutRequest, PayoutTransaction, Provider, Refund,
-    RefundReason, RefundRequest, StkPushStatusRequest, Wallet, WalletCreateDetails,
-    WalletIntraTransferRequest, WalletType,
+    CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest, CheckoutResponse, CheckoutsAPI, CollectionsAPI, Currency, FundCheckoutRequest, FundCheckoutResponse, FundMpesaRequest, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, PayoutApproval, PayoutProvider, PayoutRequest, PayoutRequestTransaction, Provider, Refund, RefundReason, RefundRequest, StkPushStatusRequest, Wallet, WalletCreateDetails, WalletIntraTransferRequest, WalletType
 };
 
 #[tokio::main]
@@ -114,18 +109,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let payouts = intasend.payouts();
     println!("[#] Payouts instance: {:#?}", payouts);
 
-    let mut transactions = Vec::<PayoutTransaction>::new();
+    let mut transactions = Vec::<PayoutRequestTransaction>::new();
 
-    let tsx = PayoutTransaction {
-        status: None,
-        status_code: None,
-        request_reference_id: None,
+    let tsx = PayoutRequestTransaction {
         name: None,
         account: "254717135176".to_string(),
         id_number: None,
         bank_code: None,
         amount: Decimal::new(1000, 2),
         narrative: None,
+        category_name: None,
+        account_type: None,
+        account_reference: None
     };
     transactions.push(tsx);
 
@@ -136,7 +131,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         callback_url: None,
         batch_reference: None,
         transactions,
-        requires_approval: PayoutApproval::Yes,
+        // requires_approval: PayoutApproval::Yes,
     };
 
     let mpesa_payout = payouts.mpesa_b2c(payout_request.clone()).await?;

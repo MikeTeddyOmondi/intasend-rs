@@ -11,7 +11,7 @@ pub use self::intasend::collection::{
     StkPushStatusResponse,
 };
 pub use self::intasend::payouts::{
-    Payout, PayoutApproval, PayoutRequest, PayoutTransaction, PayoutsAPI,
+    Payout, PayoutApproval, PayoutRequest, PayoutRequestTransaction, PayoutResponseTransaction, PayoutsAPI,
 };
 pub use self::intasend::refunds::{
     Refund, RefundReason, RefundRequest, RefundResponse, RefundsAPI,
