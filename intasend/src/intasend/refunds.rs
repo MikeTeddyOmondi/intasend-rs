@@ -47,14 +47,14 @@ impl RefundsAPI {
     /// println!("Checkout response: {:#?}", checkout_response);
     /// ```
     ///
-    pub async fn list(&self) -> Result<RefundResponse, Error> {
+    pub async fn list(&self) -> Result<RefundListResponse, Error> {
         let service_path: &str = "/api/v1/chargebacks/";
         let request_method: RequestMethods = RequestMethods::Get;
         let payload: Option<RefundRequest> = None;
 
         let refunds = &self
             .intasend
-            .send::<RefundRequest, RefundResponse>(payload, service_path, request_method)
+            .send::<RefundRequest, RefundListResponse>(payload, service_path, request_method)
             .await?;
         // println!("Json Response: {:#?}", refunds);
 
@@ -121,12 +121,12 @@ impl RefundsAPI {
             .intasend
             .send::<RefundRequest, Refund>(None, service_path, request_method)
             .await?;
-        // println!("Json Response: {:#?}", specific_refund);
 
         Ok(specific_refund.clone())
     }
 }
 
+/// `Refund` struct
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct Refund {
     pub chargeback_id: String,
@@ -141,6 +141,7 @@ pub struct Refund {
     pub updated_at: String,
 }
 
+/// `RefundReason` struct
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub enum RefundReason {
     #[serde(rename = "Unavailable service")]
@@ -155,6 +156,7 @@ pub enum RefundReason {
     Other,
 }
 
+/// `RefundRequest` struct
 #[derive(Deserialize, Serialize, Debug)]
 pub struct RefundRequest {
     pub invoice: String,
@@ -166,8 +168,9 @@ pub struct RefundRequest {
     pub amount: Decimal,
 }
 
+/// `RefundListResponse` struct
 #[derive(Clone, Deserialize, Serialize, Debug)]
-pub struct RefundResponse {
+pub struct RefundListResponse {
     pub count: u32,
     pub next: Option<String>,
     pub previous: Option<String>,

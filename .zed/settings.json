@@ -12,7 +12,7 @@
     }
   },
   "use_autoclose": true,
-  "formatter": "prettier",
+  "formatter": "language_server",
   "enable_language_server": true,
   "show_completions_on_input": true,
   "format_on_save": "on",

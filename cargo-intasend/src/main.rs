@@ -8,7 +8,12 @@ use uuid::Uuid;
 
 // Intasend Crate
 use intasend::{
-    CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest, CheckoutResponse, CheckoutsAPI, CollectionsAPI, Currency, FundCheckoutRequest, FundCheckoutResponse, FundMpesaRequest, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, PayoutApproval, PayoutProvider, PayoutRequest, PayoutRequestTransaction, Provider, Refund, RefundReason, RefundRequest, StkPushStatusRequest, Wallet, WalletCreateDetails, WalletIntraTransferRequest, WalletType
+    CheckoutDetailsRequest, CheckoutDetailsResponse, CheckoutMethod, CheckoutRequest,
+    CheckoutResponse, CheckoutsAPI, CollectionsAPI, Currency, FundCheckoutRequest,
+    FundCheckoutResponse, FundMpesaRequest, Intasend, MpesaStkPushRequest, MpesaStkPushResponse,
+    PayoutApproval, PayoutApprovalRequest, PayoutProvider, PayoutRequest, PayoutRequestTransaction,
+    PayoutStatusRequest, Provider, Refund, RefundReason, RefundRequest, StkPushStatusRequest,
+    Wallet, WalletCreateDetails, WalletIntraTransferRequest, WalletType,
 };
 
 #[tokio::main]
@@ -60,30 +65,30 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // );
 
     /// CollectionsAPI
-    // let collections_api: CollectionsAPI = intasend.collection();
-    // println!("[#] CollectionsAPI instance: {:#?}", collections_api);
+    let collections_api: CollectionsAPI = intasend.collection();
+    println!("[#] CollectionsAPI instance: {:#?}", collections_api);
 
-    // let stkpush_request = MpesaStkPushRequest {
-    //     amount: Decimal::new(1000, 2), // "10.00".to_string(),
-    //     phone_number: "254717135176".to_string(),
-    //     api_ref: None,
-    //     wallet_id: None,
-    // };
+    let stkpush_request = MpesaStkPushRequest {
+        amount: Decimal::new(1000, 2), // "10.00".to_string(),
+        phone_number: "254717135176".to_string(),
+        api_ref: None,
+        wallet_id: None,
+    };
 
-    // let stkpush_response: MpesaStkPushResponse = collections_api.mpesa_stk_push(stkpush_request).await?;
-    // println!("[#] Mpesa STK push: {:#?}", stkpush_response);
+    let stkpush_response: MpesaStkPushResponse = collections_api.mpesa_stk_push(stkpush_request).await?;
+    println!("[#] Mpesa STK push: {:#?}", stkpush_response);
 
-    // println!("[*] Waiting for the collection response...");
-    // tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+    println!("[*] Waiting for the collection response...");
+    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
 
-    // let stkpushstatus_req = StkPushStatusRequest {
-    //     invoice_id: stkpush_response.invoice.unwrap().invoice_id, // "RXX5P8R".to_string(),
-    //     checkout_id: None,
-    //     signature: None,
-    // };
+    let stkpushstatus_req = StkPushStatusRequest {
+        invoice_id: stkpush_response.invoice.unwrap().invoice_id, // "RXX5P8R".to_string(),
+        checkout_id: None,
+        signature: None,
+    };
 
-    // let stkpushstatus = collections_api.status(stkpushstatus_req).await?;
-    // println!("[#] Mpesa STK Push Status Response: {:#?}", stkpushstatus);
+    let stkpushstatus = collections_api.status(stkpushstatus_req).await?;
+    println!("[#] Mpesa STK Push Status Response: {:#?}", stkpushstatus);
 
     /// RefundsAPI
     // let refunds_api = intasend.refunds();
@@ -106,44 +111,59 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // println!("[#] Refund: {:#?}", get_refund);
 
     /// PayoutsAPI
-    let payouts = intasend.payouts();
-    println!("[#] Payouts instance: {:#?}", payouts);
+    // let payouts = intasend.payouts();
+    // println!("[#] Payouts instance: {:#?}", payouts);
 
-    let mut transactions = Vec::<PayoutRequestTransaction>::new();
+    // let mut transactions = Vec::<PayoutRequestTransaction>::new();
 
-    let tsx = PayoutRequestTransaction {
-        name: None,
-        account: "254717135176".to_string(),
-        id_number: None,
-        bank_code: None,
-        amount: Decimal::new(1000, 2),
-        narrative: None,
-        category_name: None,
-        account_type: None,
-        account_reference: None
-    };
-    transactions.push(tsx);
+    // let tsx = PayoutRequestTransaction {
+    //     name: None,
+    //     account: "254717135176".to_string(),
+    //     id_number: None,
+    //     bank_code: None,
+    //     amount: Decimal::new(2000, 2),
+    //     narrative: None,
+    //     category_name: None,
+    //     account_type: None,
+    //     account_reference: None
+    // };
+    // transactions.push(tsx);
 
-    let payout_request = PayoutRequest {
-        currency: Currency::Kes,
-        provider: Some(PayoutProvider::MpesaB2c),
-        device_id: None,
-        callback_url: None,
-        batch_reference: None,
-        transactions,
-        // requires_approval: PayoutApproval::Yes,
-    };
+    // let payout_request = PayoutRequest {
+    //     currency: Currency::Kes,
+    //     provider: Some(PayoutProvider::MpesaB2c),
+    //     device_id: None,
+    //     callback_url: None,
+    //     batch_reference: None,
+    //     transactions,
+    //     // requires_approval: PayoutApproval::Yes,
+    // };
 
-    let mpesa_payout = payouts.mpesa_b2c(payout_request.clone()).await?;
-    println!("Mpesa payout: {:#?}", mpesa_payout);
-    // tokio::time::sleep(std::time::Duration::from_secs(30)).await;
+    // let mpesa_payout = payouts.mpesa_b2c(payout_request.clone()).await?;
+    // println!("Mpesa payout: {:#?}", mpesa_payout);
+    // tokio::time::sleep(std::time::Duration::from_secs(10)).await;
 
-    // let approve_mpesa_payout = payouts.approve(payout_request.clone()).await?;
-    // println!("Approved mpesa payout: {:#?}", approve_mpesa_payout);
-    // tokio::time::sleep(std::time::Duration::from_secs(30)).await;
+    // let mpesa_approval_request = PayoutApprovalRequest {
+    //   tracking_id: mpesa_payout.tracking_id.clone().unwrap(),
+    //   batch_reference: mpesa_payout.batch_reference.unwrap_or_default(),
+    //   nonce: mpesa_payout.nonce.unwrap(),
+    //   wallet: Some(mpesa_payout.wallet.unwrap()),
+    //   transactions: Some(mpesa_payout.transactions.unwrap())
+    // };
 
-    // let status_mpesa_payout = payouts.status(payout_request).await?;
+    // let approved_mpesa_payout = payouts.approve(mpesa_approval_request).await?;
+    // println!("Approved mpesa payout: {:#?}", approved_mpesa_payout);
+    // tokio::time::sleep(std::time::Duration::from_secs(10)).await;
+
+    // let payout_status_request = PayoutStatusRequest {
+    //   tracking_id: mpesa_payout.tracking_id.unwrap()
+    // };
+
+    // let status_mpesa_payout = payouts.status(payout_status_request).await?;
     // println!("Status mpesa payout: {:#?}", status_mpesa_payout);
+
+    // let bank_codes = payouts.bank_codes_ke().await?;
+    // println!("Payouts Bank Codes: {:#?}", bank_codes);
 
     /// WalletsAPI
     // let wallets_api = intasend.wallets();
@@ -159,7 +179,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     //     println!("Wallet Balance: {}", wallet.current_balance);
     // }
 
-    // let wallet_id = String::from("VRELLZQ"); // Wallet ID: VRELLZQ
+    // let wallet_id = String::from("Y7ELXJQ"); // Wallet ID: VRELLZQ
     // let wallet_details = wallets_api.details(wallet_id.clone()).await?;
     // println!("[#] Wallet Details: {:#?}", wallet_details);
 
@@ -185,9 +205,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // let source_wallet_id = wallet_id.clone(); // "VRELLZQ".to_string();
     // let intra_transfer_payload = WalletIntraTransferRequest {
-    //     wallet_id: "Y7ELXJQ".to_string(), // "Y7ELXJQ".to_string();
-    //     amount: Decimal::new(1000, 2),
-    //     narrative: "crowd funding".to_string(),
+    //     wallet_id: "VRELLZQ".to_string(), // "Y7ELXJQ".to_string();
+    //     amount: Decimal::new(10000, 2),
+    //     narrative: "wallet funding".to_string(),
     // };
     // let wallets_transfer_response = wallets_api
     //     .intra_transfer(source_wallet_id, intra_transfer_payload)

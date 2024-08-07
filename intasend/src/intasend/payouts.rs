@@ -36,8 +36,10 @@ pub struct PayoutsAPI {
 }
 
 impl PayoutsAPI {
-    /// The `initiate` method controls the API requests to IntaSend's `Payouts` API.
-    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments
+    /// The `initiate` method initiates the API requests to IntaSend's `Payouts` (Send Money) API.
+    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments.
+    /// This method is used under the hood to power all initiated requests depending on PayoutProvider.
+    /// It returns a Result of Payout.
     pub async fn initiate(&self, payload: PayoutRequest) -> Result<Payout> {
         let service_path: &str = "/api/v1/send-money/initiate/";
         let request_method = RequestMethods::Post;
@@ -50,14 +52,19 @@ impl PayoutsAPI {
         Ok(payout)
     }
 
+    /// The `mpesa_b2c` method initates Mpesa B2C payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments.
+    /// It returns a Result of Payout.
     pub async fn mpesa_b2c(&self, payload: PayoutRequest) -> Result<Payout> {
         let mut payload = payload;
-        payload.provider = Some(PayoutProvider::MpesaB2c); // PayoutProvider::MpesaB2c;
-        println!("mpesa_b2c payload: {:#?}", serde_json::to_value(&payload));
+        payload.provider = Some(PayoutProvider::MpesaB2c);
         let mpesa_payouts = self.initiate(payload).await?;
         Ok(mpesa_payouts)
     }
 
+    /// The `mpesa_b2b`  method initates Mpesa B2B payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments.
+    /// It returns a Result of Payout.
     pub async fn mpesa_b2b(&self, payload: PayoutRequest) -> Result<Payout> {
         let mut payload = payload;
         payload.provider = Some(PayoutProvider::MpesaB2b);
@@ -65,6 +72,9 @@ impl PayoutsAPI {
         Ok(mpesa_b2b)
     }
 
+    /// The `bank` method initates bank payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments.
+    /// It returns a Result of Payout.
     pub async fn bank(&self, payload: PayoutRequest) -> Result<Payout> {
         let mut payload = payload;
         payload.provider = Some(PayoutProvider::Pesalink);
@@ -72,6 +82,9 @@ impl PayoutsAPI {
         Ok(bank_payout)
     }
 
+    /// The `intasend` method initiates intasend payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments.
+    /// It returns a Payout Result.
     pub async fn intasend(&self, payload: PayoutRequest) -> Result<Payout> {
         let mut payload = payload;
         payload.provider = Some(PayoutProvider::Intasend);
@@ -79,6 +92,9 @@ impl PayoutsAPI {
         Ok(intasend_payout)
     }
 
+    /// The `airtime` method initiates airtime payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutRequest`) passed into the method as arguments.
+    /// It returns a Result of Payout.
     pub async fn airtime(&self, payload: PayoutRequest) -> Result<Payout> {
         let mut payload = payload;
         payload.provider = Some(PayoutProvider::Airtime);
@@ -86,32 +102,72 @@ impl PayoutsAPI {
         Ok(airtime)
     }
 
-    pub async fn approve(&self, payload: PayoutRequest) -> Result<Payout> {
-        // let client = Client::new();
+    /// The `approve` method approves the initiated payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutApprovalRequest`) passed into the method as arguments.
+    /// It returns a Result of Payout.
+    pub async fn approve(&self, payload: PayoutApprovalRequest) -> Result<Payout> {
         let service_path: &str = "/api/v1/send-money/approve/";
         let request_method = RequestMethods::Post;
 
         let payout = self
             .intasend
-            .send::<PayoutRequest, Payout>(Some(payload), service_path, request_method)
+            .send::<PayoutApprovalRequest, Payout>(Some(payload), service_path, request_method)
             .await?;
 
         Ok(payout)
     }
 
-    pub async fn status(&self, payload: PayoutRequest) -> Result<Payout> {
+    /// The `status` method checks the status of the initiated payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutStatusRequest`) passed into the method as arguments.
+    /// It returns a Result of Payout.
+    pub async fn status(&self, payload: PayoutStatusRequest) -> Result<Payout> {
         let service_path: &str = "/api/v1/send-money/status/";
+        let request_method = RequestMethods::Post;
+
+        let payout = self
+            .intasend
+            .send::<PayoutStatusRequest, Payout>(Some(payload), service_path, request_method)
+            .await?;
+
+        Ok(payout)
+    }
+
+    /// The `cancel` method cancels the initiated payout API requests to IntaSend's `Payouts` API.
+    /// This depends on the payload struct (`PayoutStatusRequest`) passed into the method as arguments.
+    /// It returns a Result of Payout.
+    pub async fn cancel(&self, payload: PayoutCancelRequest) -> Result<Payout> {
+        let service_path: &str = "/api/v1/send-money/cancel/";
+        let request_method = RequestMethods::Post;
+
+        let payout = self
+            .intasend
+            .send::<PayoutCancelRequest, Payout>(Some(payload), service_path, request_method)
+            .await?;
+
+        Ok(payout)
+    }
+
+    /// The `bank_codes_ke` method gets all bank codes from the IntaSend's API.
+    /// This depends on the payload struct (`PayoutStatusRequest`) passed into the method as arguments
+    /// It returns a Result of Vec of `BankCodes`
+    pub async fn bank_codes_ke(&self) -> Result<Vec<BankCodes>> {
+        let service_path: &str = "/api/v1/send-money/bank-codes/ke/";
         let request_method = RequestMethods::Get;
 
         let payout = self
             .intasend
-            .send::<PayoutRequest, Payout>(Some(payload), service_path, request_method)
+            .send_client_request::<PayoutBankCodesRequest, Vec<BankCodes>>(
+                None,
+                service_path,
+                request_method,
+            )
             .await?;
 
         Ok(payout)
     }
 }
 
+/// `Payout` struct
 #[derive(Deserialize, Serialize, Debug)]
 pub struct Payout {
     pub file_id: Option<String>,
@@ -123,12 +179,13 @@ pub struct Payout {
     pub nonce: Option<String>,
     pub wallet: Option<Wallet>,
     pub transactions: Option<Vec<PayoutResponseTransaction>>,
-    pub charge_estimate: Option<String>,
-    pub total_amount_estimate: Option<String>,
-    pub total_amount: Option<String>,
-    pub transactions_count: Option<String>,
+    pub charge_estimate: Option<Decimal>,
+    pub total_amount_estimate: Option<Decimal>,
+    pub total_amount: Option<Decimal>,
+    pub transactions_count: Option<u32>,
 }
 
+/// `PayoutRequestTransaction` struct
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PayoutRequestTransaction {
     /// Beneficiary name as per Client Records
@@ -145,6 +202,7 @@ pub struct PayoutRequestTransaction {
     pub account_reference: Option<String>,
 }
 
+/// `PayoutResponseTransaction` struct
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct PayoutResponseTransaction {
     pub status: Option<String>,
@@ -161,6 +219,7 @@ pub struct PayoutResponseTransaction {
     pub narrative: Option<String>,
 }
 
+/// `PayoutRequest` struct
 #[derive(Clone, Deserialize, Serialize, Debug)]
 pub struct PayoutRequest {
     pub currency: Currency,
@@ -172,9 +231,43 @@ pub struct PayoutRequest {
     pub transactions: Vec<PayoutRequestTransaction>,
 }
 
+/// `PayoutApprovalRequest` struct
+#[derive(Clone, Deserialize, Serialize, Debug)]
+pub struct PayoutApprovalRequest {
+    pub tracking_id: String,
+    pub batch_reference: String,
+    pub nonce: String,
+    pub wallet: Option<Wallet>,
+    pub transactions: Option<Vec<PayoutResponseTransaction>>,
+}
+
+/// `PayoutStatusRequest` struct
+#[derive(Clone, Deserialize, Serialize, Debug)]
+pub struct PayoutStatusRequest {
+    pub tracking_id: String,
+}
+
+/// `PayoutCancelRequest` struct
+#[derive(Clone, Deserialize, Serialize, Debug)]
+pub struct PayoutCancelRequest {
+    pub file_id: String,
+}
+
+/// `PayoutBankCodesRequest` struct
+#[derive(Clone, Deserialize, Serialize, Debug)]
+pub struct PayoutBankCodesRequest {}
+
+/// `PayoutApproval` enum
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum PayoutApproval {
-  Yes,
-  No,
+    Yes,
+    No,
+}
+
+/// `BankCodes` struct
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct BankCodes {
+    bank_name: String,
+    bank_code: String,
 }

@@ -11,10 +11,11 @@ pub use self::intasend::collection::{
     StkPushStatusResponse,
 };
 pub use self::intasend::payouts::{
-    Payout, PayoutApproval, PayoutRequest, PayoutRequestTransaction, PayoutResponseTransaction, PayoutsAPI,
+    Payout, PayoutApproval, PayoutApprovalRequest, PayoutRequest, PayoutRequestTransaction,
+    PayoutResponseTransaction, PayoutStatusRequest, PayoutsAPI,
 };
 pub use self::intasend::refunds::{
-    Refund, RefundReason, RefundRequest, RefundResponse, RefundsAPI,
+    Refund, RefundListResponse, RefundReason, RefundRequest, RefundsAPI,
 };
 pub use self::intasend::wallets::{
     FundCheckoutRequest, FundCheckoutResponse, FundMpesaRequest, FundMpesaResponse, Wallet,
