@@ -13,8 +13,8 @@ description = "A Rust SDK for the Intasend Payment Gateway"
 repository = "https://github.com/MikeTeddyOmondi/intasend-rs"
 keywords = [
 	"sdk",
-    "intasend",
-    "payment_gateway",
+  "intasend",
+  "payment-gateway",
 ]
 categories = ["sdk", "payment_gateway"]
 license = "MIT"
