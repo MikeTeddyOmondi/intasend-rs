@@ -169,7 +169,7 @@ impl CheckoutsAPI {
     }
 }
 
-/// `CheckoutRequest` Struct - `Checkout` API
+/// `CheckoutRequest` Struct - `CheckoutsAPI`
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CheckoutRequest {
     pub first_name: Option<String>,
@@ -180,7 +180,7 @@ pub struct CheckoutRequest {
     pub currency: Currency,
 }
 
-/// `CheckoutResponse` Struct - `Checkout` API
+/// `CheckoutResponse` Struct - `CheckoutsAPI`
 /// 
 /// **Note**: persist the `id` and the `signature` field in a store if you want to get the details of the fund checkout
 #[derive(Clone, Debug, Serialize, Deserialize)]

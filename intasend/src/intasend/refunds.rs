@@ -68,7 +68,7 @@ impl RefundsAPI {
     /// let refunds: Refunds = intasend.refunds();
     ///
     /// let refund_request = RefundRequest {
-    ///     amount: 100,
+    ///     amount: Decimal::new(10000, 2),
     ///     invoice_id: "RXX5P8R".to_string(),
     ///     currency: "USD".to_string(),
     ///     recipient: "recipient".to_string(),
@@ -99,7 +99,7 @@ impl RefundsAPI {
     /// let refunds: Refunds = intasend.refunds();
     ///
     /// let refund_request = RefundRequest {
-    ///     amount: 100,
+    ///     amount: Decimal::new(10000, 2),
     ///     invoice_id: "RXX5P8R".to_string(),
     ///     currency: "USD".to_string(),
     ///     recipient: "recipient".to_string(),

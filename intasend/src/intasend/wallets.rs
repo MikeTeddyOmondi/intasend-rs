@@ -58,8 +58,6 @@ impl WalletsAPI {
             .send::<WalletListRequest, WalletListResponse>(None, service_path, request_method)
             .await?;
 
-        // let wallet_list_info: Vec<Wallet> = response?.json().await?;
-
         Ok(wallet_list_info.clone())
     }
 
@@ -82,8 +80,6 @@ impl WalletsAPI {
             .send::<WalletDetailsRequest, Wallet>(None, service_path, request_method)
             .await?;
 
-        // let wallet_list_info: Vec<Wallet> = response?.json().await?;
-
         Ok(wallet_details_info.clone())
     }
 
@@ -101,7 +97,7 @@ impl WalletsAPI {
     /// let wallets_api: WalletsAPI = intasend.wallets();
     ///
     /// let payload = WalletCreateDetails {
-    ///     currency: Currency::KES,
+    ///     currency: Currency::Kes,
     ///     wallet_type: WalletType::Working,
     ///     can_disburse: true,
     ///     label: "wallet-label".to_string(),
@@ -138,7 +134,7 @@ impl WalletsAPI {
 
         let transactions = &self
             .intasend
-            .send::<WalletTransanctionRequest, WalletTransactionsResponse>(
+            .send::<WalletTransanctionsRequest, WalletTransactionsResponse>(
                 None,
                 service_path,
                 request_method,
@@ -260,6 +256,7 @@ impl WalletsAPI {
     }
 }
 
+/// `Wallet` struct 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Wallet {
     pub wallet_id: String,
@@ -272,6 +269,7 @@ pub struct Wallet {
     pub updated_at: String,
 }
 
+/// `WalletType` enum
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum WalletType {
@@ -279,9 +277,11 @@ pub enum WalletType {
     Working,
 }
 
+/// `WalletListRequest` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
-struct WalletListRequest {}
+pub struct WalletListRequest {}
 
+/// `WalletListResponse` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WalletListResponse {
     pub count: u32,
@@ -290,9 +290,11 @@ pub struct WalletListResponse {
     pub results: Vec<Wallet>,
 }
 
+/// `WalletDetailsRequest`struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WalletDetailsRequest {}
 
+/// `WalletCreateDetails` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WalletCreateDetails {
     pub currency: Currency,
@@ -306,9 +308,11 @@ fn default_wallet_type() -> WalletType {
     WalletType::Working
 }
 
+/// `WalletTransanctionsRequest` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
-struct WalletTransanctionRequest {}
+struct WalletTransanctionsRequest {}
 
+/// `WalletTransactionsResponse` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WalletTransactionsResponse {
     pub count: u32,
@@ -317,6 +321,7 @@ pub struct WalletTransactionsResponse {
     pub results: Vec<Transaction>,
 }
 
+/// `WalletIntraTransferRequest` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WalletIntraTransferRequest {
     pub wallet_id: String,
@@ -324,12 +329,14 @@ pub struct WalletIntraTransferRequest {
     pub narrative: String,
 }
 
+/// `WalletIntraTransferResponse` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct WalletIntraTransferResponse {
     pub origin: Wallet,
     pub destination: Wallet,
 }
 
+/// `FundMpesaRequest` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FundMpesaRequest {
     pub amount: Decimal,
@@ -339,6 +346,7 @@ pub struct FundMpesaRequest {
     pub phone_number: String,
 }
 
+/// `FundMpesaResponse` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FundMpesaResponse {
     pub invoice: Option<Invoice>,
@@ -349,6 +357,7 @@ pub struct FundMpesaResponse {
     pub updated_at: String,
 }
 
+/// `FundCheckoutRequest` 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FundCheckoutRequest {
     pub amount: Decimal,

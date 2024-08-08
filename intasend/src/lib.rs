@@ -23,7 +23,10 @@ pub use self::intasend::wallets::{
     WalletIntraTransferResponse, WalletListResponse, WalletTransactionsResponse, WalletType,
     WalletsAPI,
 };
-pub use self::intasend::{Currency, Intasend, PayoutProvider, Provider, Transaction};
+pub use self::intasend::{
+    Currency, Intasend, PayoutProvider, Provider, Tarrif, Transaction, TransactionStatus,
+    TransactionType,
+};
 
 #[cfg(test)]
 mod tests {

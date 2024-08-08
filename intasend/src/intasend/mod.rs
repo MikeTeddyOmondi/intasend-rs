@@ -344,6 +344,7 @@ pub trait RequestClient {
 //     Unknown,
 // }
 
+/// `ApiErrorDatail` struct
 #[derive(Debug, Deserialize)]
 pub struct IntasendApiErrorDetail {
     pub code: String,
@@ -351,12 +352,14 @@ pub struct IntasendApiErrorDetail {
     pub attr: Option<String>,
 }
 
+/// `IntasendApiError` struct 
 #[derive(Debug, Deserialize)]
 pub struct IntasendApiError {
     pub r#type: String,
     pub errors: Vec<IntasendApiErrorDetail>,
 }
 
+/// `IntasendClientError` - The main error data structure derived from `thiserror` crate
 #[derive(ThisErr, Debug)]
 pub enum IntasendClientError {
     #[error("Intasend client error")]
@@ -389,6 +392,7 @@ pub enum IntasendClientError {
 //     }
 // }
 
+/// `Invoice` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Invoice {
     pub invoice_id: String,
@@ -411,6 +415,7 @@ pub struct Invoice {
     pub updated_at: String,
 }
 
+/// `Customer` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Customer {
     pub customer_id: String,
@@ -425,12 +430,14 @@ pub struct Customer {
     pub updated_at: String,
 }
 
+/// `CardInfo` struct
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CardInfo {
     pub bin_country: Option<String>,
     pub card_type: Option<String>,
 }
 
+/// `Transaction` struct
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Transaction {
     pub transaction_id: String,
@@ -446,6 +453,7 @@ pub struct Transaction {
     pub updated_at: String,
 }
 
+/// `TransactionType` enum
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum TransactionType {
@@ -459,6 +467,7 @@ pub enum TransactionType {
     Unmarked,
 }
 
+/// `TransactionStatus` enum
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum TransactionStatus {
@@ -473,6 +482,7 @@ pub enum TransactionStatus {
     Adjustment,
 }
 
+/// `Provider` enum - provided by IntaSend
 /// Checkout Options supported by Intasend API Gateway
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
@@ -487,6 +497,7 @@ pub enum Provider {
     CoopB2b,
 }
 
+/// `RequestMethods` enum
 pub enum RequestMethods {
     Get,
     Post,
@@ -516,6 +527,7 @@ pub enum Currency {
 //     }
 // }
 
+/// Tarrifs supported by IntaSend
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING-KEBAB-CASE")]
 pub enum Tarrif {
