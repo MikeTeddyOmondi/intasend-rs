@@ -196,11 +196,11 @@ impl RequestClient for Intasend
                     .json(&payload)
                     .send()
                     .await?;
-                println!("[#] API Response: {:#?}", response);
+                // println!("[#] API Response: {:#?}", response);
 
                 if response.status().is_success() {
                     let parsed_response = response.json::<U>().await?;
-                    // println!("[#] API Response (OK): {:#?}", parsed_response);
+                    // println!("[#] API parsed Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
                   let status = response.status();

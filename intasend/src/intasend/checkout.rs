@@ -126,7 +126,7 @@ impl CheckoutsAPI {
                 request_method,
             )
             .await?;
-        println!("[#] Checkout Response: {:#?}", checkout_response);
+        // println!("[#] Checkout Response: {:#?}", checkout_response);
 
         Ok(checkout_response.clone())
 
