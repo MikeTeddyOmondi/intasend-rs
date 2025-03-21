@@ -37,8 +37,8 @@ pub use self::intasend::wallets::{
 #[cfg(feature = "client")]
 #[cfg(feature = "server")]
 pub use self::intasend::{
-    Currency, Intasend, PayoutProvider, Provider, Tarrif, Transaction, TransactionStatus,
-    TransactionType,
+    Currency, Intasend, IntasendApiError, IntasendApiErrorDetail, IntasendClientError,
+    PayoutProvider, Provider, Tarrif, Transaction, TransactionStatus, TransactionType,
 };
 
 #[cfg(test)]
