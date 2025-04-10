@@ -2,10 +2,6 @@
 
 This projects aims to provide an SDK that will support Rust projects with the [IntaSend](https://intasend.com) payment gateway.
 
-> 📌 Attention 
->
-> This project is in its early stages of development. Breaking changes may be introduced, and stability is not guaranteed until a stable version is released. Use sparingly in production until stability is achieved and be prepared for potential issues or changes in the future.
-
 ## Installation
 
 ```shell
@@ -41,3 +37,7 @@ This SDK is based on the IntaSend's official developers API. Click the resources
 ## License
 
 This projects is licensed under the [MIT](./LICENSE.md) license.
+
+> 📌 Attention 
+>
+> The project is still in development. Breaking changes may be introduced.
