@@ -9,21 +9,21 @@ use serde_json::Value as JSON;
 use std::fmt::{self, Debug};
 use thiserror::Error as ThisErr;
 
-#[cfg(feature = "client")]
-#[cfg(feature = "server")]
 pub(crate) mod checkout;
 pub(crate) mod collection;
 pub(crate) mod payouts;
 pub(crate) mod refunds;
 pub(crate) mod wallets;
+pub(crate) mod payment_links;
 
 use checkout::CheckoutsAPI;
 use collection::CollectionsAPI;
 use payouts::PayoutsAPI;
 use refunds::RefundsAPI;
 use wallets::WalletsAPI;
+use payment_links::PaymentLinksAPI;
 
-/// **[IntaSend](https://intasend.com)** - The _Unoffical_ Rust Client SDK for the Intasend API Gateway.
+/// **[IntaSend](https://intasend.com)** - The _Unofficial_ Rust Client SDK for the Intasend API Gateway.
 ///
 /// This library is a wrapper around the IntaSend Payment Gateway that supports a
 /// variety of payment methods e.g Visa, Mastercard, M-Pesa, and even Bitcoin.
@@ -31,7 +31,12 @@ use wallets::WalletsAPI;
 /// The library is fully async and it uses Reqwest library under the hood to make asynchronous calls to the REST API.
 ///
 /// To use the library you should acquire test or production API keys here: [Sandbox](https://sandbox.intasend.com) or [Production](https://payment.intasend.com)
+/// Features include:
+///  - `client`: Functionality for applications that need to initiate payments in browser environments
+/// - `server`: Functionality for applications that need to receive payments and manage wallets in server environments
+/// - `full`: Enables all functionality (both client and server)
 ///
+/// By default, the `full` feature is exposed.
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Intasend {
@@ -68,7 +73,7 @@ impl Intasend {
         }
     }
 
-    /// The `collection` method returns an instance of the `Collection` struct
+    /// The `collection` method returns an instance of the `CollectionsAPI` struct
     ///
     /// ```rust
     /// // Collection
@@ -83,7 +88,7 @@ impl Intasend {
         }
     }
 
-    /// The `checkout` method returns an instance of the `Checkout` struct
+    /// The `checkout` method returns an instance of the `CheckoutsAPI` struct
     ///
     /// ```rust
     /// // Checkout
@@ -91,14 +96,14 @@ impl Intasend {
     /// println!("Checkout instance: {:#?}", checkout);
     ///
     /// ```
-    #[cfg(feature = "client")]
+    #[cfg(any(feature = "client", feature = "server"))]
     pub fn checkout(&self) -> CheckoutsAPI {
         CheckoutsAPI {
             intasend: self.clone(),
         }
     }
 
-    /// The `payouts` method returns an instance of the `Payouts` struct
+    /// The `payouts` method returns an instance of the `PayoutsAPI` struct
     ///
     /// ```rust
     /// // Payouts
@@ -113,7 +118,7 @@ impl Intasend {
         }
     }
 
-    /// The `refunds` method returns an instance of the `Refunds` struct
+    /// The `refunds` method returns an instance of the `RefundsAPI` struct
     ///
     /// ```rust
     /// // Refunds
@@ -128,12 +133,12 @@ impl Intasend {
         }
     }
 
-    /// The `wallets` method returns an instance of the `Wallets` struct
+    /// The `wallets` method returns an instance of the `WalletsAPI` struct
     ///
     /// ```rust
     /// // Wallets
-    /// let wallets: Wallets = intasend.refunds();
-    /// println!("Refunds instance: {:#?}", wallets);
+    /// let wallets: Wallets = intasend.wallets();
+    /// println!("Wallet instance: {:#?}", wallets);
     ///
     /// ```
     #[cfg(feature = "server")]
@@ -142,11 +147,25 @@ impl Intasend {
             intasend: self.clone(),
         }
     }
+
+    /// The `payment_links` method returns an instance of the `Wallets` struct
+    ///
+    /// ```rust
+    /// // Payment Links
+    /// let payment_links: Wallets = intasend.payment_links();
+    /// println!("Payment Links instance: {:#?}", payment_links);
+    ///
+    /// ```
+    #[cfg(feature = "server")]
+    pub fn payment_links(&self) -> PaymentLinksAPI {
+        PaymentLinksAPI {
+            intasend: self.clone(),
+        }
+    }
 }
 
 impl RequestClient for Intasend
 {
-    #[cfg(feature = "client")]
     async fn send_client_request<T, U>(
         &self,
         payload: Option<T>,
@@ -214,7 +233,6 @@ impl RequestClient for Intasend
         }
     }
 
-    #[cfg(feature = "server")]
     async fn send<T, U>(
         &self,
         payload: Option<T>,
@@ -520,12 +538,6 @@ pub enum Currency {
     #[serde(rename = "GBP")]
     Gbp,
 }
-
-// impl fmt::Display for Currency {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         write!(f, "{}", self.as_str())
-//     }
-// }
 
 /// Tarrifs supported by IntaSend
 #[derive(Clone, Debug, Serialize, Deserialize)]
