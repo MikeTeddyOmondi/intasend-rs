@@ -1,1 +1,0 @@
-# Intasend - Examples
