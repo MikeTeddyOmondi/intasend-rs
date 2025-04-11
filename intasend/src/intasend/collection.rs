@@ -15,10 +15,9 @@ use super::{Customer, Invoice, RequestClient, RequestMethods, Tarrif};
 /// Mpesa Express for merchant initiated online payments
 /// 1. M-Pesa STK Push
 /// 2. Querying status of transactions
-/// 
+///
 /// ```rust
 /// // Load .env file
-/// use dotenvy;
 /// dotenvy::dotenv().ok();
 ///
 /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -45,18 +44,35 @@ impl CollectionsAPI {
     /// from the end user to accept the transaction.
     ///
     /// ```rust
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// // Load .env file
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
     /// // Collection API
     /// let collection: intasend::CollectionsAPI = intasend.collection();
     ///
-    /// let stkpush_request = MpesaStkPushRequest {
-    ///     amount: 10,
+    /// let stkpush_request = intasend::MpesaStkPushRequest {
+    ///     amount: rust_decimal::Decimal::new(10, 2),
     ///     phone_number: "254712345678".to_string(),
     ///     api_ref: None,
     ///     wallet_id: None,
     /// };
     ///
-    /// let stkpush_response: MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
+    /// let stkpush_response: intasend::MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
     /// println!("[#] Mpesa STK push: {:#?}", stkpush_response);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn mpesa_stk_push(
@@ -66,13 +82,6 @@ impl CollectionsAPI {
         let service_path: &str = "/api/v1/payment/mpesa-stk-push/";
         let request_method: RequestMethods = RequestMethods::Post;
 
-        // let json_response = <Intasend as RequestClient<MpesaStkPushRequest>>::send(
-        //     &self.intasend,
-        //     Some(payload),
-        //     service_path,
-        //     request_method,
-        // )
-        // .await?;
         let mpesa_stk_push_response = &self
             .intasend
             .send::<MpesaStkPushRequest, MpesaStkPushResponse>(
@@ -81,13 +90,6 @@ impl CollectionsAPI {
                 request_method,
             )
             .await?;
-        // println!("Json Response: {:#?}", json_response);
-
-        // let mpesa_stk_push_response = MpesaStkPushResponse::from_value(&json_response).unwrap();
-        // println!("Response: {:#?}", mpesa_stk_push_response);
-
-        // let mut invoice_object: Invoice = serde_json::from_value(json_response["invoice"].clone())?;
-        // println!("Invoice: {:#?}", invoice_object);
 
         Ok(mpesa_stk_push_response.clone())
     }
@@ -96,34 +98,50 @@ impl CollectionsAPI {
     /// authorised from the end user.
     ///
     /// ```rust
-    /// // Collection API
-    /// let collection: Collection = intasend.collection();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// // Load .env file
+    /// dotenvy::dotenv().ok();
     ///
-    /// let stkpush_request = MpesaStkPushRequest {
-    ///     amount: 10,
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // Collection API
+    /// let collection: intasend::CollectionsAPI = intasend.collection();
+    ///
+    /// let stkpush_request = intasend::MpesaStkPushRequest {
+    ///     amount: rust_decimal::Decimal::new(10, 2),
     ///     phone_number: "254712345678".to_string(),
     ///     api_ref: None,
     ///     wallet_id: None,
     /// };
     ///
-    /// let stkpush_response: MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
+    /// let stkpush_response: intasend::MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
     /// println!("[#] Mpesa STK push: {:#?}", stkpush_response);
     ///
     /// println!("[#] Waiting for the collection response...");
     /// tokio::time::sleep(std::time::Duration::from_secs(30)).await;
     ///
-    /// let stkpushstatus_req: StkPushStatusRequest = StkPushStatusRequest {
+    /// let stkpushstatus_req = intasend::StkPushStatusRequest {
     ///     invoice_id: stkpush_response.invoice.unwrap().invoice_id,
     ///     checkout_id: None,
     ///     signature: None,
     /// };
     ///
-    /// let stkpushstatus: StkPushStatusResponse = collection.status(stkpushstatus_req).await?;
+    /// let stkpushstatus: intasend::StkPushStatusResponse = collection.status(stkpushstatus_req).await?;
     /// println!(
     ///     "[#] Mpesa STK Push Status Response: {:#?}",
     ///     stkpushstatus
     /// );
-    ///
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn status(
@@ -225,6 +243,6 @@ mod tests {
 
     #[test]
     fn mpesa_stk_push_test() {
-      // Run tests here
+        // Run tests here
     }
 }

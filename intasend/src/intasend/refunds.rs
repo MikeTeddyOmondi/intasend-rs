@@ -15,20 +15,20 @@ use super::{Currency, Invoice, RequestClient, RequestMethods};
 ///
 /// ```rust
 /// // Load .env file
-/// dotenv().ok();
+/// dotenvy::dotenv().ok();
 ///
-/// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
-/// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+/// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+/// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
 ///
 /// // Intasend Client
-/// let intasend = Intasend::new(
+/// let intasend = intasend::Intasend::new(
 ///    intasend_public_key,
 ///    intasend_secret_key,
 ///     true,
 /// );
 ///
 /// // Chargebacks & Refunds API
-/// let refunds: Refunds = intasend.refunds();
+/// let refunds: intasend::RefundsAPI = intasend.refunds();
 /// ```
 ///
 #[derive(Deserialize, Debug)]
@@ -40,11 +40,27 @@ impl RefundsAPI {
     /// The `list` method returns all the refunds made by an entity from the IntaSend API
     ///
     /// ```rust
-    /// // Chargebacks & Refunds API
-    /// let refunds: Refunds = intasend.refunds();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let refund_list = refunds.list().await?;
-    /// println!("Checkout response: {:#?}", checkout_response);
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // Chargebacks & Refunds API
+    /// let refunds: intasend::RefundsAPI = intasend.refunds();
+    ///
+    /// let refunds_list = refunds.list().await?;
+    /// println!("Checkout response: {:#?}", refunds_list);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn list(&self) -> Result<RefundListResponse, Error> {
@@ -56,7 +72,6 @@ impl RefundsAPI {
             .intasend
             .send::<RefundRequest, RefundListResponse>(payload, service_path, request_method)
             .await?;
-        // println!("Json Response: {:#?}", refunds);
 
         Ok(refunds.clone())
     }
@@ -64,19 +79,34 @@ impl RefundsAPI {
     /// The `create` method creates a new refund for a transaction whose status is **COMPLETE**.
     ///
     /// ```rust
-    /// // Chargebacks & Refunds API
-    /// let refunds: Refunds = intasend.refunds();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let refund_request = RefundRequest {
-    ///     amount: Decimal::new(10000, 2),
-    ///     invoice_id: "RXX5P8R".to_string(),
-    ///     currency: "USD".to_string(),
-    ///     recipient: "recipient".to_string(),
-    ///     method: "M-PESA".to_string(),
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // Chargebacks & Refunds API
+    /// let refunds: intasend::RefundsAPI = intasend.refunds();
+    ///
+    /// let refund_request = intasend::RefundRequest {
+    ///     amount: rust_decimal::Decimal::new(10000, 2),
+    ///     invoice: "RXX5P8R".to_string(),
+    ///     reason: intasend::RefundReason::Other,
+    ///     reason_details: "refund reason details".to_string(),
     /// };
     ///
-    /// let created_refund: Refund = refunds.create(refund_request).await?;
+    /// let created_refund: intasend::Refund = refunds.create(refund_request).await?;
     /// println!("[#] Created refund: {:?}", created_refund);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn create(&self, payload: RefundRequest) -> Result<Refund, Error> {
@@ -95,22 +125,37 @@ impl RefundsAPI {
     /// The `get` method returns the specific refund with the specified `chargeback_id`.
     ///
     /// ```rust
-    /// // Chargebacks & Refunds API
-    /// let refunds: Refunds = intasend.refunds();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let refund_request = RefundRequest {
-    ///     amount: Decimal::new(10000, 2),
-    ///     invoice_id: "RXX5P8R".to_string(),
-    ///     currency: "USD".to_string(),
-    ///     recipient: "recipient".to_string(),
-    ///     method: "M-PESA".to_string(),
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // Chargebacks & Refunds API
+    /// let refunds: intasend::RefundsAPI = intasend.refunds();
+    ///
+    /// let refund_request = intasend::RefundRequest {
+    ///     amount: rust_decimal::Decimal::new(10000, 2),
+    ///     invoice: "RXX5P8R".to_string(),
+    ///     reason: intasend::RefundReason::Other,
+    ///     reason_details: "refund reason details".to_string(),
     /// };
     ///
-    /// let created_refund: Refund = refunds.create(refund_request).await?;
+    /// let created_refund: intasend::Refund = refunds.create(refund_request).await?;
     /// println!("[#] Created refund: {:?}", created_refund);
     ///
-    /// let specific_refund = refunds.get("chargeback_id".to_string()).await?;
+    /// let specific_refund = refunds.get(created_refund.chargeback_id).await?;
     /// println!("[#] Refund: {:?}", specific_refund);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn get(&self, chargeback_id: String) -> Result<Refund, Error> {

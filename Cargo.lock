@@ -586,6 +586,7 @@ name = "intasend"
 version = "0.3.0"
 dependencies = [
  "anyhow",
+ "dotenvy",
  "futures",
  "reqwest",
  "rust_decimal",

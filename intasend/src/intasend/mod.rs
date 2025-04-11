@@ -51,13 +51,13 @@ impl Intasend {
     /// The `new` method creates a new instance of the `Intasend` client
     /// ```rust
     /// // Load .env file
-    /// dotenv().ok();
+    /// dotenvy::dotenv().ok();
     ///
-    /// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
-    /// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
     ///
     /// // Intasend Client
-    /// let intasend = Intasend::new(
+    /// let intasend = intasend::Intasend::new(
     ///    intasend_public_key,
     ///    intasend_secret_key,
     ///     true,
@@ -75,8 +75,20 @@ impl Intasend {
     /// The `collection` method returns an instance of the `CollectionsAPI` struct
     ///
     /// ```rust
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
     /// // Collection
-    /// let collection: Collection = intasend.collection();
+    /// let collection: intasend::CollectionsAPI = intasend.collection();
     /// println!("Collection instance: {:#?}", collection);
     ///
     /// ```
@@ -90,8 +102,20 @@ impl Intasend {
     /// The `checkout` method returns an instance of the `CheckoutsAPI` struct
     ///
     /// ```rust
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
     /// // Checkout
-    /// let checkout: Checkout = intasend.checkout();
+    /// let checkout: intasend::CheckoutsAPI = intasend.checkout();
     /// println!("Checkout instance: {:#?}", checkout);
     ///
     /// ```
@@ -105,9 +129,21 @@ impl Intasend {
     /// The `payouts` method returns an instance of the `PayoutsAPI` struct
     ///
     /// ```rust
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
     /// // Payouts
-    /// let payouts: Payouts = intasend.payouts();
-    /// println!("Payouts instance: {:#?}", payout);
+    /// let payouts_api: intasend::PayoutsAPI = intasend.payouts();
+    /// println!("Payouts instance: {:#?}", payouts_api);
     ///
     /// ```
     #[cfg(feature = "server")]
@@ -120,8 +156,20 @@ impl Intasend {
     /// The `refunds` method returns an instance of the `RefundsAPI` struct
     ///
     /// ```rust
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
     /// // Refunds
-    /// let refunds: Refunds = intasend.refunds();
+    /// let refunds: intasend::RefundsAPI = intasend.refunds();
     /// println!("Refunds instance: {:#?}", refunds);
     ///
     /// ```
@@ -135,8 +183,20 @@ impl Intasend {
     /// The `wallets` method returns an instance of the `WalletsAPI` struct
     ///
     /// ```rust
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
     /// // Wallets
-    /// let wallets: Wallets = intasend.wallets();
+    /// let wallets: intasend::WalletsAPI = intasend.wallets();
     /// println!("Wallet instance: {:#?}", wallets);
     ///
     /// ```
@@ -150,8 +210,20 @@ impl Intasend {
     /// The `payment_links` method returns an instance of the `Wallets` struct
     ///
     /// ```rust
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
     /// // Payment Links
-    /// let payment_links: Wallets = intasend.payment_links();
+    /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
     /// println!("Payment Links instance: {:#?}", payment_links);
     ///
     /// ```
@@ -313,17 +385,6 @@ impl RequestClient for Intasend {
                     .json(&payload)
                     .send()
                     .await?;
-                // .json()
-                // .await?;
-                // println!("[#] API Response: {:#?}", response);
-
-                // let json: Map<String, Value> = serde_json::from_str(response)?;
-                // let json = serde_json::from_value::<U>(response?.json().await?)
-                //     .expect("[!] Error parsing json!");
-                // let json = serde_json::from_str::<U>(&response).expect("[!] Error parsing json!");
-                // Ok(json)
-
-                // println!("Response status: {:#?}", response.status());
 
                 if response.status().is_success() {
                     let parsed_response = response.json::<U>().await?;
@@ -336,12 +397,7 @@ impl RequestClient for Intasend {
                         status,
                         error: error_response,
                     })
-                    // Err(IntasendClientError::UnexpectedResponseStatus(
-                    //     response.status(),
-                    // ))
                 }
-
-                // Ok(response)
             }
             RequestMethods::Put => {
                 let response = client

@@ -41,8 +41,8 @@ pub use self::intasend::wallets::{
 // Payment Links functionality - `server` only
 #[cfg(feature = "server")]
 pub use self::intasend::payment_links::{
-    PaymentLinksAPI, PaymentLinksCreateDetails, PaymentLinksDetailsRequest,
-    PaymentLinksListRequest, PaymentLinksListResponse, PaymentLinksUpdateDetails
+    PaymentLink, PaymentLinksAPI, PaymentLinksCreateDetails, PaymentLinksDetailsRequest,
+    PaymentLinksListRequest, PaymentLinksListResponse, PaymentLinksUpdateDetails,
 };
 
 // Core types - available for both `client` and `server` environments

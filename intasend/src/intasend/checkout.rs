@@ -19,20 +19,20 @@ use super::{Currency, RequestClient, RequestMethods, Tarrif};
 ///
 /// ```rust
 /// // Load .env file
-/// dotenv().ok();
+/// dotenvy::dotenv().ok();
 ///
-/// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
-/// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+/// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+/// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
 ///
 /// // Intasend Client
-/// let intasend = Intasend::new(
+/// let intasend = intasend::Intasend::new(
 ///    intasend_public_key,
 ///    intasend_secret_key,
 ///     true,
 /// );
 ///
-/// // Checkout API
-/// let checkout: Checkout = intasend.checkout();
+/// // CheckoutsAPI
+/// let checkout: intasend::CheckoutsAPI = intasend.checkout();
 /// ```
 ///
 #[derive(Debug)]
@@ -44,77 +44,40 @@ impl CheckoutsAPI {
     /// The `initiate` method generates a checkout link that you'll send to your customers to complete payment
     ///
     /// ```rust
-    /// // Checkout API
-    /// let checkout: Checkout = intasend.checkout();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// // Load .env file
+    /// dotenvy::dotenv().ok();
     ///
-    /// let checkout_req = CheckoutRequest {
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // CheckoutsAPI
+    /// let checkout: intasend::CheckoutsAPI = intasend.checkout();
+    ///
+    /// let checkout_req = intasend::CheckoutRequest {
     ///     first_name: Some("Joe".to_string()),
     ///     last_name: Some("Doe".to_string()),
     ///     email: Some("joe@doe.com".to_string()),
-    ///     method: Some(CheckoutMethod::CARDPAYMENT.as_str()),
-    ///     amount: Decimal::new(10, 2),
-    ///     currency: Currency::USD,
+    ///     method: Some(intasend::CheckoutMethod::CardPayment),
+    ///     amount: rust_decimal::Decimal::new(10, 2),
+    ///     currency: intasend::Currency::Usd,
     /// };
     ///
-    /// let checkout_response: CheckoutResponse = checkout.initiate(checkout_req).await?;
+    /// let checkout_response: intasend::CheckoutResponse = checkout.initiate(checkout_req).await?;
     /// println!("[#] Checkout Init: {:?}", checkout_response);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn initiate(&self, payload: CheckoutRequest) -> Result<CheckoutResponse, Error> {
-        // let service_path: &str = "/api/v1/checkout/";
-        // let request_method: RequestMethods = RequestMethods::POST;
-
-        // // self.intasend.send::<'a>(payload, service_path, request_method);
-        // let json_response = <Intasend as RequestClient<CheckoutRequest>>::send(
-        //     &self.intasend,
-        //     payload,
-        //     service_path,
-        //     request_method,
-        // )
-        // .await?;
-        // println!("Json Response: {:?}", json_response);
-
-        // let charge_response = CheckoutResponse::from_value(&json_response).unwrap();
-        // println!("Json Response: {:#?}", charge_response);
-
-        // Ok(charge_response)
-
-        // let client = Client::new();
-
-        // let base_url = if self.intasend.test_mode {
-        //     "https://sandbox.intasend.com"
-        // } else {
-        //     "https://payment.intasend.com"
-        // };
-
-        // let response = client
-        //     .post(&format!("{}/api/v1/checkout/", base_url))
-        //     .header("Content-Type", "application/json")
-        //     // .header(
-        //     //     "Authorization",
-        //     //     format!("Bearer {}", self.intasend.secret_key),
-        //     // )
-        //     .header(
-        //         "X-IntaSend-Public-API-Key",
-        //         self.intasend.publishable_key.clone(),
-        //     )
-        //     .json(&payload)
-        //     .send()
-        //     .await;
-
-        // // println!("[#] Response: {:#?}", response);
-
-        // // let json_response = serde_json::from_value::<CheckoutResponse>(response?.json().await?).expect("Error parsing json!");
-        // let checkout_response = serde_json::from_value::<JSON>(response?.json().await?)
-        //     .expect("Error parsing json!");
-        // println!("Response: {:#?}", checkout_response);
-
-        // let checkout_response = CheckoutResponse::from_value(&checkout_response).unwrap();
-        // println!("Response: {:#?}", checkout_response);
-
-        // let status_response: CheckoutResponse = checkout_response?.json().await?;
-
-        // _____________________________________________________________________
         let service_path: &str = "/api/v1/checkout/";
         let request_method: RequestMethods = RequestMethods::Post;
 
@@ -129,23 +92,38 @@ impl CheckoutsAPI {
         // println!("[#] Checkout Response: {:#?}", checkout_response);
 
         Ok(checkout_response.clone())
-
-        // Ok(checkout_response)
     }
 
     /// The `details` method approves send money request.
     ///
     /// ```rust
-    /// // Checkout API
-    /// let checkout: Checkout = intasend.checkout();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// // Load .env file
+    /// dotenvy::dotenv().ok();
     ///
-    /// let checkout_details_req = CheckoutDetailsRequest {
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // CheckoutsAPI
+    /// let checkout: intasend::CheckoutsAPI = intasend.checkout();
+    ///
+    /// let checkout_details_req = intasend::CheckoutDetailsRequest {
     ///     checkout_id: "dd4bd8a2-a34c-4c04-9663-6935eb8a8a4b".to_string(),
     ///     signature: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzY29wZSI6ImV4cHJlc3MtY2hlY2tvdXQiLCJpc3MiOiJJbnRhU2VuZCBTb2x1dGlvbnMgTGltaXRlZCIsImF1ZCI6WyJkZDRiZDhhMi1hMzRjLTRjMDQtOTY2My02OTM1ZWI4YThhNGIiXSwiaWF0IjoxNzA4NTQ1ODgyLCJleHAiOjE3MDg1NDk0ODIsImFjY291bnRJRCI6IjlRSjlLR1kiLCJyZWZlcmVuY2UiOiJkZDRiZDhhMi1hMzRjLTRjMDQtOTY2My02OTM1ZWI4YThhNGIifQ.lnHBsBqzAaM24UxdL82nrGIlpDKBlGG-tCJDocMkrZk".to_string(),
     /// };
     ///
-    /// let checkout_details_response: CheckoutDetailsResponse = checkout.details(checkout_details_req).await?;
+    /// let checkout_details_response: intasend::CheckoutDetailsResponse = checkout.details(checkout_details_req).await?;
     /// println!("Checkout details response: {:#?}", checkout_details_response);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn details(
@@ -181,7 +159,7 @@ pub struct CheckoutRequest {
 }
 
 /// `CheckoutResponse` Struct - `CheckoutsAPI`
-/// 
+///
 /// **Note**: persist the `id` and the `signature` field in a store if you want to get the details of the fund checkout
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CheckoutResponse {
@@ -243,14 +221,14 @@ pub struct CheckoutDetailsResponse {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum CheckoutMethod {
-  Mpesa,
-  #[serde(rename = "CARD-PAYMENT")]
-  CardPayment,
-  Bitcoin,
-  #[serde(rename = "BANK-ACH")]
-  Bank,
-  #[serde(rename = "COOP_B2B")]
-  CoopB2b,
+    Mpesa,
+    #[serde(rename = "CARD-PAYMENT")]
+    CardPayment,
+    Bitcoin,
+    #[serde(rename = "BANK-ACH")]
+    Bank,
+    #[serde(rename = "COOP_B2B")]
+    CoopB2b,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

@@ -17,10 +17,9 @@ use super::{Currency, Customer, Invoice, RequestClient, RequestMethods, Tarrif};
 /// 2. Querying details of single payment links
 /// 3. Creating new payment links
 /// 4. Update details of single payment links
-/// 
+///
 /// ```rust
 /// // Load .env file
-/// use dotenvy;
 /// dotenvy::dotenv().ok();
 ///
 /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -46,11 +45,27 @@ impl PaymentLinksAPI {
     /// The `list` (PaymentLinks API) enables you to list all payment links created.
     ///
     /// ```rust
-    /// // PaymentLinksAPI
-    /// let payment_links: PaymentLinksAPI = intasend.payment_links();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let payment_links_list: PaymentLinksListResponse = payment_links.list().await?;
-    /// println!("[#] Payment Links List Info: {:#?}", payment_links_list);
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // PaymentLinksAPI
+    /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
+    ///
+    /// let payment_links_list: intasend::PaymentLinksListResponse = payment_links.list().await?;
+    /// println!("[#] Payment Links List: {:#?}", payment_links_list);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn list(&self) -> Result<PaymentLinksListResponse> {
@@ -59,7 +74,11 @@ impl PaymentLinksAPI {
 
         let payment_links_list = &self
             .intasend
-            .send::<PaymentLinksListRequest, PaymentLinksListResponse>(None, service_path, request_method)
+            .send::<PaymentLinksListRequest, PaymentLinksListResponse>(
+                None,
+                service_path,
+                request_method,
+            )
             .await?;
 
         Ok(payment_links_list.clone())
@@ -68,11 +87,27 @@ impl PaymentLinksAPI {
     /// The `details` (Wallets API) enables you to access wallet's details.
     ///
     /// ```rust
-    /// // PaymentLinksAPI
-    /// let payment_links: PaymentLinksAPI = intasend.payment_links();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let payment_links_details: PaymentLink = payment_links.details(payment_link_id).await?;
-    /// println!("[#] Payment Links Details: {:#?}", payment_links_list);
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // PaymentLinksAPI
+    /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
+    /// let payment_link_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
+    /// let payment_links_details: intasend::PaymentLink = payment_links.details(payment_link_id).await?;
+    /// println!("[#] Payment Links Details: {:#?}", payment_links_details);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn details(&self, payment_link_id: String) -> Result<PaymentLink> {
@@ -90,22 +125,38 @@ impl PaymentLinksAPI {
     /// The `create` (PaymentLinksAPI) will help you to create payment links.
     ///
     /// ```rust
-    /// // PaymentLinksAPI
-    /// let payment_links: PaymentLinksAPI = intasend.wallets();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let payload = PaymentLinksCreateDetails {
-    ///     title: "Payment link Title",
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // PaymentLinksAPI
+    /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
+    ///
+    /// let payload = intasend::PaymentLinksCreateDetails {
+    ///     title: "Payment link Title".to_string(),
     ///     amount: Some(100),
     ///     usage_limit: Some(1),
     ///     is_active: Some(true),
-    ///     mobile_tarrif: Some(Tarrif::BusinessPays),
-    ///     card_tarrif: Some(Tarrif::BusinessPays),
-    ///     currency: Currency::Kes,
+    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     currency: intasend::Currency::Kes,
     ///     redirect_url: None,
     /// };
     ///
-    /// let created_payment_link: PaymentLink = payment_links.create(payload).await?;
+    /// let created_payment_link: intasend::PaymentLink = payment_links.create(payload).await?;
     /// println!("[#] Payment Link Created: {:#?}", created_payment_link);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     pub async fn create(&self, payload: PaymentLinksCreateDetails) -> Result<PaymentLink> {
         let service_path: &str = "/api/v1/paymentlinks/";
@@ -113,7 +164,11 @@ impl PaymentLinksAPI {
 
         let created_payment_link = &self
             .intasend
-            .send::<PaymentLinksCreateDetails, PaymentLink>(Some(payload), service_path, request_method)
+            .send::<PaymentLinksCreateDetails, PaymentLink>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
             .await?;
 
         Ok(created_payment_link.clone())
@@ -122,25 +177,45 @@ impl PaymentLinksAPI {
     /// The `update` (PaymentLinksAPI) will help you to update details of a payment link(s).
     ///
     /// ```rust
-    /// // PaymentLinksAPI
-    /// let payment_links: PaymentLinksAPI = intasend.wallets();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let payload = PaymentLinksUpdateDetails {
-    ///     title: "Payment link Title Updated",
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // PaymentLinksAPI
+    /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
+    ///
+    /// let payload = intasend::PaymentLinksUpdateDetails {
+    ///     title: "Payment link Title Updated".to_string(),
     ///     amount: Some(300),
     ///     usage_limit: Some(6),
     ///     is_active: Some(false),
-    ///     mobile_tarrif: Some(Tarrif::BusinessPays),
-    ///     card_tarrif: Some(Tarrif::BusinessPays),
-    ///     currency: Currency::Kes,
+    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     currency: intasend:: Currency::Kes,
     ///     redirect_url: None,
     /// };
     ///
-    /// let uid = Uuid::parse_str(&"e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap(); 
-    /// let updated_payment_link: PaymentLink = payment_links.update(uid.to_string(), payload).await?;
+    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
+    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
     /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
-    pub async fn update(&self, payment_link_id: String, payload: PaymentLinksUpdateDetails) -> Result<PaymentLink> {
+    pub async fn update(
+        &self,
+        payment_link_id: String,
+        payload: PaymentLinksUpdateDetails,
+    ) -> Result<PaymentLink> {
         let service_path: &str = &format!("/api/v1/paymentlinks/{}", payment_link_id);
         let request_method: RequestMethods = RequestMethods::Put;
 

@@ -16,20 +16,20 @@ use super::{Customer, Invoice, Provider, RequestClient, RequestMethods};
 ///
 /// ```rust
 /// // Load .env file
-/// dotenv().ok();
+/// dotenvy::dotenv().ok();
 ///
-/// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
-/// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+/// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+/// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
 ///
 /// // Intasend Client
-/// let intasend = Intasend::new(
+/// let intasend = intasend::Intasend::new(
 ///    intasend_public_key,
 ///    intasend_secret_key,
 ///     true,
 /// );
 ///
 /// // WalletsAPI
-/// let wallets_api: WalletsAPI = intasend.wallets();
+/// let wallets_api: intasend::WalletsAPI = intasend.wallets();
 /// ```
 ///
 #[derive(Debug)]
@@ -42,11 +42,27 @@ impl WalletsAPI {
     /// created in your account.
     ///
     /// ```rust
-    /// // WalletsAPI
-    /// let wallets_api: WalletsAPI = intasend.wallets();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let wallet_list_info: WalletListResponse = wallets_api.list().await?;
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // WalletsAPI
+    /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
+    ///
+    /// let wallet_list_info: intasend::WalletListResponse = wallets_api.list().await?;
     /// println!("[#] Wallet List Info: {:#?}", wallet_list_info);
+    /// 
+    /// Ok(())
+    /// }
     /// ```
     ///
     pub async fn list(&self) -> Result<WalletListResponse> {
@@ -64,11 +80,27 @@ impl WalletsAPI {
     /// The `details` (Wallets API) enables you to access wallet's details.
     ///
     /// ```rust
-    /// // WalletsAPI
-    /// let wallets_api: WalletsAPI = intasend.wallets();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let wallet_details: Wallet = wallets_api.details(wallet_id).await?;
-    /// println!("[#] Wallet Details Info: {:#?}", wallet_list_info);
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // WalletsAPI
+    /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
+    /// let wallet_id = String::from("wallet_id");
+    /// let wallet_details: intasend::Wallet = wallets_api.details(wallet_id).await?;
+    /// println!("[#] Wallet Details Info: {:#?}", wallet_details);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn details(&self, wallet_id: String) -> Result<Wallet> {
@@ -93,18 +125,34 @@ impl WalletsAPI {
     /// Each customer can have their own wallets within IntaSend that you will manage on their behalf.
     ///
     /// ```rust
-    /// // WalletsAPI
-    /// let wallets_api: WalletsAPI = intasend.wallets();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let payload = WalletCreateDetails {
-    ///     currency: Currency::Kes,
-    ///     wallet_type: WalletType::Working,
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // WalletsAPI
+    /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
+    ///
+    /// let payload = intasend::WalletCreateDetails {
+    ///     currency: intasend::Currency::Kes,
+    ///     wallet_type: intasend::WalletType::Working,
     ///     can_disburse: true,
     ///     label: "wallet-label".to_string(),
     /// };
     ///
-    /// let created_wallet: Wallet = wallets_api.create(payload).await?;
-    /// println!("[#] Wallet Details Info: {:#?}", wallet_list_info);
+    /// let created_wallet: intasend::Wallet = wallets_api.create(payload).await?;
+    /// println!("[#] Wallet Details Info: {:#?}", created_wallet);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     pub async fn create(&self, payload: WalletCreateDetails) -> Result<Wallet> {
         let service_path: &str = "/api/v1/wallets/";
@@ -121,11 +169,27 @@ impl WalletsAPI {
     /// The `transactions` (WalletsAPI) enables you to get all the transactions from a specific Wallet.
     ///
     /// ```rust
-    /// // WalletsAPI
-    /// let wallets_api: WalletsAPI = intasend.wallets();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let wallet_transanctions = wallets_api.transactions(wallet_id.clone()).await?;
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // WalletsAPI
+    /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
+    /// let wallet_id = String::from("wallet_id");
+    /// let wallet_transanctions = wallets_api.transactions(wallet_id).await?;
     /// println!("[#] Wallet Transactions: {:#?}", wallet_transanctions);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn transactions(&self, wallet_id: String) -> Result<WalletTransactionsResponse> {
@@ -148,17 +212,35 @@ impl WalletsAPI {
     /// to another IntaSend wallet i.e internal wallet to wallet transfers
     ///
     /// ```rust
-    /// // WalletsAPI
-    /// let wallets_api: WalletsAPI = intasend.wallets();
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
     ///
-    /// let intra_transfer_payload = WalletIntraTransferRequest {
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // WalletsAPI
+    /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
+    ///
+    /// let intra_transfer_payload = intasend::WalletIntraTransferRequest {
     ///     wallet_id: "Y7ERXJQ".to_string(),
-    ///     amount: Decimal::new(1000, 2),
+    ///     amount: rust_decimal::Decimal::new(1000, 2),
     ///     narrative: "fund raising".to_string(),
     /// };
-    ///
+    /// 
+    /// let source_wallet_id = String::from("Y7ERXJQ");
+    /// 
     /// let wallets_transfer_response = wallets_api.intra_transfer(source_wallet_id, intra_transfer_payload).await?;
     /// println!("[#] Wallet Intra Transfer Response: {:#?}", wallets_transfer_response);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn intra_transfer(
@@ -185,15 +267,34 @@ impl WalletsAPI {
     ///  using M-pesa.
     ///
     /// ```rust
-    /// let fund_mpesa_payload = FundMpesaRequest {
-    ///   method: Provider::Mpesa,
-    ///   currency: Currency::Kes,
-    ///   amount: Decimal::new(1000, 2),
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // WalletsAPI
+    /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
+    /// 
+    /// let fund_mpesa_payload = intasend::FundMpesaRequest {
+    ///   method: intasend::Provider::Mpesa,
+    ///   currency: intasend::Currency::Kes,
+    ///   amount: rust_decimal::Decimal::new(1000, 2),
     ///   wallet_id: "Y7ELXJQ".to_string(),
     ///   phone_number: "254717135176".to_string(),
     /// };
     /// let fund_mpesa_response = wallets_api.fund_mpesa(fund_mpesa_payload).await?;
     /// println!("[#] Wallet Fund Mpesa Response: {:#?}", fund_mpesa_response);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn fund_mpesa(&self, payload: FundMpesaRequest) -> Result<FundMpesaResponse> {
@@ -220,13 +321,29 @@ impl WalletsAPI {
     ///  using checkout links.
     ///
     /// ```rust
-    /// let fund_checkout_req = FundCheckoutRequest {
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // WalletsAPI
+    /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
+    /// 
+    /// let fund_checkout_req = intasend::FundCheckoutRequest {
     ///     first_name: Some("Foo".to_string()),
     ///     last_name: Some("Bar".to_string()),
     ///     email: Some("foobar@baz.com".to_string()),
-    ///     method: Some(Provider::Bank),
-    ///     amount: Decimal::new(100000, 2), // 1000.00
-    ///     currency: Currency::Kes,
+    ///     method: Some(intasend::Provider::Bank),
+    ///     amount: rust_decimal::Decimal::new(100000, 2), // 1000.00
+    ///     currency: intasend::Currency::Kes,
     ///     wallet_id: "Y7ELXJQ".to_string(),
     ///     api_ref: None,
     ///     redirect_url: None,
@@ -234,6 +351,9 @@ impl WalletsAPI {
     ///
     /// let fund_checkout_response = wallets_api.fund_checkout(fund_checkout_req).await?;
     /// println!("[#] Fund Checkout response: {:#?}", fund_checkout_response);
+    /// 
+    /// Ok(())
+    /// # }
     /// ```
     ///
     pub async fn fund_checkout(

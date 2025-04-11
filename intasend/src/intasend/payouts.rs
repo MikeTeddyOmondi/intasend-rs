@@ -14,20 +14,20 @@ use super::{Currency, PayoutProvider, RequestClient, RequestMethods};
 ///
 /// ```rust
 /// // Load .env file
-/// dotenv().ok();
+/// dotenvy::dotenv().ok();
 ///
-/// let intasend_public_key = env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
-/// let intasend_secret_key = env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+/// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+/// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
 ///
 /// // Intasend Client
-/// let intasend = Intasend::new(
+/// let intasend = intasend::Intasend::new(
 ///    intasend_public_key,
 ///    intasend_secret_key,
 ///     true,
 /// );
 ///
 /// // PayoutsAPI
-/// let payout: Payouts = intasend.payout();
+/// let payout: intasend::PayoutsAPI = intasend.payouts();
 /// ```
 ///
 #[derive(Deserialize, Debug)]

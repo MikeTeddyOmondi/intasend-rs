@@ -30,6 +30,9 @@ tokio = { version = "1.35.1", features = [
 ] }
 uuid = { version = "1.16.0", features = ["v4", "serde"] }
 
+[dev-dependencies]
+dotenvy = "0.15.7"
+
 [profile.dev]
 opt-level = 0
 
