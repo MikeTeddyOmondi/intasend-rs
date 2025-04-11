@@ -1,6 +1,6 @@
 [package]
 name = "intasend"
-version = "0.3.0"
+version = "0.3.0-dev"
 edition = "2021"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE.md"]
 homepage = "https://github.com/MikeTeddyOmondi/intasend-rs/intasend"
