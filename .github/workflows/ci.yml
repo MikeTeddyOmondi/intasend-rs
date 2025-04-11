@@ -1,0 +1,100 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  # 1) Build & Lint (clippy) & Test
+  test_and_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Install dependencies (fetch crates)
+        run: cargo fetch
+
+      - name: Run Clippy
+        run: |
+          cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run Tests
+        run: cargo test --all-features
+
+  # 2) Publish Crate to crates.io
+  publish_crate:
+    runs-on: ubuntu-latest
+    needs: test_and_lint
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Set up Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        run: |
+          # If your Cargo.toml is in the root, just `cargo publish`.
+          # If it's in a subfolder, cd there first:
+          cd intasend
+          cargo publish
+
+  # 3) Build & Push Docker Image from the `docs` folder
+  docker_publish:
+    runs-on: ubuntu-latest
+    needs: test_and_lint
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Build & Push Docker Image
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          image: ranckosolutionsinc/intasend-rs-docs
+          tags: latest
+          registry: docker.io
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          # Build context is the `docs` folder
+          context: docs
+          # If your Dockerfile is named something other than Dockerfile or in a different location,
+          # specify "dockerfile: docs/Dockerfile", e.g.:
+          # dockerfile: docs/Dockerfile
+
+  # 4) Create a GitHub Release and attach release notes
+  # create_github_release:
+  #   runs-on: ubuntu-latest
+  #   needs: 
+  #     - publish_crate
+  #     - docker_publish
+  #   steps:
+  #     - name: Create Release
+  #       uses: actions/create-release@v1
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{ github.ref_name }}
+  #         release_name: "Release ${{ github.ref_name }}"
+  #         draft: false
+  #         prerelease: false
+  #         # This can be a simple text body or auto-generated with changes.
+  #         body: |
+  #           ## What's Changed
+  #           - Auto-generated release notes
+  #           - Clippy and tests have passed
+  #           - Docker image has been pushed to Docker Hub
+  #           - Crate published to crates.io
