@@ -47,7 +47,6 @@ pub struct Intasend {
 
 /// The Intasend Struct implements a number of methods namely: collection, checkout,
 /// payouts, refunds and wallets which adheres to the API specifications provided by Intasend
-
 impl Intasend {
     /// The `new` method creates a new instance of the `Intasend` client
     /// ```rust
@@ -186,7 +185,7 @@ impl RequestClient for Intasend {
         match request_method {
             RequestMethods::Get => {
                 let response = client
-                    .get(&format!("{}{}", base_url, service_path))
+                    .get(format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .send()
@@ -208,7 +207,7 @@ impl RequestClient for Intasend {
             }
             RequestMethods::Post => {
                 let response = client
-                    .post(&format!("{}{}", base_url, service_path))
+                    .post(format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .json(&payload)
@@ -231,7 +230,7 @@ impl RequestClient for Intasend {
             }
             RequestMethods::Put => {
                 let response = client
-                    .put(&format!("{}{}", base_url, service_path))
+                    .put(format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
                     .json(&payload)
@@ -276,7 +275,7 @@ impl RequestClient for Intasend {
         match request_method {
             RequestMethods::Get => {
                 let response = client
-                    .get(&format!("{}{}", base_url, service_path))
+                    .get(format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("Authorization", format!("Bearer {}", self.secret_key))
                     // .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
@@ -307,7 +306,7 @@ impl RequestClient for Intasend {
             }
             RequestMethods::Post => {
                 let response = client
-                    .post(&format!("{}{}", base_url, service_path))
+                    .post(format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("Authorization", format!("Bearer {}", self.secret_key))
                     // .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
@@ -346,7 +345,7 @@ impl RequestClient for Intasend {
             }
             RequestMethods::Put => {
                 let response = client
-                    .put(&format!("{}{}", base_url, service_path))
+                    .put(format!("{}{}", base_url, service_path))
                     .header("Content-Type", "application/json")
                     .header("Authorization", format!("Bearer {}", self.secret_key))
                     .json(&payload)

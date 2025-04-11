@@ -58,7 +58,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("[#] Payment Link Created: {:#?}", created_payment_link);
 
     // Update payment link(s)
-    let uid = Uuid::parse_str(&"e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
+    let uid = Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
     let payment_link_label_identifier = "payment-link-updated".to_string();
     let payment_link_label_updated = format!("{}-{}", payment_link_label_identifier, uid);
 
