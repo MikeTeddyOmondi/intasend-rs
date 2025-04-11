@@ -26,7 +26,7 @@ This SDK is based on the IntaSend's official developers API. Click the resources
 - [x] Refunds
 - [x] Payouts
 - [x] Wallets 
-- [ ] Payment links
+- [x] Payment links
 - [ ] Collection customers
 - [ ] Subscriptions & subscription plans
 
