@@ -11,17 +11,17 @@ use thiserror::Error as ThisErr;
 
 pub(crate) mod checkout;
 pub(crate) mod collection;
+pub(crate) mod payment_links;
 pub(crate) mod payouts;
 pub(crate) mod refunds;
 pub(crate) mod wallets;
-pub(crate) mod payment_links;
 
 use checkout::CheckoutsAPI;
 use collection::CollectionsAPI;
+use payment_links::PaymentLinksAPI;
 use payouts::PayoutsAPI;
 use refunds::RefundsAPI;
 use wallets::WalletsAPI;
-use payment_links::PaymentLinksAPI;
 
 /// **[IntaSend](https://intasend.com)** - The _Unofficial_ Rust Client SDK for the Intasend API Gateway.
 ///
@@ -164,8 +164,7 @@ impl Intasend {
     }
 }
 
-impl RequestClient for Intasend
-{
+impl RequestClient for Intasend {
     async fn send_client_request<T, U>(
         &self,
         payload: Option<T>,
@@ -199,12 +198,12 @@ impl RequestClient for Intasend
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                  let status = response.status();
-                  let error_response = response.json::<IntasendApiError>().await?;
-                  Err(IntasendClientError::UnexpectedResponseStatus {
-                      status,
-                      error: error_response,
-                  })
+                    let status = response.status();
+                    let error_response = response.json::<IntasendApiError>().await?;
+                    Err(IntasendClientError::UnexpectedResponseStatus {
+                        status,
+                        error: error_response,
+                    })
                 }
             }
             RequestMethods::Post => {
@@ -222,12 +221,35 @@ impl RequestClient for Intasend
                     // println!("[#] API parsed Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                  let status = response.status();
-                  let error_response = response.json::<IntasendApiError>().await?;
-                  Err(IntasendClientError::UnexpectedResponseStatus {
-                      status,
-                      error: error_response,
-                  })
+                    let status = response.status();
+                    let error_response = response.json::<IntasendApiError>().await?;
+                    Err(IntasendClientError::UnexpectedResponseStatus {
+                        status,
+                        error: error_response,
+                    })
+                }
+            }
+            RequestMethods::Put => {
+                let response = client
+                    .put(&format!("{}{}", base_url, service_path))
+                    .header("Content-Type", "application/json")
+                    .header("X-IntaSend-Public-API-Key", self.publishable_key.clone())
+                    .json(&payload)
+                    .send()
+                    .await?;
+                // println!("[#] API Response: {:#?}", response);
+
+                if response.status().is_success() {
+                    let parsed_response = response.json::<U>().await?;
+                    // println!("[#] API parsed Response (OK): {:#?}", parsed_response);
+                    Ok(parsed_response)
+                } else {
+                    let status = response.status();
+                    let error_response = response.json::<IntasendApiError>().await?;
+                    Err(IntasendClientError::UnexpectedResponseStatus {
+                        status,
+                        error: error_response,
+                    })
                 }
             }
         }
@@ -273,12 +295,12 @@ impl RequestClient for Intasend
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                  let status = response.status();
-                  let error_response = response.json::<IntasendApiError>().await?;
-                  Err(IntasendClientError::UnexpectedResponseStatus {
-                      status,
-                      error: error_response,
-                  })
+                    let status = response.status();
+                    let error_response = response.json::<IntasendApiError>().await?;
+                    Err(IntasendClientError::UnexpectedResponseStatus {
+                        status,
+                        error: error_response,
+                    })
                 }
 
                 // Ok(response)
@@ -309,18 +331,39 @@ impl RequestClient for Intasend
                     // println!("[#] API Response (OK): {:#?}", parsed_response);
                     Ok(parsed_response)
                 } else {
-                  let status = response.status();
-                  let error_response = response.json::<IntasendApiError>().await?;
-                  Err(IntasendClientError::UnexpectedResponseStatus {
-                      status,
-                      error: error_response,
-                  })
-                  // Err(IntasendClientError::UnexpectedResponseStatus(
-                  //     response.status(),
-                  // ))
+                    let status = response.status();
+                    let error_response = response.json::<IntasendApiError>().await?;
+                    Err(IntasendClientError::UnexpectedResponseStatus {
+                        status,
+                        error: error_response,
+                    })
+                    // Err(IntasendClientError::UnexpectedResponseStatus(
+                    //     response.status(),
+                    // ))
                 }
 
                 // Ok(response)
+            }
+            RequestMethods::Put => {
+                let response = client
+                    .put(&format!("{}{}", base_url, service_path))
+                    .header("Content-Type", "application/json")
+                    .header("Authorization", format!("Bearer {}", self.secret_key))
+                    .json(&payload)
+                    .send()
+                    .await?;
+
+                if response.status().is_success() {
+                    let parsed_response = response.json::<U>().await?;
+                    Ok(parsed_response)
+                } else {
+                    let status = response.status();
+                    let error_response = response.json::<IntasendApiError>().await?;
+                    Err(IntasendClientError::UnexpectedResponseStatus {
+                        status,
+                        error: error_response,
+                    })
+                }
             }
         }
     }
@@ -370,7 +413,7 @@ pub struct IntasendApiErrorDetail {
     pub attr: Option<String>,
 }
 
-/// `IntasendApiError` struct 
+/// `IntasendApiError` struct
 #[derive(Debug, Deserialize)]
 pub struct IntasendApiError {
     pub r#type: String,
@@ -519,6 +562,7 @@ pub enum Provider {
 pub enum RequestMethods {
     Get,
     Post,
+    Put,
 }
 
 /// Currencies supported by Intasend API Gateway
