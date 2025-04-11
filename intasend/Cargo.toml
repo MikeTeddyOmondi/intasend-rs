@@ -1,6 +1,6 @@
 [package]
 name = "intasend"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE.md"]
 homepage = "https://github.com/MikeTeddyOmondi/intasend-rs/intasend"
@@ -15,12 +15,12 @@ license = "MIT"
 [dependencies]
 anyhow = "1.0.79"
 futures = "0.3.30"
-reqwest = { version = "0.11.23", features = ["json", "rustls-tls"] }
+reqwest = { version = "0.12.15", features = ["json", "rustls-tls"] }
 rust_decimal = "1.34.2"
 rust_decimal_macros = "1.34.2"
 serde = { version = "1.0.195", features = ["derive"] }
 serde_json = "1.0.111"
-thiserror = "1.0.63"
+thiserror = "2.0.12"
 tokio = { version = "1.35.1", features = [
 	"rt-multi-thread",
 	"macros",
