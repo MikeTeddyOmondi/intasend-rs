@@ -29,6 +29,9 @@ jobs:
 
       - name: Run Tests
         run: cargo test --all-features
+        env:
+          INTASEND_PUBLIC_KEY: ${{ secrets.INTASEND_PUBLIC_KEY }}
+          INTASEND_SECRET_KEY: ${{ secrets.INTASEND_SECRET_KEY }}
 
   # 2) Publish Crate to crates.io
   publish_crate:
