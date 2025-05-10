@@ -64,6 +64,9 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
+      - name: Change directory (./docs)
+        run: cd docs
+
       - name: Build & Push Docker Image
         uses: mr-smithers-excellent/docker-build-push@v6
         with:
