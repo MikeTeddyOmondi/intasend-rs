@@ -76,7 +76,7 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           # Build context is the `docs` folder
-          context: docs
+          # context: docs
           # If your Dockerfile is named something other than Dockerfile or in a different location,
           # specify "dockerfile: docs/Dockerfile", e.g.:
           # dockerfile: docs/Dockerfile
