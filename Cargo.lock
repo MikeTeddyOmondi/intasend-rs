@@ -583,7 +583,7 @@ dependencies = [
 
 [[package]]
 name = "intasend"
-version = "0.3.0-dev"
+version = "0.3.0-beta"
 dependencies = [
  "anyhow",
  "dotenvy",
