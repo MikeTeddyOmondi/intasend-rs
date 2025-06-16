@@ -38,6 +38,6 @@
     - [Payouts Status](ch06-05-payouts-status.md)
 
 - [Refunds API](ch07-00-refunds-api.md)
-    - [List Refunds](ch07-01-payouts-mpesa-b2c.md)
+    - [List Refunds](ch07-01-list-refunds.md)
     - [Create Refunds](ch07-02-create-refunds.md)
     - [Get Refund(s) Details](ch07-03-refund-details.md)

@@ -25,14 +25,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let intasend = Intasend::new(intasend_public_key, intasend_secret_key, true);
     println!("[#] Hello Intasend instance: {:#?}", intasend);
 
-}   
+}
 
 ```
 
-Now run the project with 
+Now run the project with
 
 ```shell
 cargo run
-``` 
+```
 
-The program should print out `Hello Intasend instance` with the intasend client `Struct`. That will be assurance that you have setup everything well. 
+The program should print out `Hello Intasend instance` with the intasend client `Struct`. That will be assurance that you have setup everything well.

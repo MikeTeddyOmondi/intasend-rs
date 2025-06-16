@@ -25,5 +25,21 @@ Create a new file called `.env` in our project folder and add them in the follow
 # IntaSend Env Config
 INTASEND_PUBLIC_KEY=YOUR_PUBLIC_KEY_HERE
 INTASEND_SECRET_KEY=YOUR_SECRET_KEY_HERE
+INTASEND_TEST_MODE=true
+
+```
+
+## Production Credentials (API Keys)
+
+For prodction scenarios, we are required to have our API keys in order consume the payment gateway. 
+If you dont have an account you can [signup](https://payment.intasend.com) or else login into your [payment intasend account](https://payment.intasend.com) and grab the **publishable key** and **secret key** on the credentials page. 
+
+Create a new file called `.env` in our project folder and add them in the following format
+
+```shell
+# IntaSend Env Config
+INTASEND_PUBLIC_KEY=YOUR_PUBLIC_KEY_HERE
+INTASEND_SECRET_KEY=YOUR_SECRET_KEY_HERE
+INTASEND_TEST_MODE=false
 
 ```
