@@ -57,7 +57,7 @@ impl RefundsAPI {
     /// let refunds: intasend::RefundsAPI = intasend.refunds();
     ///
     /// let refunds_list = refunds.list().await?;
-    /// println!("Checkout response: {:#?}", refunds_list);
+    /// println!("Refunds List response: {:#?}", refunds_list);
     /// 
     /// Ok(())
     /// # }
