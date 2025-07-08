@@ -23,12 +23,14 @@ This SDK is based on the IntaSend's official developers API. Click the resources
 - [x] Request client
 - [x] Intasend
 - [x] Collection
-- [x] Refunds
+- [x] Refunds (Chargebacks)
 - [x] Payouts
 - [x] Wallets 
 - [x] Payment links
-- [ ] Collection customers
-- [ ] Subscriptions & subscription plans
+- [ ] Subscriptions, subscription plans & subscription customers.
+- [ ] Payment requests
+- [ ] M-pesa Paybill Accounts
+- [ ] Realtime Foreign Exchange (FX)
 
 ## Maintainer(s)/Contributor(s)
 
@@ -40,4 +42,4 @@ This projects is licensed under the [MIT](./LICENSE.md) license.
 
 > 📌 Attention 
 >
-> The project is still in development. Breaking changes may be introduced.
+> The 📦 crate is still in development. Breaking changes may be introduced.
