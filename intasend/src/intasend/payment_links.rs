@@ -84,7 +84,7 @@ impl PaymentLinksAPI {
         Ok(payment_links_list.clone())
     }
 
-    /// The `details` (Wallets API) enables you to access wallet's details.
+    /// The `details` (PaymentLinks API) enables you to access single payment link's details.
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -99,13 +99,13 @@ impl PaymentLinksAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // PaymentLinksAPI
     /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
     /// let payment_link_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
     /// let payment_links_details: intasend::PaymentLink = payment_links.details(payment_link_id).await?;
     /// println!("[#] Payment Links Details: {:#?}", payment_links_details);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -137,7 +137,7 @@ impl PaymentLinksAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // PaymentLinksAPI
     /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
     ///
@@ -154,7 +154,7 @@ impl PaymentLinksAPI {
     ///
     /// let created_payment_link: intasend::PaymentLink = payment_links.create(payload).await?;
     /// println!("[#] Payment Link Created: {:#?}", created_payment_link);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -189,7 +189,7 @@ impl PaymentLinksAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // PaymentLinksAPI
     /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
     ///
@@ -207,7 +207,7 @@ impl PaymentLinksAPI {
     /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
     /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
     /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```

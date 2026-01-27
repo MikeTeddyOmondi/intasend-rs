@@ -15,6 +15,7 @@ pub(crate) mod payment_links;
 pub(crate) mod payouts;
 pub(crate) mod refunds;
 pub(crate) mod wallets;
+pub(crate) mod subscriptions;
 
 use checkout::CheckoutsAPI;
 use collection::CollectionsAPI;
@@ -22,6 +23,7 @@ use payment_links::PaymentLinksAPI;
 use payouts::PayoutsAPI;
 use refunds::RefundsAPI;
 use wallets::WalletsAPI;
+use subscriptions::SubscriptionsAPI;
 
 /// **[IntaSend](https://intasend.com)** - The _Unofficial_ Rust Client SDK for the Intasend API Gateway.
 ///
@@ -207,7 +209,7 @@ impl Intasend {
         }
     }
 
-    /// The `payment_links` method returns an instance of the `Wallets` struct
+    /// The `payment_links` method returns an instance of the `PaymentLinksAPI` struct
     ///
     /// ```rust
     /// dotenvy::dotenv().ok();
@@ -230,6 +232,33 @@ impl Intasend {
     #[cfg(feature = "server")]
     pub fn payment_links(&self) -> PaymentLinksAPI {
         PaymentLinksAPI {
+            intasend: self.clone(),
+        }
+    }
+
+    /// The `subscriptions` method returns an instance of the `SubscriptionsAPI` struct
+    ///
+    /// ```rust
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    /// 
+    /// // Subscriptions
+    /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
+    /// println!("Subscriptions instance: {:#?}", subscriptions);
+    ///
+    /// ```
+    #[cfg(feature = "server")]
+    pub fn subscriptions(&self) -> SubscriptionsAPI {
+        SubscriptionsAPI {
             intasend: self.clone(),
         }
     }
