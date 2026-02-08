@@ -272,6 +272,58 @@ impl SubscriptionsAPI {
         Ok(created_subscription.clone())
     }
 
+    /// The `list` (SubscriptionsAPI) will help you to list subscriptions.
+    ///
+    /// ```rust
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // SubscriptionsAPI
+    /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
+    ///
+    /// let payload = intasend::SubscriptionsCreateDetails {
+    ///     title: "Subscription Title".to_string(),
+    ///     amount: Some(100),
+    ///     usage_limit: Some(1),
+    ///     is_active: Some(true),
+    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     currency: intasend::Currency::Kes,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let created_payment_link: intasend::PaymentLink = payment_links.create(payload).await?;
+    /// println!("[#] Payment Link Created: {:#?}", created_payment_link);
+    ///
+    /// Ok(())
+    /// # }
+    /// ```
+    pub async fn list(&self, payload: SubscriptionsCreateDetails) -> Result<Subscription> {
+        let service_path: &str = "/api/v1/subscriptions/";
+        let request_method: RequestMethods = RequestMethods::Post;
+
+        let created_subscription = &self
+            .intasend
+            .send::<SubscriptionsCreateDetails, Subscription>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
+            .await?;
+
+        Ok(created_subscription.clone())
+    }
+
     /// The `details` (SubscriptionsAPI) enables you to access single subscription's details.
     ///
     /// ```rust
@@ -309,6 +361,7 @@ impl SubscriptionsAPI {
 
         Ok(subscriptions_details.clone())
     }
+
     /// The `update` (SubscriptionsAPI) enables you to update single subscription's details.
     ///
     /// ```rust
@@ -347,7 +400,83 @@ impl SubscriptionsAPI {
         Ok(subscriptions_details.clone())
     }
 
-    /// The `update` (SubscriptionsAPI) will help you to update details of a subscription(s).
+    /// The `unsubscribe` (SubscriptionsAPI) enables you to unsubscribe a customer from a subscription.
+    ///
+    /// ```rust
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // SubscriptionsAPI
+    /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
+    /// let subscription_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
+    /// let subscriptions_details: intasend::Subscription = subscriptions.update(subscription_id).await?;
+    /// println!("[#] Subscriptions Details: {:#?}", subscriptions_details);
+    ///
+    /// Ok(())
+    /// # }
+    /// ```
+    ///
+    pub async fn unsubscribe(&self, subscription_id: String) -> Result<Subscription> {
+        let service_path: &str = &format!("/api/v1/subscriptions/{}/unsubscribe", subscription_id);
+        let request_method: RequestMethods = RequestMethods::Post;
+
+        let subscriptions_details = &self
+            .intasend
+            .send::<SubscriptionsDetailsRequest, Subscription>(None, service_path, request_method)
+            .await?;
+
+        Ok(subscriptions_details.clone())
+    }
+
+    /// The `transactions` (SubscriptionsAPI) enables you to get the transactions made by customers under a specific subscription.
+    ///
+    /// ```rust
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // SubscriptionsAPI
+    /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
+    /// let subscription_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
+    /// let subscriptions_details: intasend::Subscription = subscriptions.update(subscription_id).await?;
+    /// println!("[#] Subscriptions Details: {:#?}", subscriptions_details);
+    ///
+    /// Ok(())
+    /// # }
+    /// ```
+    ///
+    pub async fn transactions(&self, subscription_id: String) -> Result<Subscription> {
+        let service_path: &str = &format!("/api/v1/subscriptions/{}/transactions", subscription_id);
+        let request_method: RequestMethods = RequestMethods::Post;
+
+        let subscriptions_details = &self
+            .intasend
+            .send::<SubscriptionsDetailsRequest, Subscription>(None, service_path, request_method)
+            .await?;
+
+        Ok(subscriptions_details.clone())
+    }
+
+    /// The `create_customers` (SubscriptionsAPI) will help you to create customers based off a subscription(s).
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -389,7 +518,7 @@ impl SubscriptionsAPI {
         subscription_id: String,
         payload: SubscriptionsUpdateDetails,
     ) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions/{}", subscription_id);
+        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}", subscription_id);
         let request_method: RequestMethods = RequestMethods::Put;
 
         let subscription_details = &self
@@ -398,6 +527,162 @@ impl SubscriptionsAPI {
             .await?;
 
         Ok(subscription_details.clone())
+    }
+
+    /// The `list_customers` (SubscriptionsAPI) will help you to list customers.
+    ///
+    /// ```rust
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // SubscriptionsAPI
+    /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
+    ///
+    /// let payload = intasend::SubscriptionsUpdateDetails {
+    ///     title: "Subscription Title Updated".to_string(),
+    ///     amount: Some(300),
+    ///     usage_limit: Some(6),
+    ///     is_active: Some(false),
+    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     currency: intasend:: Currency::Kes,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
+    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
+    /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    ///
+    /// Ok(())
+    /// # }
+    /// ```
+    pub async fn list_customers(
+        &self,
+        subscription_id: String,
+    ) -> Result<Subscription> {
+        let service_path: &str = &"/api/v1/subscriptions-customers/";
+        let request_method: RequestMethods = RequestMethods::Get;
+
+        let subscription_customer_list = &self
+            .intasend
+            .send::<SubscriptionsUpdateDetails, Subscription>(None, service_path, request_method)
+            .await?;
+
+        Ok(subscription_customer_list.clone())
+    }
+
+    /// The `customer_details` (SubscriptionsAPI) will help you to retrieve customer's details.
+    ///
+    /// ```rust
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // SubscriptionsAPI
+    /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
+    ///
+    /// let payload = intasend::SubscriptionsUpdateDetails {
+    ///     title: "Subscription Title Updated".to_string(),
+    ///     amount: Some(300),
+    ///     usage_limit: Some(6),
+    ///     is_active: Some(false),
+    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     currency: intasend:: Currency::Kes,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
+    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
+    /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    ///
+    /// Ok(())
+    /// # }
+    /// ```
+    pub async fn customer_details(
+        &self,
+        customer_id: String,
+    ) -> Result<Subscription> {
+        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}", customer_id);
+        let request_method: RequestMethods = RequestMethods::Get;
+
+        let subscription_customer_list = &self
+            .intasend
+            .send::<SubscriptionsUpdateDetails, Subscription>(None, service_path, request_method)
+            .await?;
+
+        Ok(subscription_customer_list.clone())
+    }
+
+    /// The `update_customer` (SubscriptionsAPI) will help you to update customer's details.
+    ///
+    /// ```rust
+    /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
+    /// dotenvy::dotenv().ok();
+    ///
+    /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
+    /// let intasend_secret_key = std::env::var("INTASEND_SECRET_KEY").expect("INTASEND_SECRET_KEY must be set");
+    ///
+    /// // Intasend Client
+    /// let intasend = intasend::Intasend::new(
+    ///    intasend_public_key,
+    ///    intasend_secret_key,
+    ///     true,
+    /// );
+    ///
+    /// // SubscriptionsAPI
+    /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
+    ///
+    /// let payload = intasend::SubscriptionsUpdateDetails {
+    ///     title: "Subscription Title Updated".to_string(),
+    ///     amount: Some(300),
+    ///     usage_limit: Some(6),
+    ///     is_active: Some(false),
+    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     currency: intasend:: Currency::Kes,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
+    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
+    /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    ///
+    /// Ok(())
+    /// # }
+    /// ```
+    pub async fn update_customer(
+        &self,
+        customer_id: String,
+    ) -> Result<Subscription> {
+        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}", customer_id);
+        let request_method: RequestMethods = RequestMethods::Put;
+
+        let subscription_customer_list = &self
+            .intasend
+            .send::<SubscriptionsUpdateDetails, Subscription>(None, service_path, request_method)
+            .await?;
+
+        Ok(subscription_customer_list.clone())
     }
 }
 
