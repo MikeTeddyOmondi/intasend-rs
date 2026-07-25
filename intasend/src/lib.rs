@@ -45,12 +45,31 @@ pub use self::intasend::payment_links::{
     PaymentLinksListRequest, PaymentLinksListResponse, PaymentLinksUpdateDetails,
 };
 
+// Subscription functionality - `server` only
+#[cfg(feature = "server")]
+pub use self::intasend::subscriptions::{
+    FrequencyUnit, Subscription, SubscriptionStatus, SubscriptionsAPI, SubscriptionsCreateDetails,
+    SubscriptionsCustomer, SubscriptionsCustomerCreateDetails, SubscriptionsCustomerListResponse,
+    SubscriptionsListResponse, SubscriptionsPlan, SubscriptionsPlanCreateRequest,
+    SubscriptionsPlanListResponse, SubscriptionsTransactionListResponse,
+};
+
 // Core types - available for both `client` and `server` environments
 #[cfg(any(feature = "client", feature = "server"))]
 pub use self::intasend::{
-    Currency, Intasend, IntasendApiError, IntasendApiErrorDetail, IntasendClientError,
+    Currency, Customer, Intasend, IntasendApiError, IntasendApiErrorDetail, IntasendClientError,
     PayoutProvider, Provider, Tarrif, Transaction, TransactionStatus, TransactionType,
 };
+
+// Money type re-exports. `Decimal` is used for every monetary `amount`/balance field in this
+// crate's request and response types. We re-export the whole `rust_decimal` crate as-is (so
+// `intasend::rust_decimal::...` is available) plus the `Decimal` type directly, letting
+// downstream users construct amounts with `intasend::Decimal::from(1000)`,
+// `intasend::Decimal::from_str("10.00")`, etc. without adding `rust_decimal` to their own
+// `Cargo.toml`. This is additive: existing users importing `rust_decimal::Decimal` directly
+// are unaffected.
+#[cfg(any(feature = "client", feature = "server"))]
+pub use rust_decimal::{self, Decimal};
 
 #[cfg(test)]
 mod tests {

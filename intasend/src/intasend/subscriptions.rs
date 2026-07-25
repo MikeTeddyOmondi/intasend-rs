@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::Intasend;
 
-use super::{Currency, Customer, Invoice, RequestClient, RequestMethods, Tarrif};
+use super::{Currency, RequestClient, RequestMethods, Transaction};
 
 /// `SubscriptionsAPI` struct implements methods for facilitating:
 /// 1. Create subscription plan
@@ -52,7 +52,8 @@ pub struct SubscriptionsAPI {
 }
 
 impl SubscriptionsAPI {
-    /// The `create_plan` (Subscriptions API) enables you to create a subscriptions plan.
+    /// The `create_plan` (Subscriptions API) enables you to create a subscription plan.
+    /// POST /https://api.intasend.com/api/v1/subscriptions-plans/
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -71,21 +72,35 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let subscriptions_plan: intasend::SubscriptionsPlan = subscriptions.create_plan().await?;
+    /// let payload = intasend::SubscriptionsPlanCreateRequest {
+    ///     currency: intasend::Currency::Kes,
+    ///     name: "Premium Monthly".to_string(),
+    ///     frequency: 1,
+    ///     frequency_unit: intasend::FrequencyUnit::Month,
+    ///     billing_cycles: 12,
+    ///     amount: intasend::Decimal::from(1000),
+    ///     reference: None,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let subscriptions_plan: intasend::SubscriptionsPlan = subscriptions.create_plan(payload).await?;
     /// println!("[#] Subscriptions plan: {:#?}", subscriptions_plan);
     ///
     /// Ok(())
     /// # }
     /// ```
     ///
-    pub async fn create_plan(&self) -> Result<SubscriptionsPlan> {
-        let service_path: &str = "/api/v1/subscriptions/";
-        let request_method: RequestMethods = RequestMethods::Get;
+    pub async fn create_plan(
+        &self,
+        payload: SubscriptionsPlanCreateRequest,
+    ) -> Result<SubscriptionsPlan> {
+        let service_path: &str = "/api/v1/subscriptions-plans/";
+        let request_method: RequestMethods = RequestMethods::Post;
 
         let subscriptions_plan = &self
             .intasend
             .send::<SubscriptionsPlanCreateRequest, SubscriptionsPlan>(
-                None,
+                Some(payload),
                 service_path,
                 request_method,
             )
@@ -113,7 +128,7 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let subscriptions_plans_list: intasend::SubscriptionsListResponse = subscriptions.list_plans().await?;
+    /// let subscriptions_plans_list: intasend::SubscriptionsPlanListResponse = subscriptions.list_plans().await?;
     /// println!("[#] Subscriptions Plans List: {:#?}", subscriptions_plans_list);
     ///
     /// Ok(())
@@ -121,7 +136,7 @@ impl SubscriptionsAPI {
     /// ```
     ///
     pub async fn list_plans(&self) -> Result<SubscriptionsPlanListResponse> {
-        let service_path: &str = "/api/v1/subscriptions/";
+        let service_path: &str = "/api/v1/subscriptions-plans/";
         let request_method: RequestMethods = RequestMethods::Get;
 
         let subscriptions_plan_list = &self
@@ -154,16 +169,17 @@ impl SubscriptionsAPI {
     ///
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
-    /// let subscription_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
-    /// let subscriptions_plan_details: intasend::Subscription = subscriptions.details(subscription_id).await?;
+    /// // `plan_id` comes from a `create_plan` / `list_plans` response.
+    /// let plan_id = "your-plan-id".to_string();
+    /// let subscriptions_plan_details: intasend::SubscriptionsPlan = subscriptions.plan_details(plan_id).await?;
     /// println!("[#] Subscriptions Plan Details: {:#?}", subscriptions_plan_details);
     ///
     /// Ok(())
     /// # }
     /// ```
     ///
-    pub async fn plan_details(&self, subscription_id: String) -> Result<SubscriptionsPlan> {
-        let service_path: &str = &format!("/api/v1/subscriptions/{}", subscription_id);
+    pub async fn plan_details(&self, plan_id: String) -> Result<SubscriptionsPlan> {
+        let service_path: &str = &format!("/api/v1/subscriptions-plans/{}/", plan_id);
         let request_method: RequestMethods = RequestMethods::Get;
 
         let subscriptions_plan_details = &self
@@ -178,7 +194,7 @@ impl SubscriptionsAPI {
         Ok(subscriptions_plan_details.clone())
     }
 
-    /// The `update_plan` (Subscriptions API) enables you to list all subscriptions created.
+    /// The `update_plan` (Subscriptions API) enables you to update a subscription plan's details.
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -197,27 +213,44 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let updated_subscriptions_plan: intasend::SubscriptionsPlan = subscriptions.update_plan().await?;
+    /// // `plan_id` comes from a `create_plan` / `list_plans` response.
+    /// let plan_id = "your-plan-id".to_string();
+    /// let payload = intasend::SubscriptionsPlanCreateRequest {
+    ///     currency: intasend::Currency::Kes,
+    ///     name: "Premium Monthly Updated".to_string(),
+    ///     frequency: 1,
+    ///     frequency_unit: intasend::FrequencyUnit::Month,
+    ///     billing_cycles: 24,
+    ///     amount: intasend::Decimal::from(1500),
+    ///     reference: None,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let updated_subscriptions_plan: intasend::SubscriptionsPlan = subscriptions.update_plan(plan_id, payload).await?;
     /// println!("[#] Updated Subscriptions plan: {:#?}", updated_subscriptions_plan);
     ///
     /// Ok(())
     /// # }
     /// ```
     ///
-    pub async fn update_plan(&self) -> Result<SubscriptionsListResponse> {
-        let service_path: &str = "/api/v1/subscriptions/";
-        let request_method: RequestMethods = RequestMethods::Get;
+    pub async fn update_plan(
+        &self,
+        plan_id: String,
+        payload: SubscriptionsPlanCreateRequest,
+    ) -> Result<SubscriptionsPlan> {
+        let service_path: &str = &format!("/api/v1/subscriptions-plans/{}/", plan_id);
+        let request_method: RequestMethods = RequestMethods::Put;
 
-        let subscriptions_list = &self
+        let updated_subscriptions_plan = &self
             .intasend
-            .send::<SubscriptionsListRequest, SubscriptionsListResponse>(
-                None,
+            .send::<SubscriptionsPlanCreateRequest, SubscriptionsPlan>(
+                Some(payload),
                 service_path,
                 request_method,
             )
             .await?;
 
-        Ok(subscriptions_list.clone())
+        Ok(updated_subscriptions_plan.clone())
     }
 
     /// The `create` (SubscriptionsAPI) will help you to create subscriptions.
@@ -240,18 +273,15 @@ impl SubscriptionsAPI {
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
     /// let payload = intasend::SubscriptionsCreateDetails {
-    ///     title: "Subscription Title".to_string(),
-    ///     amount: Some(100),
-    ///     usage_limit: Some(1),
-    ///     is_active: Some(true),
-    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
+    ///     customer_id: "cus_123".to_string(),
+    ///     reference: "sub-ref-001".to_string(),
+    ///     plan_id: "plan_123".to_string(),
     ///     currency: intasend::Currency::Kes,
     ///     redirect_url: None,
     /// };
     ///
-    /// let created_payment_link: intasend::PaymentLink = payment_links.create(payload).await?;
-    /// println!("[#] Payment Link Created: {:#?}", created_payment_link);
+    /// let created_subscription: intasend::Subscription = subscriptions.create(payload).await?;
+    /// println!("[#] Subscription Created: {:#?}", created_subscription);
     ///
     /// Ok(())
     /// # }
@@ -291,37 +321,26 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let payload = intasend::SubscriptionsCreateDetails {
-    ///     title: "Subscription Title".to_string(),
-    ///     amount: Some(100),
-    ///     usage_limit: Some(1),
-    ///     is_active: Some(true),
-    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     currency: intasend::Currency::Kes,
-    ///     redirect_url: None,
-    /// };
-    ///
-    /// let created_payment_link: intasend::PaymentLink = payment_links.create(payload).await?;
-    /// println!("[#] Payment Link Created: {:#?}", created_payment_link);
+    /// let subscriptions_list: intasend::SubscriptionsListResponse = subscriptions.list().await?;
+    /// println!("[#] Subscriptions List: {:#?}", subscriptions_list);
     ///
     /// Ok(())
     /// # }
     /// ```
-    pub async fn list(&self, payload: SubscriptionsCreateDetails) -> Result<Subscription> {
+    pub async fn list(&self) -> Result<SubscriptionsListResponse> {
         let service_path: &str = "/api/v1/subscriptions/";
-        let request_method: RequestMethods = RequestMethods::Post;
+        let request_method: RequestMethods = RequestMethods::Get;
 
-        let created_subscription = &self
+        let subscriptions_list = &self
             .intasend
-            .send::<SubscriptionsCreateDetails, Subscription>(
-                Some(payload),
+            .send::<SubscriptionsListRequest, SubscriptionsListResponse>(
+                None,
                 service_path,
                 request_method,
             )
             .await?;
 
-        Ok(created_subscription.clone())
+        Ok(subscriptions_list.clone())
     }
 
     /// The `details` (SubscriptionsAPI) enables you to access single subscription's details.
@@ -351,7 +370,7 @@ impl SubscriptionsAPI {
     /// ```
     ///
     pub async fn details(&self, subscription_id: String) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions/{}", subscription_id);
+        let service_path: &str = &format!("/api/v1/subscriptions/{}/", subscription_id);
         let request_method: RequestMethods = RequestMethods::Get;
 
         let subscriptions_details = &self
@@ -381,20 +400,37 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     /// let subscription_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
-    /// let subscriptions_details: intasend::Subscription = subscriptions.update(subscription_id).await?;
+    ///
+    /// let payload = intasend::SubscriptionsCreateDetails {
+    ///     customer_id: "cus_123".to_string(),
+    ///     reference: "sub-ref-001".to_string(),
+    ///     plan_id: "plan_123".to_string(),
+    ///     currency: intasend::Currency::Kes,
+    ///     redirect_url: None,
+    /// };
+    ///
+    /// let subscriptions_details: intasend::Subscription = subscriptions.update(subscription_id, payload).await?;
     /// println!("[#] Subscriptions Details: {:#?}", subscriptions_details);
     ///
     /// Ok(())
     /// # }
     /// ```
     ///
-    pub async fn update(&self, subscription_plan_id: String) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions/{}", subscription_plan_id);
-        let request_method: RequestMethods = RequestMethods::Get;
+    pub async fn update(
+        &self,
+        subscription_id: String,
+        payload: SubscriptionsCreateDetails,
+    ) -> Result<Subscription> {
+        let service_path: &str = &format!("/api/v1/subscriptions/{}/", subscription_id);
+        let request_method: RequestMethods = RequestMethods::Put;
 
         let subscriptions_details = &self
             .intasend
-            .send::<SubscriptionsDetailsRequest, Subscription>(None, service_path, request_method)
+            .send::<SubscriptionsCreateDetails, Subscription>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
             .await?;
 
         Ok(subscriptions_details.clone())
@@ -419,7 +455,7 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     /// let subscription_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
-    /// let subscriptions_details: intasend::Subscription = subscriptions.update(subscription_id).await?;
+    /// let subscriptions_details: intasend::Subscription = subscriptions.unsubscribe(subscription_id).await?;
     /// println!("[#] Subscriptions Details: {:#?}", subscriptions_details);
     ///
     /// Ok(())
@@ -427,7 +463,8 @@ impl SubscriptionsAPI {
     /// ```
     ///
     pub async fn unsubscribe(&self, subscription_id: String) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions/{}/unsubscribe", subscription_id);
+        let service_path: &str =
+            &format!("/api/v1/subscriptions/{}/unsubscribe/", subscription_id);
         let request_method: RequestMethods = RequestMethods::Post;
 
         let subscriptions_details = &self
@@ -457,26 +494,34 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     /// let subscription_id = uuid::Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap().to_string();
-    /// let subscriptions_details: intasend::Subscription = subscriptions.update(subscription_id).await?;
-    /// println!("[#] Subscriptions Details: {:#?}", subscriptions_details);
+    /// let subscription_transactions: intasend::SubscriptionsTransactionListResponse = subscriptions.transactions(subscription_id).await?;
+    /// println!("[#] Subscription Transactions: {:#?}", subscription_transactions);
     ///
     /// Ok(())
     /// # }
     /// ```
     ///
-    pub async fn transactions(&self, subscription_id: String) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions/{}/transactions", subscription_id);
-        let request_method: RequestMethods = RequestMethods::Post;
+    pub async fn transactions(
+        &self,
+        subscription_id: String,
+    ) -> Result<SubscriptionsTransactionListResponse> {
+        let service_path: &str =
+            &format!("/api/v1/subscriptions/{}/transactions/", subscription_id);
+        let request_method: RequestMethods = RequestMethods::Get;
 
-        let subscriptions_details = &self
+        let subscription_transactions = &self
             .intasend
-            .send::<SubscriptionsDetailsRequest, Subscription>(None, service_path, request_method)
+            .send::<SubscriptionsDetailsRequest, SubscriptionsTransactionListResponse>(
+                None,
+                service_path,
+                request_method,
+            )
             .await?;
 
-        Ok(subscriptions_details.clone())
+        Ok(subscription_transactions.clone())
     }
 
-    /// The `create_customers` (SubscriptionsAPI) will help you to create customers based off a subscription(s).
+    /// The `create_customers` (SubscriptionsAPI) will help you to create customers tied to subscriptions.
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -495,41 +540,44 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let payload = intasend::SubscriptionsUpdateDetails {
-    ///     title: "Subscription Title Updated".to_string(),
-    ///     amount: Some(300),
-    ///     usage_limit: Some(6),
-    ///     is_active: Some(false),
-    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     currency: intasend:: Currency::Kes,
-    ///     redirect_url: None,
+    /// let payload = intasend::SubscriptionsCustomerCreateDetails {
+    ///     email: "customer@example.com".to_string(),
+    ///     first_name: "Jane".to_string(),
+    ///     last_name: "Doe".to_string(),
+    ///     reference: None,
+    ///     address: None,
+    ///     city: None,
+    ///     state: None,
+    ///     zipcode: None,
+    ///     country: Some("KE".to_string()),
     /// };
     ///
-    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
-    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
-    /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    /// let created_customer: intasend::SubscriptionsCustomer = subscriptions.create_customers(payload).await?;
+    /// println!("[#] Subscription Customer Created: {:#?}", created_customer);
     ///
     /// Ok(())
     /// # }
     /// ```
     pub async fn create_customers(
         &self,
-        subscription_id: String,
-        payload: SubscriptionsUpdateDetails,
-    ) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}", subscription_id);
-        let request_method: RequestMethods = RequestMethods::Put;
+        payload: SubscriptionsCustomerCreateDetails,
+    ) -> Result<SubscriptionsCustomer> {
+        let service_path: &str = "/api/v1/subscriptions-customers/";
+        let request_method: RequestMethods = RequestMethods::Post;
 
-        let subscription_details = &self
+        let created_customer = &self
             .intasend
-            .send::<SubscriptionsUpdateDetails, Subscription>(None, service_path, request_method)
+            .send::<SubscriptionsCustomerCreateDetails, SubscriptionsCustomer>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
             .await?;
 
-        Ok(subscription_details.clone())
+        Ok(created_customer.clone())
     }
 
-    /// The `list_customers` (SubscriptionsAPI) will help you to list customers.
+    /// The `list_customers` (SubscriptionsAPI) will help you to list subscription customers.
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -548,40 +596,29 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let payload = intasend::SubscriptionsUpdateDetails {
-    ///     title: "Subscription Title Updated".to_string(),
-    ///     amount: Some(300),
-    ///     usage_limit: Some(6),
-    ///     is_active: Some(false),
-    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     currency: intasend:: Currency::Kes,
-    ///     redirect_url: None,
-    /// };
-    ///
-    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
-    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
-    /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    /// let customers_list: intasend::SubscriptionsCustomerListResponse = subscriptions.list_customers().await?;
+    /// println!("[#] Subscription Customers List: {:#?}", customers_list);
     ///
     /// Ok(())
     /// # }
     /// ```
-    pub async fn list_customers(
-        &self,
-        subscription_id: String,
-    ) -> Result<Subscription> {
-        let service_path: &str = &"/api/v1/subscriptions-customers/";
+    pub async fn list_customers(&self) -> Result<SubscriptionsCustomerListResponse> {
+        let service_path: &str = "/api/v1/subscriptions-customers/";
         let request_method: RequestMethods = RequestMethods::Get;
 
         let subscription_customer_list = &self
             .intasend
-            .send::<SubscriptionsUpdateDetails, Subscription>(None, service_path, request_method)
+            .send::<SubscriptionsListRequest, SubscriptionsCustomerListResponse>(
+                None,
+                service_path,
+                request_method,
+            )
             .await?;
 
         Ok(subscription_customer_list.clone())
     }
 
-    /// The `customer_details` (SubscriptionsAPI) will help you to retrieve customer's details.
+    /// The `customer_details` (SubscriptionsAPI) will help you to retrieve a customer's details.
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -600,40 +637,30 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let payload = intasend::SubscriptionsUpdateDetails {
-    ///     title: "Subscription Title Updated".to_string(),
-    ///     amount: Some(300),
-    ///     usage_limit: Some(6),
-    ///     is_active: Some(false),
-    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     currency: intasend:: Currency::Kes,
-    ///     redirect_url: None,
-    /// };
-    ///
-    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
-    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
-    /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    /// let customer_id = "cus_123".to_string();
+    /// let customer_details: intasend::SubscriptionsCustomer = subscriptions.customer_details(customer_id).await?;
+    /// println!("[#] Subscription Customer Details: {:#?}", customer_details);
     ///
     /// Ok(())
     /// # }
     /// ```
-    pub async fn customer_details(
-        &self,
-        customer_id: String,
-    ) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}", customer_id);
+    pub async fn customer_details(&self, customer_id: String) -> Result<SubscriptionsCustomer> {
+        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}/", customer_id);
         let request_method: RequestMethods = RequestMethods::Get;
 
-        let subscription_customer_list = &self
+        let customer_details = &self
             .intasend
-            .send::<SubscriptionsUpdateDetails, Subscription>(None, service_path, request_method)
+            .send::<SubscriptionsDetailsRequest, SubscriptionsCustomer>(
+                None,
+                service_path,
+                request_method,
+            )
             .await?;
 
-        Ok(subscription_customer_list.clone())
+        Ok(customer_details.clone())
     }
 
-    /// The `update_customer` (SubscriptionsAPI) will help you to update customer's details.
+    /// The `update_customer` (SubscriptionsAPI) will help you to update a customer's details.
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
@@ -652,20 +679,21 @@ impl SubscriptionsAPI {
     /// // SubscriptionsAPI
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     ///
-    /// let payload = intasend::SubscriptionsUpdateDetails {
-    ///     title: "Subscription Title Updated".to_string(),
-    ///     amount: Some(300),
-    ///     usage_limit: Some(6),
-    ///     is_active: Some(false),
-    ///     mobile_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     card_tarrif: Some(intasend::Tarrif::BusinessPays),
-    ///     currency: intasend:: Currency::Kes,
-    ///     redirect_url: None,
+    /// let customer_id = "cus_123".to_string();
+    /// let payload = intasend::SubscriptionsCustomerCreateDetails {
+    ///     email: "customer@example.com".to_string(),
+    ///     first_name: "Jane".to_string(),
+    ///     last_name: "Doe".to_string(),
+    ///     reference: None,
+    ///     address: None,
+    ///     city: None,
+    ///     state: None,
+    ///     zipcode: None,
+    ///     country: Some("KE".to_string()),
     /// };
     ///
-    /// let uid = uuid::Uuid::parse_str("e4f6126d-b374-4edb-bf17-f9240d24d66e").unwrap();
-    /// let updated_payment_link: intasend::PaymentLink = payment_links.update(uid.to_string(), payload).await?;
-    /// println!("[#] Payment Link Updated: {:#?}", updated_payment_link);
+    /// let updated_customer: intasend::SubscriptionsCustomer = subscriptions.update_customer(customer_id, payload).await?;
+    /// println!("[#] Subscription Customer Updated: {:#?}", updated_customer);
     ///
     /// Ok(())
     /// # }
@@ -673,39 +701,128 @@ impl SubscriptionsAPI {
     pub async fn update_customer(
         &self,
         customer_id: String,
-    ) -> Result<Subscription> {
-        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}", customer_id);
+        payload: SubscriptionsCustomerCreateDetails,
+    ) -> Result<SubscriptionsCustomer> {
+        let service_path: &str = &format!("/api/v1/subscriptions-customers/{}/", customer_id);
         let request_method: RequestMethods = RequestMethods::Put;
 
-        let subscription_customer_list = &self
+        let updated_customer = &self
             .intasend
-            .send::<SubscriptionsUpdateDetails, Subscription>(None, service_path, request_method)
+            .send::<SubscriptionsCustomerCreateDetails, SubscriptionsCustomer>(
+                Some(payload),
+                service_path,
+                request_method,
+            )
             .await?;
 
-        Ok(subscription_customer_list.clone())
+        Ok(updated_customer.clone())
     }
 }
 
-/// `SubscriptionsPlanCreateRequest` struct
-#[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct SubscriptionsPlanCreateRequest {
-    pub currency: Currency,
-    pub name: String,
-    pub frequency: u32,
-    pub frequency_unit: String,
-    pub billing_cycles: u32,
-    pub amount: String,
+/// Serde adapter for monetary `amount` fields.
+///
+/// On the wire the IntaSend API documents `amount` as a decimal *string*
+/// (`^-?\d{0,13}(?:\.\d{0,2})?$`), but in practice the sandbox echoes it back as a JSON *number*.
+/// To be robust we always **serialize as a string** (matching the documented request contract)
+/// while **deserializing from either a string or a number**.
+mod amount_serde {
+    use rust_decimal::Decimal;
+    use serde::{de, Deserializer, Serializer};
+    use std::str::FromStr;
+
+    pub fn serialize<S: Serializer>(value: &Decimal, serializer: S) -> Result<S::Ok, S::Error> {
+        serializer.serialize_str(&value.to_string())
+    }
+
+    pub fn deserialize<'de, D: Deserializer<'de>>(deserializer: D) -> Result<Decimal, D::Error> {
+        struct AmountVisitor;
+
+        impl de::Visitor<'_> for AmountVisitor {
+            type Value = Decimal;
+
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("a decimal as a string or a number")
+            }
+
+            fn visit_str<E: de::Error>(self, v: &str) -> Result<Decimal, E> {
+                Decimal::from_str(v).map_err(de::Error::custom)
+            }
+
+            fn visit_u64<E: de::Error>(self, v: u64) -> Result<Decimal, E> {
+                Ok(Decimal::from(v))
+            }
+
+            fn visit_i64<E: de::Error>(self, v: i64) -> Result<Decimal, E> {
+                Ok(Decimal::from(v))
+            }
+
+            fn visit_f64<E: de::Error>(self, v: f64) -> Result<Decimal, E> {
+                Decimal::try_from(v).map_err(de::Error::custom)
+            }
+        }
+
+        deserializer.deserialize_any(AmountVisitor)
+    }
 }
 
-/// `SubscriptionsPlan` struct
+/// `FrequencyUnit` enum — the billing interval unit for a subscription plan.
+///
+/// Serializes to the single-character codes the IntaSend API expects:
+/// `D` (day), `W` (week), `M` (month), `Y` (year).
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct SubscriptionsPlan {
-    pub currency: Currency,
+pub enum FrequencyUnit {
+    #[serde(rename = "D")]
+    Day,
+    #[serde(rename = "W")]
+    Week,
+    #[serde(rename = "M")]
+    Month,
+    #[serde(rename = "Y")]
+    Year,
+}
+
+/// `SubscriptionsPlanCreateRequest` struct — body for creating/updating a subscription plan.
+///
+/// Mirrors the writable fields of the API `PlanSer` schema; `plan_id`, `plan_url`, `created_at`
+/// and `updated_at` are read-only and only appear on [`SubscriptionsPlan`] responses.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SubscriptionsPlanCreateRequest {
     pub name: String,
     pub frequency: u32,
-    pub frequency_unit: String,
+    pub frequency_unit: FrequencyUnit,
     pub billing_cycles: u32,
-    pub amount: String,
+    pub currency: Currency,
+    /// Amount charged per billing cycle. Serialized as a decimal string (e.g. `"1000.00"`) to
+    /// match the API contract (`^-?\d{0,13}(?:\.\d{0,2})?$`).
+    #[serde(with = "amount_serde")]
+    pub amount: Decimal,
+    /// Third-party/internal reference ID.
+    pub reference: Option<String>,
+    /// Redirect your customer after successful payment.
+    pub redirect_url: Option<String>,
+}
+
+/// `SubscriptionsPlan` struct — the API `PlanSer` response shape.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SubscriptionsPlan {
+    pub name: String,
+    /// Unique identifier for the plan. Pass this to [`SubscriptionsAPI::plan_details`] /
+    /// [`SubscriptionsAPI::update_plan`] to act on a single plan.
+    pub plan_id: String,
+    pub frequency: u32,
+    pub frequency_unit: FrequencyUnit,
+    pub billing_cycles: Option<u32>,
+    pub currency: Currency,
+    #[serde(with = "amount_serde")]
+    pub amount: Decimal,
+    pub reference: Option<String>,
+    pub plan_url: String,
+    pub redirect_url: Option<String>,
+    // NOTE: `created_at` / `updated_at` are kept as `String` for now, matching the other modules.
+    // See BACKLOG.md for the planned crate-wide migration to a typed date/time that won't break
+    // backwards compatibility.
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
 }
 
 /// `SubscriptionsPlanListResponse` struct
@@ -720,8 +837,9 @@ pub struct SubscriptionsPlanListResponse {
 /// `Subscription` struct
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Subscription {
-    pub subscription_id: Uuid,
-    pub reference: String,
+    /// Identifier for the subscription. A short alphanumeric string (not a UUID).
+    pub subscription_id: String,
+    pub reference: Option<String>,
     pub status: SubscriptionStatus,
     pub setup_url: String,
     pub redirect_url: Option<String>,
@@ -729,6 +847,7 @@ pub struct Subscription {
     pub updated_at: Option<String>,
 }
 
+/// `SubscriptionStatus` enum
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum SubscriptionStatus {
@@ -739,7 +858,7 @@ pub enum SubscriptionStatus {
     FAILED,
 }
 
-/// `SubscriptionsListRequest` struct
+/// `SubscriptionsListRequest` struct — placeholder body for `GET` list endpoints.
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SubscriptionsListRequest {}
 
@@ -752,11 +871,11 @@ pub struct SubscriptionsListResponse {
     pub results: Vec<Subscription>,
 }
 
+/// `SubscriptionsDetailsRequest` struct — placeholder body for `GET` detail endpoints.
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct SubscriptionsDetailsRequest {
-    pub id: Uuid,
-}
+pub struct SubscriptionsDetailsRequest {}
 
+/// `SubscriptionsCreateDetails` struct
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct SubscriptionsCreateDetails {
     pub customer_id: String,
@@ -767,14 +886,55 @@ pub struct SubscriptionsCreateDetails {
     pub redirect_url: Option<String>,
 }
 
+/// `SubscriptionsCustomerCreateDetails` struct — body for creating/updating a subscription
+/// customer.
+///
+/// Mirrors the writable fields of the API `CustomerSer` schema; `customer_id`, `created_at` and
+/// `updated_at` are read-only and only appear on [`SubscriptionsCustomer`] responses.
 #[derive(Clone, Debug, Deserialize, Serialize)]
-pub struct SubscriptionsUpdateDetails {
-    pub title: String,
-    pub amount: Option<usize>,
-    pub usage_limit: Option<usize>,
-    pub is_active: Option<bool>,
-    pub mobile_tarrif: Option<Tarrif>,
-    pub card_tarrif: Option<Tarrif>,
-    pub currency: Currency,
-    pub redirect_url: Option<String>,
+pub struct SubscriptionsCustomerCreateDetails {
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    /// Third-party reference ID.
+    pub reference: Option<String>,
+    pub address: Option<String>,
+    pub city: Option<String>,
+    pub state: Option<String>,
+    pub zipcode: Option<String>,
+    /// ISO country code (e.g. `KE`, `GH`, `NG`, `UG`, `TZ`, `CM`, `BF`, `CI`).
+    pub country: Option<String>,
 }
+
+/// `SubscriptionsCustomer` struct — the API `CustomerSer` response shape.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SubscriptionsCustomer {
+    pub customer_id: String,
+    pub email: String,
+    pub first_name: String,
+    pub last_name: String,
+    pub reference: Option<String>,
+    pub address: Option<String>,
+    pub city: Option<String>,
+    pub state: Option<String>,
+    pub zipcode: Option<String>,
+    pub country: Option<String>,
+    pub created_at: Option<String>,
+    pub updated_at: Option<String>,
+}
+
+/// `SubscriptionsCustomerListResponse` struct
+#[derive(Clone, Debug, Deserialize, Serialize)]
+pub struct SubscriptionsCustomerListResponse {
+    pub count: usize,
+    pub next: Option<usize>,
+    pub previous: Option<usize>,
+    pub results: Vec<SubscriptionsCustomer>,
+}
+
+/// `SubscriptionsTransactionListResponse` — the subscription transactions endpoint returns a bare
+/// JSON array of transactions (not a paginated object), so this is a transparent newtype over the
+/// list. Access the inner items via `.0`.
+#[derive(Clone, Debug, Deserialize, Serialize)]
+#[serde(transparent)]
+pub struct SubscriptionsTransactionListResponse(pub Vec<Transaction>);

@@ -1,5 +1,35 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## v0.4.0 - 2026-06-25
+
+### Added
+
+- `SubscriptionsAPI` — full IntaSend Subscriptions API support: plans (`create_plan`, `list_plans`, `plan_details`, `update_plan`), subscriptions (`create`, `list`, `details`, `update`, `unsubscribe`), customers (`create_customers`, `list_customers`, `customer_details`, `update_customer`), and `transactions`.
+- `examples/src/bin/subscriptions.rs` demonstrating every `SubscriptionsAPI` method end-to-end, threading the returned `plan_id` / `customer_id` through subsequent calls.
+- `FrequencyUnit` enum (`D`/`W`/`M`/`Y`) for subscription plan billing intervals.
+- `SubscriptionsCustomer` response type matching the API `CustomerSer` schema, exported from the crate root.
+- Re-exported the `rust_decimal` crate and its `Decimal` type from the crate root, so downstream users can build amounts with `intasend::Decimal::from(...)` / `intasend::Decimal::from_str(...)` without adding `rust_decimal` to their own `Cargo.toml`.
+- Exported the subscriptions types and `Customer` from the crate root.
+
+### Changed
+
+- Subscription plan `amount` fields now use `rust_decimal::Decimal` instead of `String`, matching every other monetary field in the crate. The value (de)serializes as a decimal string on the wire (`#[serde(with = "rust_decimal::serde::str")]`) to honour the API contract (`^-?\d{0,13}(?:\.\d{0,2})?$`).
+- Aligned the Subscriptions plan and customer types with the IntaSend OpenAPI schema: `SubscriptionsPlan` now carries `plan_id`, `plan_url`, `reference`, `redirect_url`, `created_at` and `updated_at`; subscription customers use the dedicated `SubscriptionsCustomer` type (`first_name`/`last_name`/`address`/`city`/`state`/`zipcode`/`country`/`reference`) instead of the generic `Customer`.
+- `SubscriptionsCustomerCreateDetails` now takes required `first_name`/`last_name` plus optional `reference`/`address`/`city`/`state`/`zipcode`/`country` (was a guessed `phone_number`-based shape).
+
+### Fixed
+
+- Subscriptions module: corrected HTTP methods and endpoint paths (plans target `/api/v1/subscriptions-plans/`), fixed payload-dropping bugs in the customer create/update calls, gave the create/update methods proper payload parameters, and rewrote doc examples that incorrectly referenced the payment-links API.
+- `amount` now decodes correctly when the API echoes it back as a JSON number (the sandbox returns a number even though the schema documents a string); it still serializes as a string on requests.
+- `Subscription.subscription_id` is now a `String` (the API returns a short alphanumeric id, not a UUID), and `Subscription.reference` is now optional — both previously failed to decode real responses.
+- `SubscriptionsTransactionListResponse` is now a transparent newtype over `Vec<Transaction>` because the transactions endpoint returns a bare JSON array rather than a paginated object.
+
+### Removed
+
+- Dropped the unused `rust_decimal_macros` dependency (the `dec!` macro is not used; amounts are constructed via `Decimal::from(...)`).
+
+---
+
 ## 0.2.0
 
 ### Breaking Changes

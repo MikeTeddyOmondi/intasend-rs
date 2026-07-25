@@ -26,8 +26,8 @@ This SDK is based on the IntaSend's official developers API. Click the resources
 - [x] Payouts
 - [x] Wallets 
 - [x] Payment links
+- [x] Subscriptions & subscription plans
 - [ ] Collection customers
-- [ ] Subscriptions & subscription plans
 
 ## Maintainer(s)/Contributor(s)
 
@@ -36,7 +36,3 @@ This SDK is based on the IntaSend's official developers API. Click the resources
 #### License
 
 This projects is licensed under the [MIT](./LICENSE.md) license.
-
-> 📌 Attention 
->
-> The project is still in development. Breaking changes may be introduced.
