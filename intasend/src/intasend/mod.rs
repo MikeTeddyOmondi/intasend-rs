@@ -761,3 +761,37 @@ pub enum PayoutProvider {
     #[serde(rename = "AIRTIME")]
     Airtime,
 }
+
+#[cfg(test)]
+mod thread_safety {
+    use super::*;
+
+    /// Axum requires state to be `Send + Sync + 'static`, and a handler's
+    /// future to be `Send`. Neither shows up as a nice error — it surfaces as
+    /// "future cannot be sent between threads safely" pointing at the handler,
+    /// not at whatever inside it is not `Send`.
+    ///
+    /// These are compile-time assertions: they fail the build the moment a
+    /// non-`Send` field is added, which is the only way to keep the guarantee.
+    fn assert_send_sync<T: Send + Sync + 'static>() {}
+
+    #[test]
+    fn the_client_and_every_api_are_send_and_sync() {
+        assert_send_sync::<Intasend>();
+        assert_send_sync::<CollectionsAPI>();
+        assert_send_sync::<CheckoutsAPI>();
+        assert_send_sync::<WalletsAPI>();
+        assert_send_sync::<PayoutsAPI>();
+        assert_send_sync::<RefundsAPI>();
+        assert_send_sync::<PaymentLinksAPI>();
+        assert_send_sync::<SubscriptionsAPI>();
+    }
+
+    /// The error matters as much as the client. A handler returning a
+    /// non-`Send` error has a non-`Send` future, and axum rejects it with a
+    /// message that names the handler rather than the error.
+    #[test]
+    fn the_error_type_is_send_and_sync() {
+        assert_send_sync::<anyhow::Error>();
+    }
+}

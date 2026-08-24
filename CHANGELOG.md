@@ -43,6 +43,20 @@
 
 ### Added
 
+- Compile-time assertions that `Intasend`, every `*API` struct and the error
+  type are `Send + Sync + 'static`.
+
+  This is what axum needs to hold the client in state and to keep a handler's
+  future `Send`. Nothing was wrong — all of them already satisfy it — but the
+  guarantee was implicit, and the failure mode is unpleasant: axum reports
+  "future cannot be sent between threads safely" against the *handler*, naming
+  neither the field nor the type responsible. The assertions fail the build the
+  moment a non-`Send` field is added.
+
+  `Intasend` is three owned fields and is `Clone`, so axum state can hold it
+  directly. It does not need wrapping in an `Arc`; one only adds a pointer hop
+  and the appearance of shared mutability that is not there.
+
 - Tests pinning every `Currency` variant to its ISO wire value, and asserting
   the seven the Subscriptions plan endpoint documents are all representable.
 
