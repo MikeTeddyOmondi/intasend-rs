@@ -1,5 +1,27 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## Unreleased
+
+### Fixed
+
+- `Currency` gains `GHS`, `NGN`, `UGX`, `TZS`, `XAF` and `XOF`. The
+  Subscriptions plan endpoint accepts these and the enum did not, so six
+  markets — Ghana, Nigeria, Uganda, Tanzania and both CFA zones — could not be
+  expressed at all. `KES` was the only variant that worked there.
+
+  Merged into the shared enum rather than adding a subscriptions-specific one:
+  a currency is a currency, and two overlapping enums would push conversion
+  onto every caller. Which endpoints accept which variants is documented on the
+  variants themselves; `USD`, `EUR` and `GBP` remain valid for collection and
+  are rejected by subscriptions.
+
+  Additive, so no caller breaks. `Currency` also gains `PartialEq`/`Eq`.
+
+### Added
+
+- Tests pinning every `Currency` variant to its ISO wire value, and asserting
+  the seven the Subscriptions plan endpoint documents are all representable.
+
 ## v0.4.0 - 2026-06-25
 
 ### Added

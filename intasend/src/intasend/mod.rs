@@ -649,22 +649,92 @@ pub enum RequestMethods {
     Put,
 }
 
-/// Currencies supported by Intasend API Gateway
-#[derive(Clone, Debug, Serialize, Deserialize)]
+/// Currencies supported by the IntaSend API Gateway.
+///
+/// **Not every endpoint accepts every variant**, and the API is the authority.
+/// The Subscriptions plan endpoint takes the African set only — `KES`, `GHS`,
+/// `NGN`, `UGX`, `TZS`, `XAF`, `XOF` — and rejects `USD`, `EUR` and `GBP`,
+/// which collection endpoints do accept.
+///
+/// Kept as one type rather than split per endpoint: a currency is a currency,
+/// and two enums with overlapping variants would push the difference onto every
+/// caller converting between them. The constraint belongs in the API's
+/// response, not in the type system.
+///
+/// See <https://developers.intasend.com/reference/subscriptions>.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Currency {
-    /// Kenya Shillings
+    /// Kenyan Shilling (KE). The only variant every endpoint accepts.
     #[serde(rename = "KES")]
     Kes,
-    /// US Dollars
+    /// Ghanaian Cedi (GH). Subscriptions.
+    #[serde(rename = "GHS")]
+    Ghs,
+    /// Nigerian Naira (NG). Subscriptions.
+    #[serde(rename = "NGN")]
+    Ngn,
+    /// Ugandan Shilling (UG). Subscriptions.
+    #[serde(rename = "UGX")]
+    Ugx,
+    /// Tanzanian Shilling (TZ). Subscriptions.
+    #[serde(rename = "TZS")]
+    Tzs,
+    /// Central African CFA Franc (CM). Subscriptions.
+    #[serde(rename = "XAF")]
+    Xaf,
+    /// West African CFA Franc (BF, CI). Subscriptions.
+    #[serde(rename = "XOF")]
+    Xof,
+    /// US Dollars. Collection endpoints; **not** subscriptions.
     #[serde(rename = "USD")]
     Usd,
-    /// Euros
+    /// Euros. Collection endpoints; **not** subscriptions.
     #[serde(rename = "EUR")]
     Eur,
-    /// British Pounds
+    /// British Pounds. Collection endpoints; **not** subscriptions.
     #[serde(rename = "GBP")]
     Gbp,
+}
+
+#[cfg(test)]
+mod currency_tests {
+    use super::Currency;
+
+    /// The wire value is the whole contract — a renamed variant is a rejected
+    /// request, and nothing in Rust would catch it.
+    #[test]
+    fn every_variant_serialises_to_its_iso_code() {
+        for (variant, code) in [
+            (Currency::Kes, "KES"),
+            (Currency::Ghs, "GHS"),
+            (Currency::Ngn, "NGN"),
+            (Currency::Ugx, "UGX"),
+            (Currency::Tzs, "TZS"),
+            (Currency::Xaf, "XAF"),
+            (Currency::Xof, "XOF"),
+            (Currency::Usd, "USD"),
+            (Currency::Eur, "EUR"),
+            (Currency::Gbp, "GBP"),
+        ] {
+            let json = serde_json::to_string(&variant).expect("serialises");
+            assert_eq!(json, format!("\"{code}\""), "{variant:?}");
+            let back: Currency = serde_json::from_str(&json).expect("round-trips");
+            assert_eq!(back, variant);
+        }
+    }
+
+    /// The seven the Subscriptions plan endpoint documents must all exist.
+    /// Before this, six of them could not be expressed at all.
+    #[test]
+    fn the_subscriptions_currencies_are_all_representable() {
+        let documented = ["KES", "GHS", "NGN", "UGX", "TZS", "XAF", "XOF"];
+        for code in documented {
+            let parsed: Currency = serde_json::from_str(&format!("\"{code}\""))
+                .unwrap_or_else(|_| panic!("{code} is accepted by the API and must parse"));
+            assert_eq!(serde_json::to_string(&parsed).unwrap(), format!("\"{code}\""));
+        }
+    }
 }
 
 /// Tarrifs supported by IntaSend

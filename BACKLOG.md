@@ -5,19 +5,31 @@ section of [CHANGELOG.md](./CHANGELOG.md) once shipped.
 
 ## High priority
 
-- [ ] **`Currency` does not match the Subscriptions API.** The shared enum is
-      `KES`, `USD`, `EUR`, `GBP`. The Subscriptions plan endpoint accepts
-      `KES`, `GHS`, `NGN`, `UGX`, `TZS`, `XAF`, `XOF`
-      (<https://developers.intasend.com/reference/subscriptions>).
+- [x] **`Currency` now covers the Subscriptions set.** Was `KES`, `USD`, `EUR`,
+      `GBP`; the plan endpoint accepts `KES`, `GHS`, `NGN`, `UGX`, `TZS`,
+      `XAF`, `XOF`, so six currencies could not be expressed at all — Ghana,
+      Nigeria, Uganda, Tanzania and both CFA zones.
 
-      Only `KES` overlaps. `USD`/`EUR`/`GBP` are offered by the type and
-      rejected by the API, and six currencies the API supports cannot be
-      expressed at all — Ghana, Nigeria, Uganda, Tanzania, and both CFA zones.
+      Merged into the shared enum rather than a subscriptions-specific type: a
+      currency is a currency, and two enums with overlapping variants push the
+      conversion onto every caller. Which endpoint accepts which is documented
+      on the variants, and the API remains the authority.
 
-      Not simply a matter of adding variants: the enum is shared across
-      modules, and other endpoints may genuinely take `USD`. Likely a
-      subscriptions-specific currency type, or a documented note on which
-      variants each endpoint accepts.
+      Covered by tests that pin each variant's wire value — a renamed variant
+      is a rejected request and nothing in Rust would catch it.
+
+- [x] **Endpoint paths confirmed against the reference index.**
+      `/api/v1/subscriptions-plans/`, `/api/v1/subscriptions-customers/` and
+      `/api/v1/subscriptions/` all match; the hyphenated forms were right and
+      the `subscriptions/plans/` shape suspected earlier was not.
+
+- [ ] **Two sub-paths still unverified:** `/{id}/unsubscribe/` and
+      `/{id}/transactions/`. Both exist as documented operations
+      (`api_v1_subscriptions_unsubscribe_create`,
+      `api_v1_subscriptions_transactions_retrieve`) but the exact URLs could not
+      be read from the published pages without a browser. Note the documented
+      operation is `transactions_retrieve`, singular, while the crate exposes a
+      list-shaped `transactions()` — worth checking they agree.
 
 - [ ] **`billing_cycles` is required in the request type and optional in the
       API.** `SubscriptionsPlanCreateRequest.billing_cycles` is `u32`; the
