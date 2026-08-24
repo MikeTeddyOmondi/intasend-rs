@@ -1,0 +1,12 @@
+{
+  "name": "intasend-rs-docs",
+  "compatibility_date": "2026-08-25",
+  "assets": {
+    "directory": "./dist"
+  },
+  // No custom domain yet — this serves on intasend-rs.pages.dev. Add a
+  // `routes` block with `custom_domain: true` when a real hostname exists.
+  "observability": {
+    "enabled": true
+  }
+}

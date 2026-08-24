@@ -1,0 +1,32 @@
+---
+title: intasend-rs
+description: A Rust SDK for the IntaSend payment gateway.
+template: splash
+hero:
+  tagline: Collections, checkouts, wallets, payouts, refunds and subscriptions — from Rust.
+  actions:
+    - text: Get started
+      link: /getting-started/installation
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/MikeTeddyOmondi/intasend-rs
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<CardGrid stagger>
+  <Card title="Collections" icon="rocket">
+    M-Pesa STK Push and status polling. [Collections API](/collections)
+  </Card>
+  <Card title="Checkouts" icon="open-book">
+    Hosted checkout links and their status. [Checkouts API](/checkouts)
+  </Card>
+  <Card title="Wallets" icon="setting">
+    Create, fund and transfer between wallets. [Wallets API](/wallets)
+  </Card>
+  <Card title="Payouts" icon="approve-check">
+    M-Pesa B2C and B2B, bank, airtime. [Payouts API](/payouts)
+  </Card>
+</CardGrid>

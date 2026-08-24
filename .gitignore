@@ -2,7 +2,19 @@
 *.env
 .env
 **/*.env
+# Docs site (Astro Starlight) — the mdBook `book/` output is gone with mdBook
 /docs/book
+docs/node_modules/
+docs/dist/
+docs/.astro/
+docs/.wrangler/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 .DS_Store
 graphify-out/cost.json        # local only
 # graphify-out/cache/         # optional: commit for speed, skip to keep repo small

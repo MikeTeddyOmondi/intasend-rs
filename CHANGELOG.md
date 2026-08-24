@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### Changed
+
+- Documentation moved from mdBook to Astro Starlight, deployed to Cloudflare at
+  `intasend-rs.pages.dev`. All 33 pages carried across mechanically — titles
+  taken from each page's `h1`, relative links rewritten — with no rewording.
+
+  Each API overview embeds the whole of its file from `examples/src/bin/`. Those
+  are workspace members, so `cargo build` and `cargo clippy` compile them: when
+  the SDK changes underneath, CI fails rather than the documentation going
+  quietly stale.
+
+  Adds the Subscriptions page the docs never had, noting that its shapes were
+  verified against the OpenAPI definition but never called against the sandbox,
+  and that its currency set differs from the collection endpoints.
+
+  Known gap: 28 of the 33 migrated pages are prose with no code. The overviews
+  now carry worked examples; the per-method pages beneath them do not.
+
+- CI split in two. `ci.yml` validates every pull request and publishes nothing;
+  `release.yml` runs only on a `v*.*.*` tag and refuses unless the tag matches
+  `Cargo.toml` and the changelog mentions it. Previously a single workflow ran
+  `cargo publish` on every push to master *and* every pull request, gated only
+  by the version already existing on crates.io.
+
 ### Fixed
 
 - `Currency` gains `GHS`, `NGN`, `UGX`, `TZS`, `XAF` and `XOF`. The
