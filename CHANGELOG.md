@@ -1,6 +1,6 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
-## Unreleased
+## v0.4.0 - 2026-08-25
 
 ### Changed
 
@@ -60,7 +60,6 @@
 - Tests pinning every `Currency` variant to its ISO wire value, and asserting
   the seven the Subscriptions plan endpoint documents are all representable.
 
-## v0.4.0 - 2026-06-25
 
 ### Added
 
