@@ -23,13 +23,26 @@ section of [CHANGELOG.md](./CHANGELOG.md) once shipped.
       `/api/v1/subscriptions/` all match; the hyphenated forms were right and
       the `subscriptions/plans/` shape suspected earlier was not.
 
-- [ ] **Two sub-paths still unverified:** `/{id}/unsubscribe/` and
-      `/{id}/transactions/`. Both exist as documented operations
-      (`api_v1_subscriptions_unsubscribe_create`,
-      `api_v1_subscriptions_transactions_retrieve`) but the exact URLs could not
-      be read from the published pages without a browser. Note the documented
-      operation is `transactions_retrieve`, singular, while the crate exposes a
-      list-shaped `transactions()` — worth checking they agree.
+- [x] **Every path verified against the OpenAPI spec.** Appending `.md` to any
+      reference URL returns the page with its full OpenAPI definition inline —
+      no browser needed, and the authoritative source:
+
+      ```
+      POST /api/v1/subscriptions-plans/            ✓
+      POST /api/v1/subscriptions/{id}/unsubscribe/ ✓
+      GET  /api/v1/subscriptions/{id}/transactions/ ✓
+      ```
+
+      All three match what the crate already sends. The paths written "from
+      convention" were right.
+
+- [ ] **`frequency_unit` and `billing_cycles` are required in the crate and
+      optional in the spec.** Neither appears in the plan schema's `required`
+      list, yet both are non-`Option` on `SubscriptionsPlanCreateRequest`, so a
+      caller cannot omit them.
+
+      0.4.0 is unpublished, so this is the moment to change it — after a release
+      it becomes a breaking change for anyone constructing the struct.
 
 - [ ] **`billing_cycles` is required in the request type and optional in the
       API.** `SubscriptionsPlanCreateRequest.billing_cycles` is `u32`; the
