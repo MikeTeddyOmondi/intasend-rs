@@ -18,7 +18,7 @@ use super::{Currency, Customer, Invoice, RequestClient, RequestMethods, Tarrif};
 /// 3. Creating new payment links
 /// 4. Update details of single payment links
 ///
-/// ```rust
+/// ```rust,no_run
 /// // Load .env file
 /// dotenvy::dotenv().ok();
 ///

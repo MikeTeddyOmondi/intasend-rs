@@ -12,7 +12,7 @@ use super::{Currency, PayoutProvider, RequestClient, RequestMethods};
 /// `PayoutsAPI` struct implements methods for facilitating:
 /// Sending of funds to different recipients programatically.
 ///
-/// ```rust
+/// ```rust,no_run
 /// // Load .env file
 /// dotenvy::dotenv().ok();
 ///

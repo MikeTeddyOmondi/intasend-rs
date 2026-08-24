@@ -16,7 +16,7 @@ use super::{Customer, Invoice, RequestClient, RequestMethods, Tarrif};
 /// 1. M-Pesa STK Push
 /// 2. Querying status of transactions
 ///
-/// ```rust
+/// ```rust,no_run
 /// // Load .env file
 /// dotenvy::dotenv().ok();
 ///

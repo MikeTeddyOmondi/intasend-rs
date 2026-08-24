@@ -28,7 +28,7 @@ use super::{Currency, RequestClient, RequestMethods, Transaction};
 /// 13. Cancelling subscriptions using subscription ID
 /// 14. Querying transactions of a subscriptions ID
 ///
-/// ```rust
+/// ```rust,no_run
 /// // Load .env file
 /// dotenvy::dotenv().ok();
 ///

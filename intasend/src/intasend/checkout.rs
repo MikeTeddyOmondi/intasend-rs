@@ -17,7 +17,7 @@ use super::{Currency, RequestClient, RequestMethods, Tarrif};
 /// share with your customer to complete payment. Once the customer click on the link,
 /// IntaSend provides a guide on how to complete payment and notify both you and the customers on the status of the payment.
 ///
-/// ```rust
+/// ```rust,no_run
 /// // Load .env file
 /// dotenvy::dotenv().ok();
 ///

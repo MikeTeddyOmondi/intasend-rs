@@ -51,7 +51,7 @@ pub struct Intasend {
 /// payouts, refunds and wallets which adheres to the API specifications provided by Intasend
 impl Intasend {
     /// The `new` method creates a new instance of the `Intasend` client
-    /// ```rust
+    /// ```rust,no_run
     /// // Load .env file
     /// dotenvy::dotenv().ok();
     ///
@@ -76,7 +76,7 @@ impl Intasend {
 
     /// The `collection` method returns an instance of the `CollectionsAPI` struct
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// dotenvy::dotenv().ok();
     ///
     /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -103,7 +103,7 @@ impl Intasend {
 
     /// The `checkout` method returns an instance of the `CheckoutsAPI` struct
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// dotenvy::dotenv().ok();
     ///
     /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -130,7 +130,7 @@ impl Intasend {
 
     /// The `payouts` method returns an instance of the `PayoutsAPI` struct
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// dotenvy::dotenv().ok();
     ///
     /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -157,7 +157,7 @@ impl Intasend {
 
     /// The `refunds` method returns an instance of the `RefundsAPI` struct
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// dotenvy::dotenv().ok();
     ///
     /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -184,7 +184,7 @@ impl Intasend {
 
     /// The `wallets` method returns an instance of the `WalletsAPI` struct
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// dotenvy::dotenv().ok();
     ///
     /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -211,7 +211,7 @@ impl Intasend {
 
     /// The `payment_links` method returns an instance of the `PaymentLinksAPI` struct
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// dotenvy::dotenv().ok();
     ///
     /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");
@@ -238,7 +238,7 @@ impl Intasend {
 
     /// The `subscriptions` method returns an instance of the `SubscriptionsAPI` struct
     ///
-    /// ```rust
+    /// ```rust,no_run
     /// dotenvy::dotenv().ok();
     ///
     /// let intasend_public_key = std::env::var("INTASEND_PUBLIC_KEY").expect("INTASEND_PUBLIC_KEY must be set");

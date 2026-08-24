@@ -13,7 +13,7 @@ use super::{Currency, Invoice, RequestClient, RequestMethods};
 /// listing all refunds made by an entity, creating new refunds for specific transactions with
 /// its status **completed**, and also get a single specific refund made using the `chargeback_id`
 ///
-/// ```rust
+/// ```rust,no_run
 /// // Load .env file
 /// dotenvy::dotenv().ok();
 ///

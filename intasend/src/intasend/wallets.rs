@@ -14,7 +14,7 @@ use super::{Customer, Invoice, Provider, RequestClient, RequestMethods};
 /// of a specific wallet using `wallet_id`, create new `WORKING`
 /// wallet types as sub-accounts for an associated IntaSend API key
 ///
-/// ```rust
+/// ```rust,no_run
 /// // Load .env file
 /// dotenvy::dotenv().ok();
 ///
