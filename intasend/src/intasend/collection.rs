@@ -57,7 +57,7 @@ impl CollectionsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Collection API
     /// let collection: intasend::CollectionsAPI = intasend.collection();
     ///
@@ -70,7 +70,7 @@ impl CollectionsAPI {
     ///
     /// let stkpush_response: intasend::MpesaStkPushResponse = collection.mpesa_stk_push(stkpush_request).await?;
     /// println!("[#] Mpesa STK push: {:#?}", stkpush_response);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -111,7 +111,7 @@ impl CollectionsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Collection API
     /// let collection: intasend::CollectionsAPI = intasend.collection();
     ///
@@ -139,7 +139,7 @@ impl CollectionsAPI {
     ///     "[#] Mpesa STK Push Status Response: {:#?}",
     ///     stkpushstatus
     /// );
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```

@@ -14,16 +14,16 @@ pub(crate) mod collection;
 pub(crate) mod payment_links;
 pub(crate) mod payouts;
 pub(crate) mod refunds;
-pub(crate) mod wallets;
 pub(crate) mod subscriptions;
+pub(crate) mod wallets;
 
 use checkout::CheckoutsAPI;
 use collection::CollectionsAPI;
 use payment_links::PaymentLinksAPI;
 use payouts::PayoutsAPI;
 use refunds::RefundsAPI;
-use wallets::WalletsAPI;
 use subscriptions::SubscriptionsAPI;
+use wallets::WalletsAPI;
 
 /// **[IntaSend](https://intasend.com)** - The _Unofficial_ Rust Client SDK for the Intasend API Gateway.
 ///
@@ -88,7 +88,7 @@ impl Intasend {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Collection
     /// let collection: intasend::CollectionsAPI = intasend.collection();
     /// println!("Collection instance: {:#?}", collection);
@@ -115,7 +115,7 @@ impl Intasend {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Checkout
     /// let checkout: intasend::CheckoutsAPI = intasend.checkout();
     /// println!("Checkout instance: {:#?}", checkout);
@@ -142,7 +142,7 @@ impl Intasend {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Payouts
     /// let payouts_api: intasend::PayoutsAPI = intasend.payouts();
     /// println!("Payouts instance: {:#?}", payouts_api);
@@ -169,7 +169,7 @@ impl Intasend {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Refunds
     /// let refunds: intasend::RefundsAPI = intasend.refunds();
     /// println!("Refunds instance: {:#?}", refunds);
@@ -196,7 +196,7 @@ impl Intasend {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Wallets
     /// let wallets: intasend::WalletsAPI = intasend.wallets();
     /// println!("Wallet instance: {:#?}", wallets);
@@ -223,7 +223,7 @@ impl Intasend {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Payment Links
     /// let payment_links: intasend::PaymentLinksAPI = intasend.payment_links();
     /// println!("Payment Links instance: {:#?}", payment_links);
@@ -250,7 +250,7 @@ impl Intasend {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Subscriptions
     /// let subscriptions: intasend::SubscriptionsAPI = intasend.subscriptions();
     /// println!("Subscriptions instance: {:#?}", subscriptions);
@@ -732,7 +732,10 @@ mod currency_tests {
         for code in documented {
             let parsed: Currency = serde_json::from_str(&format!("\"{code}\""))
                 .unwrap_or_else(|_| panic!("{code} is accepted by the API and must parse"));
-            assert_eq!(serde_json::to_string(&parsed).unwrap(), format!("\"{code}\""));
+            assert_eq!(
+                serde_json::to_string(&parsed).unwrap(),
+                format!("\"{code}\"")
+            );
         }
     }
 }

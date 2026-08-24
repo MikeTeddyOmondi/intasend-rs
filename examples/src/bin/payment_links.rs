@@ -7,7 +7,8 @@ use uuid::Uuid;
 
 // Intasend Crate
 use intasend::{
-    Currency, Intasend, PaymentLinksAPI, PaymentLinksCreateDetails, PaymentLinksUpdateDetails, Tarrif 
+    Currency, Intasend, PaymentLinksAPI, PaymentLinksCreateDetails, PaymentLinksUpdateDetails,
+    Tarrif,
 };
 
 #[tokio::main]
@@ -43,15 +44,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let payment_link_label = format!("{}-{}", payment_link_label_identifier, uid);
 
     let payload = PaymentLinksCreateDetails {
-        currency:Currency::Kes, 
-        title: payment_link_label, 
-        amount: Some(100), 
-        usage_limit: Some(3), 
-        is_active: Some(true), 
-        mobile_tarrif: Some(Tarrif::BusinessPays), 
-        card_tarrif: Some(Tarrif::BusinessPays), 
+        currency: Currency::Kes,
+        title: payment_link_label,
+        amount: Some(100),
+        usage_limit: Some(3),
+        is_active: Some(true),
+        mobile_tarrif: Some(Tarrif::BusinessPays),
+        card_tarrif: Some(Tarrif::BusinessPays),
         redirect_url: None,
-        
     };
 
     let created_payment_link = payment_links.create(payload).await?;
@@ -63,15 +63,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let payment_link_label_updated = format!("{}-{}", payment_link_label_identifier, uid);
 
     let payload = PaymentLinksUpdateDetails {
-        currency:Currency::Kes, 
-        title: payment_link_label_updated, 
-        amount: Some(100), 
-        usage_limit: Some(3), 
-        is_active: Some(true), 
-        mobile_tarrif: Some(Tarrif::BusinessPays), 
-        card_tarrif: Some(Tarrif::BusinessPays), 
+        currency: Currency::Kes,
+        title: payment_link_label_updated,
+        amount: Some(100),
+        usage_limit: Some(3),
+        is_active: Some(true),
+        mobile_tarrif: Some(Tarrif::BusinessPays),
+        card_tarrif: Some(Tarrif::BusinessPays),
         redirect_url: None,
-        
     };
 
     let updated_payment_link = payment_links.update(uid.to_string(), payload).await?;

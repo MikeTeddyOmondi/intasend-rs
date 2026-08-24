@@ -63,7 +63,7 @@ impl PaymentLinksAPI {
     ///
     /// let payment_links_list: intasend::PaymentLinksListResponse = payment_links.list().await?;
     /// println!("[#] Payment Links List: {:#?}", payment_links_list);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```

@@ -6,7 +6,9 @@ use std::env;
 use uuid::Uuid;
 
 // Intasend Crate
-use intasend::{CollectionsAPI, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, StkPushStatusRequest};
+use intasend::{
+    CollectionsAPI, Intasend, MpesaStkPushRequest, MpesaStkPushResponse, StkPushStatusRequest,
+};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {

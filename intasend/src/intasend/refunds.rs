@@ -52,13 +52,13 @@ impl RefundsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Chargebacks & Refunds API
     /// let refunds: intasend::RefundsAPI = intasend.refunds();
     ///
     /// let refunds_list = refunds.list().await?;
     /// println!("Refunds List response: {:#?}", refunds_list);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -91,7 +91,7 @@ impl RefundsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Chargebacks & Refunds API
     /// let refunds: intasend::RefundsAPI = intasend.refunds();
     ///
@@ -104,7 +104,7 @@ impl RefundsAPI {
     ///
     /// let created_refund: intasend::Refund = refunds.create(refund_request).await?;
     /// println!("[#] Created refund: {:?}", created_refund);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -137,7 +137,7 @@ impl RefundsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // Chargebacks & Refunds API
     /// let refunds: intasend::RefundsAPI = intasend.refunds();
     ///
@@ -153,7 +153,7 @@ impl RefundsAPI {
     ///
     /// let specific_refund = refunds.get(created_refund.chargeback_id).await?;
     /// println!("[#] Refund: {:?}", specific_refund);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```

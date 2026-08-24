@@ -54,13 +54,13 @@ impl WalletsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // WalletsAPI
     /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
     ///
     /// let wallet_list_info: intasend::WalletListResponse = wallets_api.list().await?;
     /// println!("[#] Wallet List Info: {:#?}", wallet_list_info);
-    /// 
+    ///
     /// Ok(())
     /// }
     /// ```
@@ -92,13 +92,13 @@ impl WalletsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // WalletsAPI
     /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
     /// let wallet_id = String::from("wallet_id");
     /// let wallet_details: intasend::Wallet = wallets_api.details(wallet_id).await?;
     /// println!("[#] Wallet Details Info: {:#?}", wallet_details);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -137,7 +137,7 @@ impl WalletsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // WalletsAPI
     /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
     ///
@@ -150,7 +150,7 @@ impl WalletsAPI {
     ///
     /// let created_wallet: intasend::Wallet = wallets_api.create(payload).await?;
     /// println!("[#] Wallet Details Info: {:#?}", created_wallet);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -181,13 +181,13 @@ impl WalletsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // WalletsAPI
     /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
     /// let wallet_id = String::from("wallet_id");
     /// let wallet_transanctions = wallets_api.transactions(wallet_id).await?;
     /// println!("[#] Wallet Transactions: {:#?}", wallet_transanctions);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -224,7 +224,7 @@ impl WalletsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // WalletsAPI
     /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
     ///
@@ -233,12 +233,12 @@ impl WalletsAPI {
     ///     amount: rust_decimal::Decimal::new(1000, 2),
     ///     narrative: "fund raising".to_string(),
     /// };
-    /// 
+    ///
     /// let source_wallet_id = String::from("Y7ERXJQ");
-    /// 
+    ///
     /// let wallets_transfer_response = wallets_api.intra_transfer(source_wallet_id, intra_transfer_payload).await?;
     /// println!("[#] Wallet Intra Transfer Response: {:#?}", wallets_transfer_response);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -279,10 +279,10 @@ impl WalletsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // WalletsAPI
     /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
-    /// 
+    ///
     /// let fund_mpesa_payload = intasend::FundMpesaRequest {
     ///   method: intasend::Provider::Mpesa,
     ///   currency: intasend::Currency::Kes,
@@ -292,7 +292,7 @@ impl WalletsAPI {
     /// };
     /// let fund_mpesa_response = wallets_api.fund_mpesa(fund_mpesa_payload).await?;
     /// println!("[#] Wallet Fund Mpesa Response: {:#?}", fund_mpesa_response);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -333,10 +333,10 @@ impl WalletsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // WalletsAPI
     /// let wallets_api: intasend::WalletsAPI = intasend.wallets();
-    /// 
+    ///
     /// let fund_checkout_req = intasend::FundCheckoutRequest {
     ///     first_name: Some("Foo".to_string()),
     ///     last_name: Some("Bar".to_string()),
@@ -351,7 +351,7 @@ impl WalletsAPI {
     ///
     /// let fund_checkout_response = wallets_api.fund_checkout(fund_checkout_req).await?;
     /// println!("[#] Fund Checkout response: {:#?}", fund_checkout_response);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -376,7 +376,7 @@ impl WalletsAPI {
     }
 }
 
-/// `Wallet` struct 
+/// `Wallet` struct
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct Wallet {
     pub wallet_id: String,
@@ -477,7 +477,7 @@ pub struct FundMpesaResponse {
     pub updated_at: String,
 }
 
-/// `FundCheckoutRequest` 
+/// `FundCheckoutRequest`
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FundCheckoutRequest {
     pub amount: Decimal,
@@ -491,8 +491,8 @@ pub struct FundCheckoutRequest {
     pub redirect_url: Option<String>,
 }
 
-/// `FundCheckoutResponse` struct 
-/// 
+/// `FundCheckoutResponse` struct
+///
 /// **Note**: persist the `id` and the `signature` field in a store if you want to get the details of the fund checkout
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FundCheckoutResponse {

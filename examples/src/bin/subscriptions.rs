@@ -140,8 +140,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let subscription_id = created_subscription.subscription_id.to_string();
 
-    let subscription_details: Subscription =
-        subscriptions.details(subscription_id.clone()).await?;
+    let subscription_details: Subscription = subscriptions.details(subscription_id.clone()).await?;
     println!("[#] Subscription Details: {:#?}", subscription_details);
 
     let update_subscription_request = SubscriptionsCreateDetails {

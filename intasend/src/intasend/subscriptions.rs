@@ -463,8 +463,7 @@ impl SubscriptionsAPI {
     /// ```
     ///
     pub async fn unsubscribe(&self, subscription_id: String) -> Result<Subscription> {
-        let service_path: &str =
-            &format!("/api/v1/subscriptions/{}/unsubscribe/", subscription_id);
+        let service_path: &str = &format!("/api/v1/subscriptions/{}/unsubscribe/", subscription_id);
         let request_method: RequestMethods = RequestMethods::Post;
 
         let subscriptions_details = &self

@@ -72,7 +72,7 @@ impl CheckoutsAPI {
     ///
     /// let checkout_response: intasend::CheckoutResponse = checkout.initiate(checkout_req).await?;
     /// println!("[#] Checkout Init: {:?}", checkout_response);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
@@ -110,7 +110,7 @@ impl CheckoutsAPI {
     ///    intasend_secret_key,
     ///     true,
     /// );
-    /// 
+    ///
     /// // CheckoutsAPI
     /// let checkout: intasend::CheckoutsAPI = intasend.checkout();
     ///
@@ -121,7 +121,7 @@ impl CheckoutsAPI {
     ///
     /// let checkout_details_response: intasend::CheckoutDetailsResponse = checkout.details(checkout_details_req).await?;
     /// println!("Checkout details response: {:#?}", checkout_details_response);
-    /// 
+    ///
     /// Ok(())
     /// # }
     /// ```
