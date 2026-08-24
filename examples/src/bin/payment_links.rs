@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // List all payment links
     let payment_links_list = payment_links.list().await?;
-    println!("[#] Payment Links List: {:#?}", &payment_links_list);
+    println!("[#] Payment Links List: {:#?}", payment_links_list);
 
     // Query payment link details
     let payment_link_id = Uuid::parse_str("0bd8984a-f487-46fb-b7b6-c17f8e87ccc8").unwrap(); // PaymentLink ID: 5284042b-f13d-49c2-abdf-793fbaf9b8e2

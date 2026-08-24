@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("[#] Wallets instance: {:#?}", wallets_api);
 
     let wallet_list_info = wallets_api.list().await?;
-    println!("[#] Wallet List Info: {:#?}", &wallet_list_info);
+    println!("[#] Wallet List Info: {:#?}", wallet_list_info);
 
     for wallet in wallet_list_info.results {
         println!("Wallet ID: {}", wallet.wallet_id);
