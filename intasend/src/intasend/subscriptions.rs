@@ -53,7 +53,7 @@ pub struct SubscriptionsAPI {
 
 impl SubscriptionsAPI {
     /// The `create_plan` (Subscriptions API) enables you to create a subscription plan.
-    /// POST /https://api.intasend.com/api/v1/subscriptions-plans/
+    /// `POST https://api.intasend.com/api/v1/subscriptions-plans/`
     ///
     /// ```rust
     /// # async fn run() -> Result<(), Box<dyn std::error::Error>> {
