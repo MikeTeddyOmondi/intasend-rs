@@ -5,6 +5,36 @@ section of [CHANGELOG.md](./CHANGELOG.md) once shipped.
 
 ## High priority
 
+- [ ] **`Currency` does not match the Subscriptions API.** The shared enum is
+      `KES`, `USD`, `EUR`, `GBP`. The Subscriptions plan endpoint accepts
+      `KES`, `GHS`, `NGN`, `UGX`, `TZS`, `XAF`, `XOF`
+      (<https://developers.intasend.com/reference/subscriptions>).
+
+      Only `KES` overlaps. `USD`/`EUR`/`GBP` are offered by the type and
+      rejected by the API, and six currencies the API supports cannot be
+      expressed at all — Ghana, Nigeria, Uganda, Tanzania, and both CFA zones.
+
+      Not simply a matter of adding variants: the enum is shared across
+      modules, and other endpoints may genuinely take `USD`. Likely a
+      subscriptions-specific currency type, or a documented note on which
+      variants each endpoint accepts.
+
+- [ ] **`billing_cycles` is required in the request type and optional in the
+      API.** `SubscriptionsPlanCreateRequest.billing_cycles` is `u32`; the
+      reference does not mark it required, and the response type already has it
+      as `Option<u32>`. A caller who wants an open-ended plan cannot express
+      one.
+
+- [ ] **Nothing has been run against the sandbox.** The shapes below were
+      checked against the published reference, which is not the same as a
+      request that succeeded. Until a plan is created, a customer subscribed and
+      a subscription cancelled against sandbox credentials, treat the whole
+      Subscriptions module as unverified.
+
+      The two checks most likely to fail are the ones no reading can settle:
+      whether `amount` really wants a decimal string in practice, and whether
+      the unsubscribe and transactions sub-paths are where convention suggests.
+
 - [x] **Verify Subscriptions API against the live IntaSend reference.** The endpoint paths,
       HTTP methods, and request/response shapes for the Subscriptions API were implemented from
       convention; confirm each against <https://developers.intasend.com/reference> (especially
