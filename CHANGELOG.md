@@ -1,5 +1,30 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## [0.5.0]
+
+### Breaking
+
+- **`CheckoutRequest` gains an `api_ref` field.** Code that builds one with a
+  struct literal must add it — `api_ref: None` preserves the previous behaviour.
+
+  This is why the release is 0.5.0 rather than 0.4.1: the struct is not
+  `#[non_exhaustive]`, so any added field breaks literal construction.
+
+### Added
+
+- `api_ref` on `CheckoutRequest`, sent through to the checkout API.
+
+  IntaSend has always supported the field on this endpoint —
+  `CheckoutDetailsResponse` returns it, and `MpesaStkPushRequest` accepts it —
+  but there was no way to *set* it when creating a checkout, so a caller could
+  read back a reference they were never able to write.
+
+  It carries the caller's own identifier onto webhook deliveries. Matching a
+  webhook on your own reference rather than on an invoice id means nothing
+  depends on how IntaSend assigns those, and a redelivered notification is
+  recognisable without a database lookup — which is what makes an idempotency
+  key usable end to end.
+
 ## v0.4.0 - 2026-08-25
 
 ### Changed

@@ -68,6 +68,7 @@ impl CheckoutsAPI {
     ///     method: Some(intasend::CheckoutMethod::CardPayment),
     ///     amount: rust_decimal::Decimal::new(10, 2),
     ///     currency: intasend::Currency::Usd,
+    ///     api_ref: Some("order-42".to_string()),
     /// };
     ///
     /// let checkout_response: intasend::CheckoutResponse = checkout.initiate(checkout_req).await?;
@@ -156,6 +157,17 @@ pub struct CheckoutRequest {
     pub method: Option<CheckoutMethod>,
     pub amount: Decimal,
     pub currency: Currency,
+    /// Your own reference for this checkout, echoed back on the checkout
+    /// details and on webhook deliveries.
+    ///
+    /// Use it to carry an idempotency key: matching a webhook on your own
+    /// reference means nothing depends on how IntaSend assigns invoice ids, and
+    /// a redelivered notification is recognisable without a lookup.
+    ///
+    /// `MpesaStkPushRequest` has always accepted this and
+    /// `CheckoutDetailsResponse` has always returned it — only the checkout
+    /// request was missing it.
+    pub api_ref: Option<String>,
 }
 
 /// `CheckoutResponse` Struct - `CheckoutsAPI`
