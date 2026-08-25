@@ -4,10 +4,18 @@
   "assets": {
     "directory": "./dist"
   },
-  // No custom domain yet. `wrangler deploy` publishes a Worker, so this serves
-  // on intasend-rs-docs.<account-subdomain>.workers.dev — not pages.dev, which
-  // is Cloudflare Pages and a different product. Add a `routes` block with
-  // `custom_domain: true` when a real hostname exists.
+  // Custom domain, following the same shape as tech-docs (docs.mt0.dev).
+  //
+  // `custom_domain: true` makes Cloudflare create and manage the DNS record
+  // for this hostname, so the zone must already be on Cloudflare. Without a
+  // route the Worker only answers on
+  // intasend-rs-docs.rancko-solutions-llc.workers.dev.
+  "routes": [
+    {
+      "pattern": "intasend-rs.mt0.dev",
+      "custom_domain": true
+    }
+  ],
   "observability": {
     "enabled": true
   }
