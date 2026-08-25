@@ -54,6 +54,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         method: Some(CheckoutMethod::CardPayment),
         amount: Decimal::new(10000, 2), // 100.00
         currency: Currency::Kes,
+        // Your own reference, echoed back on webhooks and checkout details.
+        api_ref: Some("order-42".to_string()),
     };
     println!("[#] Checkout request: {:#?}", checkout_req);
     println!(
