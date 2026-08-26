@@ -69,6 +69,7 @@ impl CheckoutsAPI {
     ///     amount: rust_decimal::Decimal::new(10, 2),
     ///     currency: intasend::Currency::Usd,
     ///     api_ref: Some("order-42".to_string()),
+    ///     redirect_url: Some("https://example.com/billing".to_string()),
     /// };
     ///
     /// let checkout_response: intasend::CheckoutResponse = checkout.initiate(checkout_req).await?;
@@ -168,6 +169,14 @@ pub struct CheckoutRequest {
     /// `CheckoutDetailsResponse` has always returned it — only the checkout
     /// request was missing it.
     pub api_ref: Option<String>,
+    /// Where IntaSend sends the payer once the hosted checkout finishes.
+    ///
+    /// Without it the payer is left on IntaSend's page after paying, with no
+    /// route back into the application that sent them there. It is a return
+    /// path for the *browser* only: it says nothing about whether the payment
+    /// succeeded, and it is not a substitute for the webhook. Treat arrival
+    /// here as "the payer came back", and let the webhook decide what was paid.
+    pub redirect_url: Option<String>,
 }
 
 /// `CheckoutResponse` Struct - `CheckoutsAPI`
