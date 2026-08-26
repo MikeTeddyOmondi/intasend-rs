@@ -38,6 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         currency: Currency::Kes,
         // Your own reference, echoed back on webhooks and checkout details.
         api_ref: Some("order-42".to_string()),
+        redirect_url: Some("https://example.com/billing".to_string()),
     };
     println!("[#] Checkout request: {:#?}", checkout_req);
     println!(

@@ -1,5 +1,26 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## [0.6.0]
+
+### Breaking
+
+- **`CheckoutRequest` gains a `redirect_url` field.** Code that builds one with
+  a struct literal must add it — `redirect_url: None` preserves the previous
+  behaviour. Same reason as 0.5.0: the struct is not `#[non_exhaustive]`.
+
+### Added
+
+- `redirect_url` on `CheckoutRequest`, sent through to the checkout API.
+
+  Without it, a payer who completes a hosted checkout is left on IntaSend's
+  page with no route back to the application that sent them there. Setting it
+  returns them to a page of the caller's choosing.
+
+  It is a return path for the *browser* only. Arrival says the payer came back,
+  not that the payment succeeded — a payer can abandon the page, or return
+  before the charge settles. The webhook remains the only thing that should
+  decide what was paid for; treat this purely as navigation.
+
 ## [0.5.0]
 
 ### Breaking
