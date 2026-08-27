@@ -1,5 +1,19 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## [0.6.1]
+
+### Fixed
+
+- **The reqwest dependency no longer drags in OpenSSL.** It asked for
+  `rustls-tls` but left reqwest's default features on, and `default-tls` pulls
+  `native-tls` — so every dependent linked OpenSSL despite the crate looking
+  like a rustls build. Adding `default-features = false` removes
+  `openssl-sys` from the graph entirely.
+
+  It surfaced downstream: a cross-compiled arm64 build failed in `openssl-sys`
+  because no target OpenSSL exists in the build image. Nothing about the API
+  changes.
+
 ## [0.6.0]
 
 ### Breaking
