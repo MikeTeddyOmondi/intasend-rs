@@ -610,6 +610,7 @@ pub enum TransactionType {
     Deposit,
     Exchange,
     Unmarked,
+    Reserve,
 }
 
 /// `TransactionStatus` enum
@@ -632,6 +633,7 @@ pub enum TransactionStatus {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Provider {
+    #[serde(rename = "M-PESA")]
     Mpesa,
     #[serde(rename = "CARD-PAYMENT")]
     CardPayment,
