@@ -1,5 +1,15 @@
 # [Changelog](https://github.com/MikeTeddyOmondi/intasend-rs/CHANGELOG.md)
 
+## [0.7.0]
+
+### Breaking
+
+- Fix `CheckoutMethod` & `Provider` M-Pesa variant for serde serializations/deserializations.
+
+### Added
+
+- Add new `TransactionType` - Reserve
+ 
 ## [0.6.1]
 
 ### Fixed

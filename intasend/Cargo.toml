@@ -1,7 +1,7 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [package]
 name = "intasend"
-version = "0.6.1"
+version = "0.7.0"
 edition = "2021"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE.md"]
 homepage = "https://github.com/MikeTeddyOmondi/intasend-rs/intasend"
