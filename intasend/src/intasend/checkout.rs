@@ -242,6 +242,7 @@ pub struct CheckoutDetailsResponse {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum CheckoutMethod {
+    #[serde(rename = "M-PESA")]
     Mpesa,
     #[serde(rename = "CARD-PAYMENT")]
     CardPayment,
